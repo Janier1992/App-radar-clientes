@@ -47,14 +47,16 @@ export default function App() {
       console.warn('Error al leer perfil de localStorage:', e);
     }
     return {
-      name: 'Carlos Mendoza',
-      companyOrAgency: 'Estudio Impulso Digital',
+      name: 'Synflow',
+      companyOrAgency: 'SynflowIA SaaS',
       servicesOffered: [
-        'Páginas web profesionales de alta conversión',
-        'Agentes de IA conversacionales para WhatsApp',
-        'Sistemas de citas y reservas online automatizadas'
+        'Agentes y chatbots de WhatsApp con IA que atienden 24/7',
+        'Agendamiento y reservas automáticas',
+        'Cotizaciones instantáneas',
+        'Sitios web profesionales',
+        'Herramientas de gestión de ventas, inventario y clientes'
       ],
-      valueProposition: 'Digitalizamos negocios locales en Medellín y Colombia para que no pierdan clientes en fines de semana y automaticen sus citas y cotizaciones por WhatsApp.',
+      valueProposition: 'SynFlow IA es una agencia tecnológica de Medellín que digitaliza negocios locales en Medellín y Colombia. Ayudamos a pymes y emprendimientos a no perder clientes, especialmente los fines de semana, automatizando sus citas y cotizaciones por WhatsApp con agentes de inteligencia artificial que atienden 24/7.\n\nDiseñamos soluciones a la medida: agentes y chatbots de WhatsApp, agendamiento y reservas automáticas, cotizaciones instantáneas, sitios web profesionales y herramientas de gestión de ventas, inventario y clientes. Todo es simple de usar, está pensado para negocios de barrio y no requiere conocimientos técnicos de tu parte.\n\nNo hablamos de lo que podemos hacer: tenemos soluciones reales funcionando. Empieza con una consultoría inicial gratuita y descubre cómo la IA puede trabajar para tu negocio desde hoy.',
       defaultTone: 'cercano'
     };
   });
