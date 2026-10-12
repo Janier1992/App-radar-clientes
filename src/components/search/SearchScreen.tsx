@@ -184,6 +184,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
           const liveResults = await searchGooglePlaces(targetZone, targetNiche, googleCloudApiKey);
           if (liveResults && liveResults.length > 0) {
             setResults(liveResults);
+            // Búsqueda automática de correos en segundo plano (la tabla se va llenando sola)
+            void runEmailSearch(liveResults);
             if (onIncrementQuota) onIncrementQuota();
             setHasSearched(true);
             setIsLoading(false);
@@ -290,12 +292,9 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   };
 
   // Búsqueda de correos con Gemini (sin backend): sobre los seleccionados o, si no hay, todos los visibles
-  const handleFindEmails = async () => {
-    const targets = (selectedLeadIds.size > 0
-      ? filteredResults.filter((l) => selectedLeadIds.has(l.id))
-      : filteredResults
-    ).filter((l) => !l.email && !l.emailSearched);
-    if (targets.length === 0) return;
+  const runEmailSearch = async (leads: BusinessLead[]) => {
+    const targets = leads.filter((l) => !l.email && !l.emailSearched);
+    if (targets.length === 0 || !isGeminiConfigured()) return;
 
     await findEmailsForLeads(
       targets,
@@ -313,6 +312,12 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
     );
   };
 
+  // Botón manual: reintenta sobre los seleccionados o sobre todos los visibles
+  const handleFindEmails = () =>
+    runEmailSearch(
+      selectedLeadIds.size > 0 ? filteredResults.filter((l) => selectedLeadIds.has(l.id)) : filteredResults
+    );
+
   const pendingEmailCount = filteredResults.filter((l) => !l.email && !l.emailSearched).length;
   const isFindingEmails = emailLoadingIds.size > 0;
   const geminiReady = isGeminiConfigured();
@@ -327,7 +332,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
         <Loader2 className="w-3 h-3 animate-spin" /> Buscando...
       </span>
     ) : (
-      <span className="text-slate-400">{lead.emailSearched ? 'No encontrado' : '-'}</span>
+      <span className="text-slate-400">{lead.emailSearched ? 'Sin correo' : '-'}</span>
     );
 
   const handleSaveSelectedLeads = () => {
@@ -607,8 +612,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                   {isFindingEmails
                     ? 'Buscando correos...'
                     : selectedLeadIds.size > 0
-                    ? 'Buscar correos de seleccionados'
-                    : `Buscar correos (${pendingEmailCount})`}
+                    ? 'Reintentar correos de seleccionados'
+                    : `Buscar correos pendientes (${pendingEmailCount})`}
                 </span>
               </button>
 
