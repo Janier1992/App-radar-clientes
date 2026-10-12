@@ -1,0 +1,6 @@
+{
+  "name": "Radar de Clientes",
+  "description": "Herramienta de prospección B2B para negocios locales: auditoría web, detección de oportunidades y borradores de contacto.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
