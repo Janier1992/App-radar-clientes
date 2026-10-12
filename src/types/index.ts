@@ -67,6 +67,8 @@ export interface BusinessLead {
   internationalPhoneNumber?: string;
   websiteUri?: string;
   websiteClassification: WebsiteType;
+  email?: string; // Correo público de contacto (encontrado con Gemini)
+  emailSearched?: boolean; // Ya se intentó buscar el correo
   rating?: number;
   userRatingCount?: number;
   googleMapsUri?: string;

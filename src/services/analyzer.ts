@@ -124,7 +124,7 @@ export async function runBusinessAnalysis(
       ],
     },
     contactsFound: {
-      emails: [`contacto@${extractDomain(lead.websiteUri || '')}`],
+      emails: lead.email ? [lead.email] : [],
       socialLinks: [],
     },
     plainProblems: [
@@ -212,11 +212,3 @@ export function generateDrafts(
   };
 }
 
-function extractDomain(url: string): string {
-  try {
-    const parsed = new URL(url.startsWith('http') ? url : `https://${url}`);
-    return parsed.hostname.replace('www.', '');
-  } catch {
-    return 'empresa.com.co';
-  }
-}

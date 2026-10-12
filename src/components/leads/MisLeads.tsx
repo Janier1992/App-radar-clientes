@@ -117,7 +117,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
       const q = searchTerm.toLowerCase();
       const matchName = lead.name.toLowerCase().includes(q);
       const matchAddress = lead.formattedAddress.toLowerCase().includes(q);
-      const matchPhone = lead.nationalPhoneNumber?.toLowerCase().includes(q);
+      const matchPhone = lead.nationalPhoneNumber?.toLowerCase().includes(q) || lead.email?.toLowerCase().includes(q);
       const matchNotes = lead.notes?.toLowerCase().includes(q);
       if (!matchName && !matchAddress && !matchPhone && !matchNotes) {
         return false;
@@ -154,6 +154,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
       'Nombre',
       'Categoría',
       'Teléfono',
+      'Correo',
       'Dirección',
       'Tipo de Web',
       'URL Web',
@@ -171,6 +172,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
       `"${(l.name || '').replace(/"/g, '""')}"`,
       `"${(l.primaryTypeDisplayName || '').replace(/"/g, '""')}"`,
       `"${(l.nationalPhoneNumber || '').replace(/"/g, '""')}"`,
+      `"${(l.email || '').replace(/"/g, '""')}"`,
       `"${(l.formattedAddress || '').replace(/"/g, '""')}"`,
       `"${l.websiteClassification.type === 'own' ? 'Web Propia' : l.websiteClassification.type === 'directory_or_social' ? `Red/Directorio (${l.websiteClassification.platform || ''})` : 'Sin Web'}"`,
       `"${(l.websiteUri || '').replace(/"/g, '""')}"`,
@@ -509,6 +511,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                   <th className="p-3">Categoría</th>
                   <th className="p-3">Estado</th>
                   <th className="p-3">Teléfono</th>
+                  <th className="p-3">Correo</th>
                   <th className="p-3">Presencia Web</th>
                   <th className="p-3 text-center">Oportunidad</th>
                   <th className="p-3">Próxima Acción</th>
@@ -578,6 +581,15 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                           </div>
                         ) : (
                           <span className="text-slate-400">Sin teléfono</span>
+                        )}
+                      </td>
+                      <td className="p-3">
+                        {lead.email ? (
+                          <a href={`mailto:${lead.email}`} className="text-sky-400 hover:underline break-all">
+                            {lead.email}
+                          </a>
+                        ) : (
+                          <span className="text-slate-400">-</span>
                         )}
                       </td>
                       <td className="p-3">

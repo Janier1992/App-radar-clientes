@@ -31,13 +31,17 @@ import {
   Square,
   AlertTriangle,
   RotateCcw,
-  MessageSquare
+  MessageSquare,
+  Mail,
+  Loader2
 } from 'lucide-react';
 import { classifyWebsite, calculatePreliminaryScore } from '../../services/opportunityScore';
 import { searchGooglePlaces, GooglePlacesErrorDetails } from '../../services/googlePlacesClient';
 import { getMockResultsForNiche } from '../../services/mockNicheDirectory';
 import { isContaminatedBusiness } from '../../services/nicheClassifier';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
+import { findEmailsForLeads } from '../../services/emailFinder';
+import { isGeminiConfigured } from '../../services/geminiClient';
 
 interface SearchScreenProps {
   onNavigateToBusiness: (lead: BusinessLead) => void;
@@ -85,6 +89,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(new Set());
   const [isFavoritesOpen, setIsFavoritesOpen] = useState(false);
   const [apiNotice, setApiNotice] = useState<GooglePlacesErrorDetails | null>(null);
+  const [emailLoadingIds, setEmailLoadingIds] = useState<Set<string>>(new Set());
 
   // Favoritos guardados en localStorage
   const [favorites, setFavorites] = useState<FavoriteSearch[]>(() => {
@@ -283,6 +288,47 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
     else next.add(id);
     setSelectedLeadIds(next);
   };
+
+  // Búsqueda de correos con Gemini (sin backend): sobre los seleccionados o, si no hay, todos los visibles
+  const handleFindEmails = async () => {
+    const targets = (selectedLeadIds.size > 0
+      ? filteredResults.filter((l) => selectedLeadIds.has(l.id))
+      : filteredResults
+    ).filter((l) => !l.email && !l.emailSearched);
+    if (targets.length === 0) return;
+
+    await findEmailsForLeads(
+      targets,
+      (id, email) => {
+        setEmailLoadingIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+        setResults((prev) =>
+          prev.map((l) => (l.id === id ? { ...l, email: email || undefined, emailSearched: true } : l))
+        );
+      },
+      (id) => setEmailLoadingIds((prev) => new Set(prev).add(id))
+    );
+  };
+
+  const pendingEmailCount = filteredResults.filter((l) => !l.email && !l.emailSearched).length;
+  const isFindingEmails = emailLoadingIds.size > 0;
+  const geminiReady = isGeminiConfigured();
+
+  const renderEmail = (lead: BusinessLead) =>
+    lead.email ? (
+      <a href={`mailto:${lead.email}`} className="text-sky-400 hover:underline break-all">
+        {lead.email}
+      </a>
+    ) : emailLoadingIds.has(lead.id) ? (
+      <span className="text-slate-400 inline-flex items-center gap-1">
+        <Loader2 className="w-3 h-3 animate-spin" /> Buscando...
+      </span>
+    ) : (
+      <span className="text-slate-400">{lead.emailSearched ? 'No encontrado' : '-'}</span>
+    );
 
   const handleSaveSelectedLeads = () => {
     filteredResults
@@ -544,6 +590,28 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
             </div>
 
             <div className="flex items-center gap-2.5">
+              {/* Botón Buscar correos */}
+              <button
+                type="button"
+                onClick={handleFindEmails}
+                disabled={!geminiReady || isFindingEmails || pendingEmailCount === 0}
+                className="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:cursor-not-allowed text-white text-xs font-semibold flex items-center gap-1.5 shadow-md transition-colors cursor-pointer"
+                title={
+                  geminiReady
+                    ? 'Busca el correo público de los negocios con Gemini (usa una llamada por negocio)'
+                    : 'Configura GEMINI_API_KEY en .env para buscar correos'
+                }
+              >
+                {isFindingEmails ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+                <span>
+                  {isFindingEmails
+                    ? 'Buscando correos...'
+                    : selectedLeadIds.size > 0
+                    ? 'Buscar correos de seleccionados'
+                    : `Buscar correos (${pendingEmailCount})`}
+                </span>
+              </button>
+
               {/* Botón Guardar Seleccionados */}
               {selectedLeadIds.size > 0 && (
                 <button
@@ -673,6 +741,11 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                         <span className="truncate">{lead.formattedAddress}</span>
                       </p>
 
+                      <p className="text-xs flex items-center gap-1.5 truncate">
+                        <Mail className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        {renderEmail(lead)}
+                      </p>
+
                       <div className="flex items-center gap-3 text-xs">
                         {lead.rating !== undefined && (
                           <div className="flex items-center gap-1 text-amber-400">
@@ -791,6 +864,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                       <th className="p-3">Negocio</th>
                       <th className="p-3">Categoría</th>
                       <th className="p-3">Teléfono</th>
+                      <th className="p-3">Correo</th>
                       <th className="p-3">Presencia Web</th>
                       <th className="p-3 text-center">Valoración</th>
                       <th className="p-3 text-center">Oportunidad</th>
@@ -860,6 +934,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                               <span className="text-slate-400">Sin teléfono</span>
                             )}
                           </td>
+                          <td className="p-3">{renderEmail(lead)}</td>
                           <td className="p-3">
                             {hasOwn ? (
                               <a
