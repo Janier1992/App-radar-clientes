@@ -149,3 +149,52 @@ export async function generateGeminiAnalysis(
     return null;
   }
 }
+
+const EMAIL_REGEX = /[a-z0-9._%+-]+@[a-z0-9-]+(?:\.[a-z0-9-]+)*\.[a-z]{2,}/gi;
+const IGNORED_EMAIL_PATTERN =
+  /(example\.|ejemplo\.|tudominio|tunegocio|sentry|wixpress|godaddy|domain\.com|email\.com|\.(png|jpe?g|gif|svg|webp)$)/i;
+
+/**
+ * Extrae del texto de la respuesta solo correos con forma válida y descarta placeholders.
+ * Gemini no inventa el dato por sí solo: exigimos que aparezca literalmente en su respuesta.
+ */
+export function extractEmails(text: string | undefined): string[] {
+  if (!text) return [];
+  const found = text.match(EMAIL_REGEX) || [];
+  const unique = new Set(
+    found.map((e) => e.toLowerCase().replace(/[.,;]+$/, '')).filter((e) => !IGNORED_EMAIL_PATTERN.test(e))
+  );
+  return Array.from(unique);
+}
+
+/**
+ * Busca el correo público de contacto de un negocio con Gemini, sin backend.
+ * - Con web propia: lee el sitio en vivo con la herramienta urlContext.
+ * - Sin web propia: usa búsqueda de Google (grounding) con nombre y dirección.
+ * Devuelve null si no hay API key, si falla la llamada o si no se encontró ningún correo.
+ */
+export async function findBusinessEmail(lead: BusinessLead): Promise<string | null> {
+  const client = getClient();
+  if (!client) return null;
+
+  const hasWebsite = lead.websiteClassification.type === 'own' && Boolean(lead.websiteUri);
+
+  const prompt = hasWebsite
+    ? `Visita el sitio web ${lead.websiteUri} (revisa la página principal, la sección de contacto y el pie de página) y encuentra el correo electrónico de contacto público de "${lead.name}". Responde SOLO con la dirección de correo. Si el sitio no muestra ningún correo, responde exactamente: NO_ENCONTRADO. No inventes direcciones.`
+    : `Busca en Internet el correo electrónico de contacto público de "${lead.name}", ubicado en ${lead.formattedAddress}${
+        lead.websiteUri ? ` (perfil: ${lead.websiteUri})` : ''
+      }. Responde SOLO con la dirección de correo. Si no encuentras una publicada, responde exactamente: NO_ENCONTRADO. No inventes direcciones.`;
+
+  try {
+    const response = await client.models.generateContent({
+      model: MODEL,
+      contents: prompt,
+      config: { tools: hasWebsite ? [{ urlContext: {} }] : [{ googleSearch: {} }] },
+    });
+    const emails = extractEmails(response.text);
+    return emails[0] ?? null;
+  } catch (err) {
+    console.warn(`No se pudo buscar el correo de ${lead.name}:`, err);
+    return null;
+  }
+}
