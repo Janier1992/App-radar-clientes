@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { AppQuotaSettings, SellerProfile, BusinessLead } from '../../types';
 import { testGooglePlacesConnection, GooglePlacesErrorDetails } from '../../services/googlePlacesClient';
+import { isGeminiConfigured } from '../../services/geminiClient';
 
 interface AjustesScreenProps {
   quotaSettings: AppQuotaSettings;
@@ -536,6 +537,18 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
               </p>
             </div>
           </div>
+
+          {isGeminiConfigured() ? (
+            <div className="flex items-center gap-2 text-xs text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
+              <CheckCircle2 className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Gemini está activo: los análisis y borradores se generan con IA real, incluyendo lectura del sitio web del negocio cuando aplica.</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2">
+              <AlertTriangle className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Gemini no está configurado (falta <code className="bg-slate-900 px-1 rounded">GEMINI_API_KEY</code> en tu archivo .env). Se están usando análisis y guiones simulados en su lugar.</span>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">

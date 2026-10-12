@@ -1,5 +1,6 @@
 import { BusinessLead, PageSpeedAudit, GeminiAnalysis, ProspectingDrafts, SellerProfile } from '../types';
 import { calculatePreliminaryScore } from './opportunityScore';
+import { generateGeminiAnalysis } from './geminiClient';
 
 export interface AuditResult {
   auditData?: PageSpeedAudit;
@@ -20,8 +21,8 @@ export async function runBusinessAnalysis(
   // Si no tiene web propia, marcamos oportunidad directa sin llamar a PageSpeed
   if (!hasWebsite) {
     const isSocialOnly = lead.websiteClassification.type === 'directory_or_social';
-    
-    const analysis: GeminiAnalysis = {
+
+    const fallbackAnalysis: GeminiAnalysis = {
       summary: `${lead.name} es un negocio local del sector ${lead.primaryTypeDisplayName || 'servicios'} ubicado en ${lead.formattedAddress.split(',')[0]}. Actualmente carece de una web propia independiente donde captar y convertir clientes.`,
       checklist: {
         hasHttps: false,
@@ -30,8 +31,8 @@ export async function runBusinessAnalysis(
         onlineBooking: false,
         contactForm: false,
         outdatedSignals: [
-          isSocialOnly 
-            ? `Solo dispone de perfil en ${lead.websiteClassification.platform || 'redes sociales'}, dependiendo de algoritmos externos.` 
+          isSocialOnly
+            ? `Solo dispone de perfil en ${lead.websiteClassification.platform || 'redes sociales'}, dependiendo de algoritmos externos.`
             : 'Sin presencia web registrada en Internet.',
           'No cuenta con dominio propio profesional ni cuentas de correo corporativo (@tunegocio.com.co).',
         ],
@@ -49,6 +50,7 @@ export async function runBusinessAnalysis(
       recommendedServiceRationale: 'Creación de una página web profesional optimizada para Google con botón directo de WhatsApp y captura de clientes en Medellín y Colombia.',
     };
 
+    const analysis = (await generateGeminiAnalysis(lead, sellerProfile)) || fallbackAnalysis;
     const drafts = generateDrafts(lead, sellerProfile, analysis, tone);
 
     // Score máximo para negocios sin web
@@ -107,7 +109,7 @@ export async function runBusinessAnalysis(
     analyzedAt: new Date().toISOString(),
   };
 
-  const analysis: GeminiAnalysis = {
+  const fallbackAnalysis: GeminiAnalysis = {
     summary: `${lead.name} ofrece servicios especializados de ${lead.primaryTypeDisplayName || 'atención local'} en ${lead.formattedAddress.split(',')[0]}. Su portal digital actual presenta deficiencias de velocidad en dispositivos móviles y carece de automatizaciones de atención al cliente.`,
     checklist: {
       hasHttps: lead.websiteUri?.startsWith('https') ?? false,
@@ -139,6 +141,7 @@ export async function runBusinessAnalysis(
     recommendedServiceRationale: `Para un negocio como ${lead.name}, un sistema automatizado de captación aumentaría su conversión directa entre un 25% y un 40% al capturar clientes en el momento exacto de la búsqueda.`,
   };
 
+  const analysis = (await generateGeminiAnalysis(lead, sellerProfile)) || fallbackAnalysis;
   const drafts = generateDrafts(lead, sellerProfile, analysis, tone);
 
   // Cálculo del score post-análisis
