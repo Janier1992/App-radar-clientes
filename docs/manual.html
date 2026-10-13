@@ -2,40 +2,45 @@
 <style>
 @page{size:Letter;margin:0}
 *{box-sizing:border-box}
-body{margin:0;font-family:Inter,"Helvetica Neue",Arial,sans-serif;color:#2a2420;font-size:12.5px;line-height:1.55}
-.page{width:8.5in;height:11in;padding:.55in .6in .5in;background:#f6efe3;position:relative;page-break-after:always;overflow:hidden}
+:root{--bg:#020617;--card:#0f172a;--card2:#111c33;--line:#1e293b;--txt:#e2e8f0;--mut:#94a3b8;--em:#34d399;--em2:#10b981;--sky:#38bdf8;--amb:#fbbf24}
+body{margin:0;font-family:Inter,"Helvetica Neue",Arial,sans-serif;color:var(--txt);font-size:12.5px;line-height:1.55;background:var(--bg);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:8.5in;height:11in;padding:.62in .6in .5in .78in;background:var(--bg);position:relative;page-break-after:always;overflow:hidden;border-left:.18in solid var(--em2)}
 .page:last-child{page-break-after:auto}
-.run{position:absolute;top:.25in;left:.6in;right:.6in;display:flex;justify-content:space-between;font-size:8px;letter-spacing:.04em;color:#6b5f55;text-transform:uppercase}
-.chip{display:inline-block;background:#f0d9cf;color:#b04a35;font-weight:800;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:5px 14px;border-radius:99px;margin-top:.12in}
-h1{font-size:30px;margin:.12in 0 .08in;letter-spacing:-.02em}
-h2{font-size:15.5px;color:#b04a35;margin:.2in 0 .06in}
-p{margin:.05in 0 .08in}
-.lead{color:#6b5f55;font-size:13px}
+.run{position:absolute;top:.25in;left:.78in;right:.6in;display:flex;justify-content:space-between;font-size:8px;letter-spacing:.08em;color:#64748b;text-transform:uppercase}
+.sec{display:flex;align-items:center;gap:10px;margin-top:.1in}
+.num{background:var(--em2);color:#022c22;font-weight:800;font-size:13px;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.tag{color:var(--em);font-weight:700;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+h1{font-size:28px;margin:.12in 0 .08in;letter-spacing:-.02em;color:#f8fafc}
+h2{font-size:14.5px;color:var(--em);margin:.2in 0 .06in;padding-left:10px;border-left:3px solid var(--em2)}
+p{margin:.05in 0 .08in;color:#cbd5e1}
+b{color:#f8fafc}
+.lead{color:var(--mut);font-size:13px}
 ul{margin:.04in 0;padding:0;list-style:none}
-li{padding-left:22px;position:relative;margin:.05in 0}
-li:before{content:"✓";position:absolute;left:0;color:#5b7a3a;font-weight:800}
-.grid{display:grid;gap:.12in}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
-.card{background:#fff;border:1px solid #eadfce;border-radius:12px;padding:.13in .16in}
-.card h3{margin:0 0 .04in;color:#b04a35;font-size:13.5px}
-.note{background:#f0e1d6;border-left:4px solid #b04a35;border-radius:8px;padding:.12in .18in;margin:.14in 0}
-.warn{background:#fbeccf;border-left:4px solid #d08a1c;border-radius:8px;padding:.12in .18in;margin:.14in 0}
-table{width:100%;border-collapse:collapse;margin:.08in 0;background:#fff;border-radius:10px;overflow:hidden}
-th{background:#ece2d1;text-align:left;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6b5f55;padding:8px 10px}
-td{padding:8px 10px;border-top:1px solid #eadfce;vertical-align:top}
-td:first-child{font-weight:700;white-space:nowrap}
+li{padding-left:22px;position:relative;margin:.05in 0;color:#cbd5e1}
+li:before{content:"›";position:absolute;left:4px;color:var(--em);font-weight:800}
+.grid{display:grid;gap:.12in}.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-top:2px solid var(--em2);border-radius:10px;padding:.13in .16in}
+.card h3{margin:0 0 .04in;color:var(--em);font-size:13.5px}
+.card p{margin:0;color:var(--mut)}
+.note{background:#06281f;border:1px solid #0b5b43;border-left:4px solid var(--em2);border-radius:8px;padding:.12in .18in;margin:.14in 0}
+.warn{background:#2b2108;border:1px solid #5b4310;border-left:4px solid var(--amb);border-radius:8px;padding:.12in .18in;margin:.14in 0}
+.warn b{color:var(--amb)}
+table{width:100%;border-collapse:separate;border-spacing:0;margin:.08in 0;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th{background:#0b1325;text-align:left;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top;color:#cbd5e1}
+td:first-child{font-weight:700;white-space:nowrap;color:#f8fafc}
 .steps{display:flex;gap:6px;align-items:stretch;margin:.12in 0}
-.step{flex:1;background:#fff;border:1px solid #eadfce;border-radius:12px;padding:.1in;text-align:center;font-size:11px;font-weight:600}
-.step b{display:block;font-size:20px;color:#b04a35}
-.arrow{align-self:center;color:#b6a898}
-.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:linear-gradient(#f7efe3,#f0e4d0)}
-.logo{width:90px;height:90px;border-radius:22px;background:#b04a35;color:#fff;font-size:48px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px #b04a3555}
-.cover h1{font-size:50px;margin:.3in 0 .1in}
+.step{flex:1;background:var(--card);border:1px solid var(--line);border-bottom:2px solid var(--em2);border-radius:10px;padding:.1in;text-align:center;font-size:11px;font-weight:600;color:#e2e8f0}
+.step b{display:block;font-size:20px;color:var(--em)}
+.arrow{align-self:center;color:#475569}
+.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 38%,#0b3b2e 0,#04141f 38%,#020617 70%)}
+.logo{width:96px;height:96px;border-radius:24px;background:linear-gradient(135deg,#10b981,#0ea5e9);color:#022c22;font-size:50px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 50px #10b98166}
+.cover h1{font-size:50px;margin:.3in 0 .1in;color:#fff}
+.cover .lead{color:#a7b6c8}
 .pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:5.6in;margin:.3in 0}
-.pill{background:#fff;border:1px solid #eadfce;border-radius:99px;padding:7px 16px;font-weight:700;font-size:12px}
-.toc div{display:flex;gap:16px;padding:7px 0;border-bottom:1px dashed #d9ccb8}
-.toc b{color:#b04a35;width:28px}.toc span{color:#6b5f55;margin-left:auto}
-.q{font-weight:800}
-.mono{font-family:ui-monospace,Menlo,monospace;background:#fff;border:1px solid #eadfce;border-radius:5px;padding:1px 6px;font-size:11.5px}
+.pill{background:#0f172a;border:1px solid #1e3a34;color:var(--em);border-radius:99px;padding:7px 16px;font-weight:700;font-size:12px}
+.q{font-weight:800;color:var(--em)}
+.mono{font-family:ui-monospace,Menlo,monospace;background:#0b1325;border:1px solid var(--line);color:var(--sky);border-radius:5px;padding:1px 6px;font-size:11.5px}
 </style></head><body>
 
 <div class="page cover">
@@ -43,11 +48,11 @@ td:first-child{font-weight:700;white-space:nowrap}
  <h1>Radar de Clientes</h1>
  <p class="lead" style="max-width:5in;font-size:16px">Manual de usuario: encuentra negocios locales, detecta quién necesita una web o automatización y contáctalos con una propuesta lista.</p>
  <div class="pills"><span class="pill">Buscar negocios</span><span class="pill">Detectar web propia</span><span class="pill">Correo y teléfono</span><span class="pill">Score de oportunidad</span><span class="pill">Propuestas con IA</span><span class="pill">Mini-CRM</span></div>
- <p class="lead">Guía rápida para el equipo de la agencia · octubre 2026 · v1</p>
+ <p class="lead" style="font-size:12px">Guía rápida para el equipo de la agencia · octubre 2026 · v1</p>
 </div>
 
 <div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>2</span></div>
- <span class="chip">01. Introducción</span><h1>¿Qué es Radar de Clientes?</h1>
+ <div class="sec"><span class="num">01</span><span class="tag">Introducción</span></div><h1>¿Qué es Radar de Clientes?</h1>
  <p>Es una herramienta web interna para <b>prospección comercial</b>. Escribes una zona y un tipo de negocio (nicho) y la app te muestra los negocios reales de Google Maps, indica <b>si tienen página web propia</b>, cuánto potencial comercial tienen y, cuando se encuentra, su <b>correo electrónico</b>. Después genera mensajes de venta personalizados para contactarlos.</p>
  <h2>¿Qué incluye?</h2>
  <div class="grid g3">
@@ -66,7 +71,7 @@ td:first-child{font-weight:700;white-space:nowrap}
 </div>
 
 <div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>3</span></div>
- <span class="chip">02. Buscar</span><h1>Buscar negocios</h1>
+ <div class="sec"><span class="num">02</span><span class="tag">Buscar</span></div><h1>Buscar negocios</h1>
  <p>En el menú lateral entra a <b>Buscar</b>.</p>
  <ul><li><b>Zona:</b> barrio o municipio, por ejemplo «El Poblado, Medellín», «Laureles» o «Envigado».</li><li><b>Nicho:</b> elige uno sugerido (talleres mecánicos, clínicas dentales, peluquerías, restaurantes, gimnasios…) o escribe el tuyo.</li><li>Pulsa buscar. Se muestran hasta <b>20 negocios</b> por consulta.</li><li><b>Favoritos:</b> guarda con la estrella las búsquedas que repites para lanzarlas con un clic.</li></ul>
  <h2>Filtros disponibles</h2>
@@ -81,13 +86,13 @@ td:first-child{font-weight:700;white-space:nowrap}
  <p>Puedes cambiar entre vista de <b>tarjetas</b> y <b>tabla</b>. Marca varios negocios con la casilla y pulsa <b>Guardar seleccionados en mis leads</b>.</p>
  <h2>Cómo se calcula la oportunidad</h2>
  <table><tr><th>Suma puntos</th><th>Resta o no suma</th></tr>
-  <tr><td style="white-space:normal;font-weight:400">Sin web (+40 preliminar) o solo red social (+30) · muchas reseñas · buena valoración · tiene teléfono para contactarlo</td><td style="white-space:normal;font-weight:400">Tiene web propia · pocas reseñas · sin teléfono</td></tr></table>
+  <tr><td style="white-space:normal;font-weight:400;color:#cbd5e1">Sin web (+40 preliminar) o solo red social (+30) · muchas reseñas · buena valoración · tiene teléfono para contactarlo</td><td style="white-space:normal;font-weight:400;color:#cbd5e1">Tiene web propia · pocas reseñas · sin teléfono</td></tr></table>
  <p>El puntaje de la búsqueda es <b>preliminar</b>. Se afina cuando analizas la ficha del negocio.</p>
  <div class="warn"><b>Importante:</b> cada búsqueda consume una consulta de Google. El límite mensual es de 1.000 y la app avisa al llegar a 800. Evita repetir la misma búsqueda sin necesidad.</div>
 </div>
 
 <div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>4</span></div>
- <span class="chip">03. Correo electrónico</span><h1>La columna Correo</h1>
+ <div class="sec"><span class="num">03</span><span class="tag">Correo electrónico</span></div><h1>La columna Correo</h1>
  <p>Google Maps no entrega correos, así que la app los busca con <b>Gemini (IA)</b>. Esto ocurre <b>automáticamente</b> después de cada búsqueda, en segundo plano.</p>
  <ul><li>Si el negocio tiene <b>web propia</b>, la IA lee el sitio (inicio, contacto y pie de página).</li><li>Si no la tiene, busca el correo publicado en Internet con el nombre y la dirección.</li><li>Mientras trabaja, la fila muestra <span class="mono">Buscando…</span>. Al terminar aparece el correo o <span class="mono">Sin correo</span>.</li><li>El correo se guarda junto al lead y sale en <b>Mis leads</b> y en el Excel exportado.</li></ul>
  <h2>Qué esperar</h2>
@@ -100,7 +105,7 @@ td:first-child{font-weight:700;white-space:nowrap}
 </div>
 
 <div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>5</span></div>
- <span class="chip">04. Ficha y propuesta</span><h1>Ficha del negocio y propuesta comercial</h1>
+ <div class="sec"><span class="num">04</span><span class="tag">Ficha y propuesta</span></div><h1>Ficha del negocio y propuesta comercial</h1>
  <p>Desde cualquier resultado pulsa <b>Ver ficha y auditar</b>. La ficha reúne todo lo del negocio y prepara tu mensaje de venta.</p>
  <h2>1. Analizar</h2>
  <p>Pulsa <b>Analizar web ahora</b>. La app mide la web (velocidad en móvil, SEO, accesibilidad, buenas prácticas) y la IA revisa si tiene HTTPS, WhatsApp, reservas online y formulario. Si no hay web propia, analiza el negocio por su categoría y reputación.</p>
@@ -118,10 +123,10 @@ td:first-child{font-weight:700;white-space:nowrap}
 </div>
 
 <div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>6</span></div>
- <span class="chip">05. Radar y leads</span><h1>Radar de nichos y Mis leads</h1>
+ <div class="sec"><span class="num">05</span><span class="tag">Radar y leads</span></div><h1>Radar de nichos y Mis leads</h1>
  <h2>Radar de nichos</h2>
  <p>Elige una zona y la app compara varias categorías: cuántos negocios hay, qué porcentaje <b>no tiene web propia</b>, valoración media y un ranking de oportunidad con la recomendación de la IA sobre qué servicio vender en cada una. Úsalo <b>antes</b> de buscar, para decidir en qué nicho enfocarte. Desde el ranking puedes ir directo a ver los negocios de esa categoría.</p>
- <p style="color:#6b5f55">Cada análisis consume consultas de Google; la app te pide confirmación antes de ejecutarlo.</p>
+ <p style="color:#94a3b8">Cada análisis consume consultas de Google; la app te pide confirmación antes de ejecutarlo.</p>
  <h2>Mis leads: tu embudo de ventas</h2>
  <p>Aquí quedan los negocios que guardaste. Puedes verlos en <b>tablero Kanban</b> o en <b>tabla</b>, buscar por nombre, dirección, teléfono o correo, y filtrar por estado o nicho.</p>
  <div class="steps" style="flex-wrap:wrap"><div class="step">Nuevo</div><div class="step">Analizado</div><div class="step">Contactado</div><div class="step">Respondió</div><div class="step">Reunión</div><div class="step">Cliente</div><div class="step">Descartado</div></div>
