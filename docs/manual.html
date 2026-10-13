@@ -1,0 +1,136 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Radar de Clientes: Manual de usuario</title>
+<style>
+@page{size:Letter;margin:0}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,"Helvetica Neue",Arial,sans-serif;color:#2a2420;font-size:12.5px;line-height:1.55}
+.page{width:8.5in;height:11in;padding:.55in .6in .5in;background:#f6efe3;position:relative;page-break-after:always;overflow:hidden}
+.page:last-child{page-break-after:auto}
+.run{position:absolute;top:.25in;left:.6in;right:.6in;display:flex;justify-content:space-between;font-size:8px;letter-spacing:.04em;color:#6b5f55;text-transform:uppercase}
+.chip{display:inline-block;background:#f0d9cf;color:#b04a35;font-weight:800;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:5px 14px;border-radius:99px;margin-top:.12in}
+h1{font-size:30px;margin:.12in 0 .08in;letter-spacing:-.02em}
+h2{font-size:15.5px;color:#b04a35;margin:.2in 0 .06in}
+p{margin:.05in 0 .08in}
+.lead{color:#6b5f55;font-size:13px}
+ul{margin:.04in 0;padding:0;list-style:none}
+li{padding-left:22px;position:relative;margin:.05in 0}
+li:before{content:"✓";position:absolute;left:0;color:#5b7a3a;font-weight:800}
+.grid{display:grid;gap:.12in}.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:repeat(2,1fr)}
+.card{background:#fff;border:1px solid #eadfce;border-radius:12px;padding:.13in .16in}
+.card h3{margin:0 0 .04in;color:#b04a35;font-size:13.5px}
+.note{background:#f0e1d6;border-left:4px solid #b04a35;border-radius:8px;padding:.12in .18in;margin:.14in 0}
+.warn{background:#fbeccf;border-left:4px solid #d08a1c;border-radius:8px;padding:.12in .18in;margin:.14in 0}
+table{width:100%;border-collapse:collapse;margin:.08in 0;background:#fff;border-radius:10px;overflow:hidden}
+th{background:#ece2d1;text-align:left;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:#6b5f55;padding:8px 10px}
+td{padding:8px 10px;border-top:1px solid #eadfce;vertical-align:top}
+td:first-child{font-weight:700;white-space:nowrap}
+.steps{display:flex;gap:6px;align-items:stretch;margin:.12in 0}
+.step{flex:1;background:#fff;border:1px solid #eadfce;border-radius:12px;padding:.1in;text-align:center;font-size:11px;font-weight:600}
+.step b{display:block;font-size:20px;color:#b04a35}
+.arrow{align-self:center;color:#b6a898}
+.cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:linear-gradient(#f7efe3,#f0e4d0)}
+.logo{width:90px;height:90px;border-radius:22px;background:#b04a35;color:#fff;font-size:48px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 24px #b04a3555}
+.cover h1{font-size:50px;margin:.3in 0 .1in}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:5.6in;margin:.3in 0}
+.pill{background:#fff;border:1px solid #eadfce;border-radius:99px;padding:7px 16px;font-weight:700;font-size:12px}
+.toc div{display:flex;gap:16px;padding:7px 0;border-bottom:1px dashed #d9ccb8}
+.toc b{color:#b04a35;width:28px}.toc span{color:#6b5f55;margin-left:auto}
+.q{font-weight:800}
+.mono{font-family:ui-monospace,Menlo,monospace;background:#fff;border:1px solid #eadfce;border-radius:5px;padding:1px 6px;font-size:11.5px}
+</style></head><body>
+
+<div class="page cover">
+ <div class="logo">◎</div>
+ <h1>Radar de Clientes</h1>
+ <p class="lead" style="max-width:5in;font-size:16px">Manual de usuario: encuentra negocios locales, detecta quién necesita una web o automatización y contáctalos con una propuesta lista.</p>
+ <div class="pills"><span class="pill">Buscar negocios</span><span class="pill">Detectar web propia</span><span class="pill">Correo y teléfono</span><span class="pill">Score de oportunidad</span><span class="pill">Propuestas con IA</span><span class="pill">Mini-CRM</span></div>
+ <p class="lead">Guía rápida para el equipo de la agencia · octubre 2026 · v1</p>
+</div>
+
+<div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>2</span></div>
+ <span class="chip">01. Introducción</span><h1>¿Qué es Radar de Clientes?</h1>
+ <p>Es una herramienta web interna para <b>prospección comercial</b>. Escribes una zona y un tipo de negocio (nicho) y la app te muestra los negocios reales de Google Maps, indica <b>si tienen página web propia</b>, cuánto potencial comercial tienen y, cuando se encuentra, su <b>correo electrónico</b>. Después genera mensajes de venta personalizados para contactarlos.</p>
+ <h2>¿Qué incluye?</h2>
+ <div class="grid g3">
+  <div class="card"><h3>Buscar</h3><p>Negocios por zona y nicho, con teléfono, web, correo, reseñas y puntaje.</p></div>
+  <div class="card"><h3>Ficha y propuesta</h3><p>Auditoría de la web y textos listos para WhatsApp, llamada y correo.</p></div>
+  <div class="card"><h3>Radar de nichos</h3><p>Compara categorías de una zona para saber cuál conviene atacar primero.</p></div>
+  <div class="card"><h3>Mis leads</h3><p>Embudo de ventas con estados, notas, fechas y exportación a Excel.</p></div>
+  <div class="card"><h3>Ajustes</h3><p>Tu perfil comercial, para que los mensajes salgan a tu nombre.</p></div>
+  <div class="card"><h3>Cuota</h3><p>Contador de consultas a Google para no pasarse del límite mensual.</p></div>
+ </div>
+ <h2>Cómo funciona, en cinco pasos</h2>
+ <div class="steps"><div class="step"><b>1</b>Configura tu perfil</div><span class="arrow">→</span><div class="step"><b>2</b>Busca zona y nicho</div><span class="arrow">→</span><div class="step"><b>3</b>Revisa los resultados</div><span class="arrow">→</span><div class="step"><b>4</b>Abre la ficha y analiza</div><span class="arrow">→</span><div class="step"><b>5</b>Contacta y haz seguimiento</div></div>
+ <div class="note"><b>Idea clave:</b> los negocios con muchas reseñas y buena reputación pero <b>sin web propia</b> son tus mejores prospectos: tienen clientes, pero no están captándolos online.</div>
+ <h2>Antes de empezar</h2>
+ <ul><li>Entra desde el navegador (computadora o celular) con el enlace de la app que te compartió la agencia.</li><li>Las claves de Google y Gemini ya están configuradas en el servidor: <b>no tienes que ingresar ninguna</b>.</li><li>Ve a <b>Ajustes → Mi perfil comercial</b> y completa tu nombre, la agencia y la propuesta de valor. Es lo que usa la IA para firmar los mensajes.</li></ul>
+</div>
+
+<div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>3</span></div>
+ <span class="chip">02. Buscar</span><h1>Buscar negocios</h1>
+ <p>En el menú lateral entra a <b>Buscar</b>.</p>
+ <ul><li><b>Zona:</b> barrio o municipio, por ejemplo «El Poblado, Medellín», «Laureles» o «Envigado».</li><li><b>Nicho:</b> elige uno sugerido (talleres mecánicos, clínicas dentales, peluquerías, restaurantes, gimnasios…) o escribe el tuyo.</li><li>Pulsa buscar. Se muestran hasta <b>20 negocios</b> por consulta.</li><li><b>Favoritos:</b> guarda con la estrella las búsquedas que repites para lanzarlas con un clic.</li></ul>
+ <h2>Filtros disponibles</h2>
+ <p>Solo sin web propia · solo con teléfono · valoración mínima · reseñas mínimas · ocultar cerrados.</p>
+ <h2>Qué verás de cada negocio</h2>
+ <table><tr><th>Dato</th><th>Qué significa</th></tr>
+  <tr><td>Teléfono</td><td>Llamada directa y botón de <b>WhatsApp</b> con un clic.</td></tr>
+  <tr><td>Correo</td><td>Correo público de contacto con enlace para escribir. Ver la sección 03.</td></tr>
+  <tr><td>Presencia web</td><td><b>Web propia</b>, <b>solo red social o directorio</b> (Instagram, Facebook, Doctoralia…) o <b>sin web</b>.</td></tr>
+  <tr><td>Valoración</td><td>Estrellas de Google y número de reseñas.</td></tr>
+  <tr><td>Oportunidad</td><td>Puntaje de 0 a 100. Más alto = mejor prospecto.</td></tr></table>
+ <p>Puedes cambiar entre vista de <b>tarjetas</b> y <b>tabla</b>. Marca varios negocios con la casilla y pulsa <b>Guardar seleccionados en mis leads</b>.</p>
+ <h2>Cómo se calcula la oportunidad</h2>
+ <table><tr><th>Suma puntos</th><th>Resta o no suma</th></tr>
+  <tr><td style="white-space:normal;font-weight:400">Sin web (+40 preliminar) o solo red social (+30) · muchas reseñas · buena valoración · tiene teléfono para contactarlo</td><td style="white-space:normal;font-weight:400">Tiene web propia · pocas reseñas · sin teléfono</td></tr></table>
+ <p>El puntaje de la búsqueda es <b>preliminar</b>. Se afina cuando analizas la ficha del negocio.</p>
+ <div class="warn"><b>Importante:</b> cada búsqueda consume una consulta de Google. El límite mensual es de 1.000 y la app avisa al llegar a 800. Evita repetir la misma búsqueda sin necesidad.</div>
+</div>
+
+<div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>4</span></div>
+ <span class="chip">03. Correo electrónico</span><h1>La columna Correo</h1>
+ <p>Google Maps no entrega correos, así que la app los busca con <b>Gemini (IA)</b>. Esto ocurre <b>automáticamente</b> después de cada búsqueda, en segundo plano.</p>
+ <ul><li>Si el negocio tiene <b>web propia</b>, la IA lee el sitio (inicio, contacto y pie de página).</li><li>Si no la tiene, busca el correo publicado en Internet con el nombre y la dirección.</li><li>Mientras trabaja, la fila muestra <span class="mono">Buscando…</span>. Al terminar aparece el correo o <span class="mono">Sin correo</span>.</li><li>El correo se guarda junto al lead y sale en <b>Mis leads</b> y en el Excel exportado.</li></ul>
+ <h2>Qué esperar</h2>
+ <table><tr><th>Caso</th><th>Probabilidad de encontrar correo</th></tr>
+  <tr><td>Con web propia</td><td>Buena. Es donde más aparece.</td></tr>
+  <tr><td>Solo Facebook o Instagram</td><td>A veces, si lo publicaron en el perfil.</td></tr>
+  <tr><td>Sin presencia web</td><td>Baja. Casi siempre saldrá «Sin correo»; usa WhatsApp o llamada.</td></tr></table>
+ <ul><li>El botón <b>Buscar correos pendientes</b> reintenta los que faltan, o solo los que tengas seleccionados.</li><li>El correo es el que el negocio publicó. <b>Verifícalo</b> antes de enviar una propuesta importante.</li></ul>
+ <div class="note"><b>Buenas prácticas de envío:</b> escribe correos <b>individuales y personalizados</b>, con una propuesta concreta para ese negocio. No se permite el envío masivo de spam.</div>
+</div>
+
+<div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>5</span></div>
+ <span class="chip">04. Ficha y propuesta</span><h1>Ficha del negocio y propuesta comercial</h1>
+ <p>Desde cualquier resultado pulsa <b>Ver ficha y auditar</b>. La ficha reúne todo lo del negocio y prepara tu mensaje de venta.</p>
+ <h2>1. Analizar</h2>
+ <p>Pulsa <b>Analizar web ahora</b>. La app mide la web (velocidad en móvil, SEO, accesibilidad, buenas prácticas) y la IA revisa si tiene HTTPS, WhatsApp, reservas online y formulario. Si no hay web propia, analiza el negocio por su categoría y reputación.</p>
+ <p>El resultado incluye un resumen, <b>problemas explicados en lenguaje simple</b> y el <b>servicio recomendado</b>: web nueva, agente de WhatsApp o sistema de citas.</p>
+ <h2>2. Elegir el tono</h2>
+ <div class="grid g3"><div class="card"><h3>Cercano</h3><p>Amable y directo, para negocios pequeños y familiares.</p></div><div class="card"><h3>Profesional</h3><p>Formal, para clínicas, inmobiliarias y empresas.</p></div><div class="card"><h3>Directo</h3><p>Va al grano, con los puntos clave.</p></div></div>
+ <h2>3. Contactar por el canal que corresponda</h2>
+ <table><tr><th>Canal</th><th>Qué obtienes</th></tr>
+  <tr><td>WhatsApp</td><td>Mensaje listo; el botón abre el chat con el número del negocio.</td></tr>
+  <tr><td>Guion de llamada</td><td>Texto de 30 segundos para presentarte por teléfono.</td></tr>
+  <tr><td>Correo electrónico</td><td>Asunto y cuerpo del correo; copia y envía desde tu propio correo.</td></tr></table>
+ <p>Revisa y ajusta siempre el texto antes de enviarlo. También puedes <b>exportar o imprimir la ficha en PDF</b>.</p>
+ <h2>4. Hacer seguimiento</h2>
+ <p>En la ficha guarda <b>notas</b>, la <b>fecha de próxima acción</b> y el <b>estado</b> del negocio en el embudo.</p>
+</div>
+
+<div class="page"><div class="run"><span>Radar de Clientes: manual de usuario</span><span>6</span></div>
+ <span class="chip">05. Radar y leads</span><h1>Radar de nichos y Mis leads</h1>
+ <h2>Radar de nichos</h2>
+ <p>Elige una zona y la app compara varias categorías: cuántos negocios hay, qué porcentaje <b>no tiene web propia</b>, valoración media y un ranking de oportunidad con la recomendación de la IA sobre qué servicio vender en cada una. Úsalo <b>antes</b> de buscar, para decidir en qué nicho enfocarte. Desde el ranking puedes ir directo a ver los negocios de esa categoría.</p>
+ <p style="color:#6b5f55">Cada análisis consume consultas de Google; la app te pide confirmación antes de ejecutarlo.</p>
+ <h2>Mis leads: tu embudo de ventas</h2>
+ <p>Aquí quedan los negocios que guardaste. Puedes verlos en <b>tablero Kanban</b> o en <b>tabla</b>, buscar por nombre, dirección, teléfono o correo, y filtrar por estado o nicho.</p>
+ <div class="steps" style="flex-wrap:wrap"><div class="step">Nuevo</div><div class="step">Analizado</div><div class="step">Contactado</div><div class="step">Respondió</div><div class="step">Reunión</div><div class="step">Cliente</div><div class="step">Descartado</div></div>
+ <p>Mueve cada negocio de etapa a medida que avanzas. Con <b>Exportar CSV</b> descargas la lista filtrada (nombre, teléfono, correo, web, puntaje, estado, notas) y la abres en Excel.</p>
+ <div class="warn"><b>Ojo con los datos:</b> tus leads, notas y perfil se guardan <b>en tu navegador</b>, no en un servidor compartido. Cada persona del equipo ve solo lo suyo, y si borras los datos del navegador se pierden. Exporta el CSV con frecuencia y compártelo si necesitan coordinarse para no contactar dos veces al mismo negocio.</div>
+ <h2>Preguntas frecuentes</h2>
+ <p><span class="q">¿Por qué salen datos de ejemplo?</span> Si Google no responde o hay un problema con la clave, la app muestra negocios de demostración y un aviso. Avisa al responsable técnico.</p>
+ <p><span class="q">¿Un negocio no tiene correo y debería?</span> Pulsa reintentar; si sigue sin aparecer, búscalo en su perfil de Google Maps o contáctalo por WhatsApp.</p>
+ <p><span class="q">¿Puedo usarlo desde el celular?</span> Sí, la app se adapta a pantallas pequeñas.</p>
+ <p><span class="q">¿Veo la cuota?</span> Sí, en el menú y en <b>Ajustes</b> hay un medidor de consultas del mes.</p>
+</div>
+</body></html>
