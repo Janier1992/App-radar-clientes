@@ -285,7 +285,7 @@ export function getMockResultsForNiche(targetZone: string, targetNiche: string):
   }
 
   // 7. Veterinarias
-  if (normNiche.includes('veterin') || normNiche.includes('mascot')) {
+  if (normNiche.includes('veterin') || (normNiche.includes('mascot') && !normNiche.includes('tienda'))) {
     return [
       {
         id: 'place-vet-1',

@@ -135,7 +135,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                 <Briefcase className="w-3.5 h-3.5 text-emerald-400" />
                 Nicho / Categoría
               </span>
-              <span className="text-[11px] text-slate-400 font-normal">14 nichos sugeridos</span>
+              <span className="text-[11px] text-slate-400 font-normal">{PREDEFINED_NICHES.length} nichos sugeridos</span>
             </label>
             <div className="relative">
               <input

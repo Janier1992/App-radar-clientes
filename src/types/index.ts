@@ -143,6 +143,11 @@ export const PREDEFINED_NICHES = [
   'autoescuelas',
   'ópticas',
   'gestorías',
+  'ferreterías',
+  'panaderías',
+  'lavanderías',
+  'tiendas de mascotas',
+  'jardines infantiles',
 ] as const;
 
 export type PredefinedNiche = typeof PREDEFINED_NICHES[number];
