@@ -41,6 +41,18 @@ export const NICHE_PRIMARY_TYPES: Record<string, string[]> = {
   'gestorías': ['accounting', 'tax_preparation_service'],
   'asesorías contables': ['accounting', 'tax_preparation_service'],
   'abogados': ['law_firm', 'lawyer'],
+  'ferreterías': ['hardware_store'],
+  'ferreteria': ['hardware_store'],
+  'panaderías': ['bakery'],
+  'panaderia': ['bakery'],
+  'pastelería': ['bakery'],
+  'lavanderías': ['laundry'],
+  'lavanderia': ['laundry'],
+  'tiendas de mascotas': ['pet_store'],
+  'tienda de mascotas': ['pet_store'],
+  'jardines infantiles': ['preschool', 'child_care_agency'],
+  'jardin infantil': ['preschool', 'child_care_agency'],
+  'guarderia': ['child_care_agency', 'preschool'],
 };
 
 // Palabras clave negativas para evitar contaminación cruzada entre nichos incompatibles
@@ -54,6 +66,11 @@ export const NICHE_NEGATIVE_KEYWORDS: Record<string, string[]> = {
   'mecanic': ['estetic', 'spa', 'odontolog', 'dental', 'unas', 'peluquer', 'peinado', 'depilacion'],
   'restaurante': ['mecanic', 'taller', 'odontolog', 'dental', 'estetic'],
   'fisioterapia': ['mecanic', 'taller', 'repuesto', 'automotriz'],
+  'ferreteria': ['restaurante', 'estetic', 'odontolog', 'dental', 'peluquer'],
+  'panaderia': ['mecanic', 'taller', 'odontolog', 'dental', 'estetic', 'ferreteria'],
+  'lavanderia': ['mecanic', 'taller', 'autos', 'carros', 'vehiculo', 'automotriz'],
+  'mascotas': ['mecanic', 'taller', 'odontolog', 'dental', 'estetic humana'],
+  'jardin': ['mecanic', 'taller', 'repuesto', 'automotriz'],
 };
 
 function normalizeText(text: string): string {
