@@ -17,7 +17,8 @@ import {
   ChevronRight, 
   Award,
   Globe,
-  Sliders
+  Sliders,
+  Info
 } from 'lucide-react';
 import { PREDEFINED_NICHES, RadarAnalysisResponse, NicheStat } from '../../types';
 import { runRadarAnalysis } from '../../services/radarService';
@@ -87,8 +88,8 @@ export const RadarNichos: React.FC<RadarNichosProps> = ({
     try {
       const data = await runRadarAnalysis(zone, selectedCategories, googleCloudApiKey);
       setRadarData(data);
-      if (onIncrementQuota) {
-        onIncrementQuota(selectedCategories.length);
+      if (onIncrementQuota && data.placesCallsUsed) {
+        onIncrementQuota(data.placesCallsUsed);
       }
     } catch (err) {
       console.warn('Aviso al ejecutar radar:', err);
@@ -305,7 +306,7 @@ export const RadarNichos: React.FC<RadarNichosProps> = ({
               Analizando el mercado local en {zone}
             </h3>
             <p className="text-xs text-slate-400 mt-1">
-              Rastreando empresas, calculando porcentajes de webs inexistentes y ordenando por rentabilidad con Gemini...
+              Consultando Google Places por cada categoría, calculando el porcentaje de webs inexistentes y ordenando por oportunidad...
             </p>
           </div>
         </div>
@@ -314,12 +315,29 @@ export const RadarNichos: React.FC<RadarNichosProps> = ({
       {/* RESULTADOS DEL RADAR */}
       {radarData && !isAnalyzing && (
         <div className="space-y-6 animate-in fade-in duration-200">
+          {/* Origen de los datos */}
+          {radarData.categories.some((c) => c.isEstimated) ? (
+            <div className="bg-amber-950/30 border border-amber-500/30 rounded-xl px-4 py-3 text-xs text-amber-200 flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+              <span>
+                Las categorías marcadas como <strong>Estimado</strong> usan valores de referencia del sector, porque no hay clave de Google Cloud o la consulta a Google Places falló. Las marcadas como <strong>Dato real</strong> se calcularon con negocios reales (hasta 20 por categoría).
+              </span>
+            </div>
+          ) : (
+            <div className="bg-emerald-950/30 border border-emerald-500/30 rounded-xl px-4 py-3 text-xs text-emerald-200 flex items-start gap-2.5">
+              <Info className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
+                Datos reales de Google Places: se analizaron hasta 20 negocios por categoría en {radarData.zone}.
+              </span>
+            </div>
+          )}
+
           {/* BANNER DE RECOMENDACIÓN DE GEMINI (TOP 3) */}
           <div className="bg-gradient-to-r from-slate-900 to-slate-900/90 border border-amber-500/30 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">
             <div className="flex items-center gap-2.5 text-amber-400">
               <Sparkles className="w-5 h-5" />
               <h2 className="text-base sm:text-lg font-bold text-slate-100">
-                Recomendación Estratégica de Gemini para {radarData.zone}
+                Recomendación Estratégica para {radarData.zone}
               </h2>
             </div>
 
@@ -384,7 +402,7 @@ export const RadarNichos: React.FC<RadarNichosProps> = ({
                 Ranking Completo de Oportunidad por Categoría
               </h3>
               <span className="text-xs text-slate-400">
-                Ordenado por puntuación de oportunidad calculada por Gemini
+                Ordenado por puntuación de oportunidad
               </span>
             </div>
 
@@ -394,7 +412,7 @@ export const RadarNichos: React.FC<RadarNichosProps> = ({
                   <tr>
                     <th className="p-3 text-center w-12">Puesto</th>
                     <th className="p-3">Categoría</th>
-                    <th className="p-3 text-center">Encontrados</th>
+                    <th className="p-3 text-center" title="Máximo 20 negocios por consulta">Encontrados (máx. 20)</th>
                     <th className="p-3">Sin web propia (%)</th>
                     <th className="p-3 text-center">Valoración media</th>
                     <th className="p-3 text-center">Media reseñas</th>
@@ -413,8 +431,22 @@ export const RadarNichos: React.FC<RadarNichosProps> = ({
                         #{cat.opportunityRank}
                       </td>
                       <td className="p-3">
-                        <div className="font-bold text-slate-100 capitalize">
+                        <div className="font-bold text-slate-100 capitalize flex items-center gap-1.5">
                           {cat.category}
+                          <span
+                            className={`px-1.5 py-0.5 rounded text-[9px] font-semibold uppercase tracking-wide normal-case border ${
+                              cat.isEstimated
+                                ? 'text-amber-300 bg-amber-500/10 border-amber-500/30'
+                                : 'text-emerald-300 bg-emerald-500/10 border-emerald-500/30'
+                            }`}
+                            title={
+                              cat.isEstimated
+                                ? 'Valores de referencia del sector: no se consultó Google Places para esta categoría'
+                                : 'Calculado con negocios reales de Google Places'
+                            }
+                          >
+                            {cat.isEstimated ? 'Estimado' : 'Dato real'}
+                          </span>
                         </div>
                         <div className="text-[11px] text-slate-400 line-clamp-1">
                           {cat.opportunityRationale}
