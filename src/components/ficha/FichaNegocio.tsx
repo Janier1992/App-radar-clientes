@@ -98,6 +98,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
       const updatedLead: BusinessLead = {
         ...lead,
         auditData: result.auditData,
+        auditError: result.auditError,
         analysis: result.analysis,
         drafts: result.drafts,
         opportunityScore: result.opportunityScore,
@@ -536,16 +537,22 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
           </div>
         )}
 
-        {/* Si tiene web pero todavía no se ha analizado */}
+        {/* Si tiene web pero no hay mediciones de PageSpeed */}
         {hasOwnWebsite && !lead.auditData && !isAnalyzing && (
           <div className="bg-slate-950/60 border border-slate-800 rounded-xl p-6 text-center text-slate-400 space-y-2">
             <Zap className="w-8 h-8 text-slate-400 mx-auto" />
             <p className="text-xs sm:text-sm text-slate-300 font-medium">
               Web detectada: <span className="font-mono text-emerald-400">{lead.websiteUri}</span>
             </p>
-            <p className="text-xs max-w-md mx-auto text-slate-400">
-              Pulsa el botón «Analizar web ahora» para medir velocidad en móvil, capturar la pantalla y generar la auditoría de problemas con Gemini.
-            </p>
+            {lead.auditError ? (
+              <p className="text-xs max-w-md mx-auto text-amber-300">
+                No se pudo medir la velocidad de esta web. {lead.auditError} Puedes volver a intentarlo con «Volver a analizar».
+              </p>
+            ) : (
+              <p className="text-xs max-w-md mx-auto text-slate-400">
+                Pulsa el botón «Analizar web ahora» para medir velocidad en móvil, capturar la pantalla y generar la auditoría de problemas con Gemini.
+              </p>
+            )}
           </div>
         )}
       </div>

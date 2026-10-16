@@ -92,6 +92,7 @@ export interface BusinessLead {
 
   // Auditorías completas
   auditData?: PageSpeedAudit;
+  auditError?: string; // Motivo por el que PageSpeed no pudo medir la web
   analysis?: GeminiAnalysis;
   drafts?: ProspectingDrafts;
 }

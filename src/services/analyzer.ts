@@ -1,9 +1,11 @@
 import { BusinessLead, PageSpeedAudit, GeminiAnalysis, ProspectingDrafts, SellerProfile } from '../types';
 import { calculatePreliminaryScore } from './opportunityScore';
 import { generateGeminiAnalysis } from './geminiClient';
+import { fetchPageSpeedAudit } from './pageSpeedClient';
 
 export interface AuditResult {
   auditData?: PageSpeedAudit;
+  auditError?: string;
   analysis?: GeminiAnalysis;
   drafts?: ProspectingDrafts;
   opportunityScore: number;
@@ -71,92 +73,73 @@ export async function runBusinessAnalysis(
     };
   }
 
-  // Si tiene web propia, intentamos llamar a los endpoints reales
-  try {
-    const response = await fetch('/api/analyze/full', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        lead,
-        sellerProfile,
-        tone,
-        apiKey: googleCloudApiKey,
-      }),
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return data;
-    }
-  } catch (err) {
-    console.warn('Endpoint backend no disponible o fallo de red, generando auditoría client-side:', err);
-  }
-
-  // Generador inteligente client-side (con cálculo real del score y simulación realista de Lighthouse)
-  await new Promise((resolve) => setTimeout(resolve, 2000)); // Simula análisis
-
-  // Simulación realista basada en características típicas de negocios locales
-  const perfScore = Math.floor(32 + Math.random() * 28); // 32 - 60 (la mayoría de webs locales fallan en móvil)
-  const seoScore = Math.floor(65 + Math.random() * 20);
-  const a11yScore = Math.floor(70 + Math.random() * 18);
-  const bpScore = Math.floor(60 + Math.random() * 25);
-
-  const auditData: PageSpeedAudit = {
-    performance: perfScore,
-    seo: seoScore,
-    accessibility: a11yScore,
-    bestPractices: bpScore,
-    analyzedAt: new Date().toISOString(),
-  };
+  // Con web propia: medición real con Google PageSpeed Insights (Lighthouse móvil)
+  const psi = await fetchPageSpeedAudit(lead.websiteUri || '', googleCloudApiKey);
+  const auditData = psi.audit;
 
   const fallbackAnalysis: GeminiAnalysis = {
-    summary: `${lead.name} ofrece servicios especializados de ${lead.primaryTypeDisplayName || 'atención local'} en ${lead.formattedAddress.split(',')[0]}. Su portal digital actual presenta deficiencias de velocidad en dispositivos móviles y carece de automatizaciones de atención al cliente.`,
+    summary: `${lead.name} ofrece servicios de ${lead.primaryTypeDisplayName || 'atención local'} en ${lead.formattedAddress.split(',')[0]} y cuenta con sitio web propio.${
+      auditData
+        ? ` Su rendimiento móvil medido por Google es ${auditData.performance}/100.`
+        : ''
+    }`,
     checklist: {
       hasHttps: lead.websiteUri?.startsWith('https') ?? false,
-      mobileResponsive: perfScore > 45,
+      mobileResponsive: auditData ? auditData.performance >= 50 : false,
       whatsappButton: false,
       onlineBooking: false,
-      contactForm: true,
-      outdatedSignals: [
-        'Tiempo de carga móvil superior a 4,5 segundos en conexiones estándar.',
-        'No cuenta con integración directa de WhatsApp para resolver dudas rápidas en 1 clic.',
-        'Diseño sin sistema de reservas o citas automáticas fuera de horario comercial.',
-      ],
+      contactForm: false,
+      outdatedSignals: auditData && auditData.performance < 50
+        ? [`Rendimiento móvil bajo según Google PageSpeed (${auditData.performance}/100).`]
+        : ['Sin análisis de contenido: activa Gemini para revisar WhatsApp, reservas y formularios del sitio.'],
     },
     contactsFound: {
       emails: lead.email ? [lead.email] : [],
       socialLinks: [],
     },
     plainProblems: [
-      `La web tarda demasiado en cargar en teléfonos móviles (nota de rendimiento: ${perfScore}/100), lo que hace que usuarios impacientes abandonen antes de leer.`,
-      'No tienen un botón flotante de WhatsApp para que los usuarios pidan presupuesto al instante sin rellenar formularios largos.',
-      'No disponen de calendario o sistema para agendar citas automáticamente en fines de semana o noches.',
-      'El contenido visual no destaca las reseñas positivas de clientes para generar confianza inmediata.',
+      ...(auditData && auditData.performance < 75
+        ? [`La web carga lento en celulares (nota de rendimiento: ${auditData.performance}/100), lo que hace que usuarios impacientes abandonen antes de leer.`]
+        : []),
+      'Verifica si el sitio tiene un botón directo de WhatsApp para pedir cotización al instante.',
+      'Verifica si los clientes pueden agendar citas o reservas fuera del horario de atención.',
     ],
     recommendedService: lead.primaryTypeDisplayName?.includes('dental') || lead.primaryTypeDisplayName?.includes('fisio') || lead.primaryTypeDisplayName?.includes('peluquer')
       ? 'sistema_citas'
-      : perfScore < 45
+      : auditData && auditData.performance < 45
       ? 'web_nueva'
       : 'agente_whatsapp',
-    recommendedServiceRationale: `Para un negocio como ${lead.name}, un sistema automatizado de captación aumentaría su conversión directa entre un 25% y un 40% al capturar clientes en el momento exacto de la búsqueda.`,
+    recommendedServiceRationale: `Un canal de atención automatizado ayudaría a ${lead.name} a no perder consultas fuera de horario.`,
   };
 
-  const analysis = (await generateGeminiAnalysis(lead, sellerProfile)) || fallbackAnalysis;
+  const analysis = (await generateGeminiAnalysis(lead, sellerProfile, auditData)) || fallbackAnalysis;
   const drafts = generateDrafts(lead, sellerProfile, analysis, tone);
 
-  // Cálculo del score post-análisis
-  const scoreBreakdown = [
-    { label: `Rendimiento móvil deficiente (${perfScore}/100) (+25)`, points: 25, type: 'positive' as const },
-    { label: 'Falta botón directo de WhatsApp (+15)', points: 15, type: 'positive' as const },
-    { label: 'Sin sistema de citas o reservas online (+15)', points: 15, type: 'positive' as const },
-    { label: `Clientela activa (${lead.userRatingCount || 0} reseñas) con capacidad de inversión (+20)`, points: 20, type: 'positive' as const },
-    { label: 'Tiene dominio propio operativo (-10)', points: -10, type: 'negative' as const },
-  ];
+  // Score post-análisis basado en datos medidos (las líneas sin dato medido no suman)
+  const scoreBreakdown: AuditResult['scoreBreakdown'] = [];
+  if (auditData) {
+    if (auditData.performance < 50) {
+      scoreBreakdown.push({ label: `Rendimiento móvil deficiente (${auditData.performance}/100) (+25)`, points: 25, type: 'positive' });
+    } else if (auditData.performance < 75) {
+      scoreBreakdown.push({ label: `Rendimiento móvil mejorable (${auditData.performance}/100) (+12)`, points: 12, type: 'positive' });
+    } else {
+      scoreBreakdown.push({ label: `Buen rendimiento móvil (${auditData.performance}/100) (0)`, points: 0, type: 'neutral' });
+    }
+  }
+  if (!analysis.checklist.whatsappButton) {
+    scoreBreakdown.push({ label: 'Falta botón directo de WhatsApp (+15)', points: 15, type: 'positive' });
+  }
+  if (!analysis.checklist.onlineBooking) {
+    scoreBreakdown.push({ label: 'Sin sistema de citas o reservas online (+15)', points: 15, type: 'positive' });
+  }
+  scoreBreakdown.push({ label: `Clientela activa (${lead.userRatingCount || 0} reseñas) con capacidad de inversión (+20)`, points: 20, type: 'positive' });
+  scoreBreakdown.push({ label: 'Tiene dominio propio operativo (-10)', points: -10, type: 'negative' });
 
   const totalScore = Math.min(100, Math.max(0, scoreBreakdown.reduce((acc, b) => acc + b.points, 15)));
 
   return {
     auditData,
+    auditError: psi.error,
     analysis,
     drafts,
     opportunityScore: totalScore,
