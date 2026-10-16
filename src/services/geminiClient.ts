@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { BusinessLead, GeminiAnalysis, SellerProfile } from '../types';
+import { BusinessLead, GeminiAnalysis, PageSpeedAudit, SellerProfile } from '../types';
 
 const MODEL = 'gemini-2.5-flash';
 
@@ -62,7 +62,7 @@ const analysisResponseSchema = {
   required: ['summary', 'checklist', 'contactsFound', 'plainProblems', 'recommendedService', 'recommendedServiceRationale'],
 };
 
-function buildPrompt(lead: BusinessLead, seller: SellerProfile, hasWebsite: boolean): string {
+function buildPrompt(lead: BusinessLead, seller: SellerProfile, hasWebsite: boolean, audit?: PageSpeedAudit): string {
   return `
 Eres un consultor de digitalización B2B que audita negocios locales en Medellín y Colombia para la agencia "${seller.companyOrAgency}".
 
@@ -77,6 +77,10 @@ Datos del negocio a auditar:
   }
 
 ${
+  audit
+    ? `Mediciones reales de Google PageSpeed (móvil, de 0 a 100): rendimiento ${audit.performance}, SEO ${audit.seo}, accesibilidad ${audit.accessibility}, buenas prácticas ${audit.bestPractices}. Úsalas como evidencia en tu análisis y no inventes otras cifras.\n\n`
+    : ''
+}${
   hasWebsite
     ? 'Visita el sitio web indicado arriba y basa tu análisis en su contenido real (velocidad percibida, textos, botones de contacto, reservas online, diseño).'
     : 'Este negocio no tiene sitio web propio: basa el análisis en su categoría, dirección, calificación y volumen de reseñas.'
@@ -96,13 +100,14 @@ Devuelve un análisis de oportunidad comercial honesto y ESPECÍFICO de este neg
  */
 export async function generateGeminiAnalysis(
   lead: BusinessLead,
-  seller: SellerProfile
+  seller: SellerProfile,
+  audit?: PageSpeedAudit
 ): Promise<GeminiAnalysis | null> {
   const client = getClient();
   if (!client) return null;
 
   const hasWebsite = lead.websiteClassification.type === 'own' && Boolean(lead.websiteUri);
-  const prompt = buildPrompt(lead, seller, hasWebsite);
+  const prompt = buildPrompt(lead, seller, hasWebsite, audit);
 
   const parseResponse = (text: string | undefined): GeminiAnalysis | null => {
     if (!text) return null;

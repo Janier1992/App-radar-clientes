@@ -92,6 +92,7 @@ export interface BusinessLead {
 
   // Auditorías completas
   auditData?: PageSpeedAudit;
+  auditError?: string; // Motivo por el que PageSpeed no pudo medir la web
   analysis?: GeminiAnalysis;
   drafts?: ProspectingDrafts;
 }
@@ -163,6 +164,7 @@ export interface NicheStat {
   recommendedService: string; // e.g. "Agente de IA por WhatsApp"
   serviceRationale: string;
   opportunityRationale: string;
+  isEstimated?: boolean; // true si usa valores de referencia en vez de datos reales de Google Places
 }
 
 export interface RadarAnalysisResponse {
@@ -175,6 +177,7 @@ export interface RadarAnalysisResponse {
   }[];
   executiveSummary: string;
   analyzedAt: string;
+  placesCallsUsed?: number; // consultas reales a Google Places que se realizaron
 }
 
 export interface FavoriteSearch {

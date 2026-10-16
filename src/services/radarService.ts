@@ -1,32 +1,11 @@
-import { NicheStat, RadarAnalysisResponse, PREDEFINED_NICHES } from '../types';
+import { NicheStat, RadarAnalysisResponse } from '../types';
+import { searchGooglePlaces } from './googlePlacesClient';
 
 export async function runRadarAnalysis(
   zone: string,
   categories: string[],
   googleCloudApiKey?: string
 ): Promise<RadarAnalysisResponse> {
-  // Intentamos conectar con backend si está disponible
-  try {
-    const res = await fetch('/api/radar/analyze', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        zone,
-        categories,
-        apiKey: googleCloudApiKey,
-      }),
-    });
-
-    if (res.ok) {
-      return await res.json();
-    }
-  } catch (err) {
-    console.warn('Endpoint /api/radar/analyze no respondió, generando cálculo asistido:', err);
-  }
-
-  // Simulación realista asistida por modelo para la zona indicada
-  await new Promise((resolve) => setTimeout(resolve, 2400));
-
   // Mapa de conocimiento de digitalización en Colombia y Medellín para los nichos
   const marketProfiles: Record<
     string,
@@ -283,34 +262,60 @@ export async function runRadarAnalysis(
     },
   };
 
-  const calculatedCategories: NicheStat[] = categories.map((catName) => {
-    const profile = marketProfiles[catName.toLowerCase()] || {
-      avgTotalFound: 15,
-      pctNoWebRange: [50, 70],
-      avgRatingRange: [4.2, 4.6],
-      avgReviewsRange: [20, 50],
-      primaryService: 'Página Web y Agente de WhatsApp',
-      serviceRationale: 'Captar clientes locales y automatizar respuestas rápidas.',
-      opportunityRationale: 'Falta de presencia digital moderna.',
-      opportunityMultiplier: 1.0,
-    };
+  const defaultProfile = {
+    avgTotalFound: 15,
+    pctNoWebRange: [50, 70] as [number, number],
+    avgRatingRange: [4.2, 4.6] as [number, number],
+    avgReviewsRange: [20, 50] as [number, number],
+    primaryService: 'Página Web y Agente de WhatsApp',
+    serviceRationale: 'Captar clientes locales y automatizar respuestas rápidas.',
+    opportunityRationale: 'Falta de presencia digital moderna.',
+    opportunityMultiplier: 1.0,
+  };
 
-    const pctNoWeb = Math.floor(
-      profile.pctNoWebRange[0] +
-        Math.random() * (profile.pctNoWebRange[1] - profile.pctNoWebRange[0])
-    );
-    const avgRating = parseFloat(
-      (
-        profile.avgRatingRange[0] +
-        Math.random() * (profile.avgRatingRange[1] - profile.avgRatingRange[0])
-      ).toFixed(1)
-    );
-    const avgReviews = Math.floor(
-      profile.avgReviewsRange[0] +
-        Math.random() * (profile.avgReviewsRange[1] - profile.avgReviewsRange[0])
-    );
+  const mid = (range: [number, number]) => (range[0] + range[1]) / 2;
 
-    // Score calculado a partir de: % sin web (40%), volumen de actividad (30%), reputación (15%) y multiplicador de sector (15%)
+  // Consulta real a Google Places por categoría (una llamada por categoría, hasta 20 negocios)
+  const hasKey = Boolean(googleCloudApiKey && googleCloudApiKey.trim());
+  const realStats = await Promise.all(
+    categories.map(async (catName) => {
+      if (!hasKey) return null;
+      try {
+        const leads = (await searchGooglePlaces(zone, catName, googleCloudApiKey as string)).filter(
+          (l) => l.businessStatus !== 'CLOSED_PERMANENTLY'
+        );
+        const rated = leads.filter((l) => typeof l.rating === 'number');
+        return {
+          totalFound: leads.length,
+          pctNoWeb: leads.length
+            ? Math.round((leads.filter((l) => l.websiteClassification.type !== 'own').length / leads.length) * 100)
+            : 0,
+          avgRating: rated.length
+            ? parseFloat((rated.reduce((acc, l) => acc + (l.rating || 0), 0) / rated.length).toFixed(1))
+            : 0,
+          avgReviews: leads.length
+            ? Math.round(leads.reduce((acc, l) => acc + (l.userRatingCount || 0), 0) / leads.length)
+            : 0,
+        };
+      } catch (err) {
+        console.warn(`Radar: no se pudo consultar Google Places para «${catName}»:`, err);
+        return null;
+      }
+    })
+  );
+  const placesCallsUsed = realStats.filter(Boolean).length;
+
+  const calculatedCategories: NicheStat[] = categories.map((catName, index) => {
+    const profile = marketProfiles[catName.toLowerCase()] || defaultProfile;
+    const real = realStats[index];
+
+    // Datos reales de Google Places, o estimación de referencia del sector si no hay clave o falló la consulta
+    const totalFound = real ? real.totalFound : profile.avgTotalFound;
+    const pctNoWeb = real ? real.pctNoWeb : Math.round(mid(profile.pctNoWebRange));
+    const avgRating = real ? real.avgRating : parseFloat(mid(profile.avgRatingRange).toFixed(1));
+    const avgReviews = real ? real.avgReviews : Math.round(mid(profile.avgReviewsRange));
+
+    // Score calculado a partir de: % sin web, volumen de actividad (reseñas), reputación y peso del sector
     const rawScore =
       pctNoWeb * 0.45 +
       Math.min(100, avgReviews * 1.4) * 0.25 +
@@ -318,12 +323,12 @@ export async function runRadarAnalysis(
 
     const finalScore = Math.min(
       99,
-      Math.max(35, Math.round(rawScore * profile.opportunityMultiplier))
+      Math.max(real && real.totalFound === 0 ? 0 : 35, Math.round(rawScore * profile.opportunityMultiplier))
     );
 
     return {
       category: catName,
-      totalFound: profile.avgTotalFound,
+      totalFound,
       percentWithoutOwnWeb: pctNoWeb,
       avgRating,
       avgReviews,
@@ -332,6 +337,7 @@ export async function runRadarAnalysis(
       recommendedService: profile.primaryService,
       serviceRationale: profile.serviceRationale,
       opportunityRationale: profile.opportunityRationale,
+      isEstimated: !real,
     };
   });
 
@@ -350,11 +356,13 @@ export async function runRadarAnalysis(
     serviceToSell: `${item.recommendedService} — ${item.serviceRationale}`,
   }));
 
-  const executiveSummary = `En ${zone}, los sectores de ${topThree
+  const executiveSummary = `En ${zone}, los nichos con mayor puntaje de oportunidad son ${topThree
     .map((t) => `«${t.category}»`)
     .join(
       ', '
-    )} presentan la mayor combinación de clientela activa insatisfecha por falta de canales digitales directos y presupuestos favorables para invertir en digitalización.`;
+    )}. El puntaje combina el porcentaje de negocios sin web propia, la actividad de reseñas y la reputación en Google${
+    placesCallsUsed < categories.length ? ' (las categorías marcadas como «Estimado» usan valores de referencia del sector)' : ''
+  }.`;
 
   return {
     zone,
@@ -362,5 +370,6 @@ export async function runRadarAnalysis(
     topRecommendations: topThree,
     executiveSummary,
     analyzedAt: new Date().toISOString(),
+    placesCallsUsed,
   };
 }
