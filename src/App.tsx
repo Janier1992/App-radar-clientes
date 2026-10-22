@@ -151,7 +151,9 @@ export default function App() {
       sellerName={sellerProfile.name}
     >
       {/* Vista condicional según pantalla activa */}
-      {activeScreen === 'buscar' && (
+      {/* La búsqueda permanece montada (oculta) al cambiar de pantalla para conservar
+          resultados, filtros, vista y selección al volver desde una ficha. */}
+      <div className={activeScreen === 'buscar' ? '' : 'hidden'}>
         <SearchScreen
           initialZone={searchZone}
           initialNiche={searchNiche}
@@ -170,7 +172,7 @@ export default function App() {
             }));
           }}
         />
-      )}
+      </div>
 
       {activeScreen === 'ficha' && (
         activeLead ? (

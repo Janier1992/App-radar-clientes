@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ScreenType } from '../../types';
@@ -32,6 +32,15 @@ export const Layout: React.FC<LayoutProps> = ({
 }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // Al volver a «Buscar» se restaura el scroll donde el usuario lo dejó; las demás pantallas abren arriba.
+  const mainRef = useRef<HTMLElement>(null);
+  const searchScrollRef = useRef(0);
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    if (!main) return;
+    main.scrollTop = activeScreen === 'buscar' ? searchScrollRef.current : 0;
+  }, [activeScreen]);
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
       {/* Sidebar navigation */}
@@ -60,7 +69,13 @@ export const Layout: React.FC<LayoutProps> = ({
         />
 
         {/* Central Content Area */}
-        <main className="flex-1 overflow-y-auto bg-slate-950 p-4 sm:p-6 lg:p-8">
+        <main
+          ref={mainRef}
+          onScroll={(e) => {
+            if (activeScreen === 'buscar') searchScrollRef.current = e.currentTarget.scrollTop;
+          }}
+          className="flex-1 overflow-y-auto bg-slate-950 p-4 sm:p-6 lg:p-8"
+        >
           <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>
