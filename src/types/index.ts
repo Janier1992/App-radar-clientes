@@ -1,4 +1,4 @@
-export type ScreenType = 'buscar' | 'ficha' | 'radar' | 'leads' | 'ajustes';
+export type ScreenType = 'buscar' | 'ficha' | 'radar' | 'leads' | 'historial' | 'ajustes';
 
 export interface WebsiteType {
   type: 'own' | 'directory_or_social' | 'none';
@@ -185,4 +185,42 @@ export interface FavoriteSearch {
   zone: string;
   niche: string;
   savedAt: string;
+}
+
+// ---------- Historial y trazabilidad ----------
+export type ActivityType =
+  | 'ficha'
+  | 'analisis'
+  | 'guardado'
+  | 'whatsapp'
+  | 'llamada'
+  | 'web'
+  | 'maps'
+  | 'correo'
+  | 'acercamiento';
+
+export type ApproachChannel = 'whatsapp' | 'llamada' | 'correo' | 'presencial' | 'otro';
+
+export interface ActivityEvent {
+  id: string;
+  type: ActivityType;
+  at: string; // ISO
+  channel?: ApproachChannel; // solo en 'acercamiento'
+  note?: string;
+}
+
+export interface TrackedBusiness {
+  id: string; // id del lugar en Google Places
+  lead: BusinessLead; // última versión conocida del negocio (para reabrir su ficha)
+  firstSeenAt: string;
+  lastActivityAt: string;
+  events: ActivityEvent[];
+}
+
+export interface SearchLogEntry {
+  id: string;
+  zone: string;
+  niche: string;
+  resultsCount: number;
+  at: string;
 }

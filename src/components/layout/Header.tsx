@@ -34,6 +34,10 @@ export const Header: React.FC<HeaderProps> = ({
       title: 'Mis Leads y Embudo de Ventas',
       subtitle: 'Gestiona el estado de contacto, reuniones y clientes en proceso.',
     },
+    historial: {
+      title: 'Historial de Prospección',
+      subtitle: 'Trazabilidad de negocios vistos, canales usados y búsquedas realizadas.',
+    },
     ajustes: {
       title: 'Ajustes y Perfil Comercial',
       subtitle: 'Claves de API, monitor de consumo de Places y tono de los mensajes.',

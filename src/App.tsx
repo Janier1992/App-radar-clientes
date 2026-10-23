@@ -5,7 +5,26 @@ import { FichaNegocio } from './components/ficha/FichaNegocio';
 import { RadarNichos } from './components/radar/RadarNichos';
 import { MisLeads } from './components/leads/MisLeads';
 import { AjustesScreen } from './components/ajustes/AjustesScreen';
-import { ScreenType, BusinessLead, SellerProfile, AppQuotaSettings } from './types';
+import { HistorialScreen } from './components/historial/HistorialScreen';
+import {
+  addBusinessEvent,
+  addSearchEntry,
+  loadSearchLog,
+  loadTrackedBusinesses,
+  refreshBusinessSnapshot,
+  saveSearchLog,
+  saveTrackedBusinesses,
+} from './services/activityLog';
+import {
+  ScreenType,
+  BusinessLead,
+  SellerProfile,
+  AppQuotaSettings,
+  ActivityType,
+  ApproachChannel,
+  SearchLogEntry,
+  TrackedBusiness,
+} from './types';
 import { 
   Building2, 
   Target, 
@@ -110,7 +129,39 @@ export default function App() {
     }
   }, [quotaSettings]);
 
+  // Historial y trazabilidad (se guarda en el navegador, igual que los leads)
+  const [trackedBusinesses, setTrackedBusinesses] = useState<TrackedBusiness[]>(loadTrackedBusinesses);
+  const [searchLog, setSearchLog] = useState<SearchLogEntry[]>(loadSearchLog);
+
+  useEffect(() => {
+    saveTrackedBusinesses(trackedBusinesses);
+  }, [trackedBusinesses]);
+
+  useEffect(() => {
+    saveSearchLog(searchLog);
+  }, [searchLog]);
+
+  const trackActivity = (
+    lead: BusinessLead,
+    type: ActivityType,
+    extra?: { channel?: ApproachChannel; note?: string }
+  ) => {
+    setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, type, extra));
+  };
+
+  const handleSearchPerformed = (zone: string, niche: string, resultsCount: number) => {
+    setSearchLog((prev) => addSearchEntry(prev, { zone, niche, resultsCount }));
+  };
+
+  const openFicha = (lead: BusinessLead) => {
+    trackActivity(lead, 'ficha');
+    setActiveLead(lead);
+    setActiveScreen('ficha');
+  };
+
   const handleSaveLead = (lead: BusinessLead) => {
+    const alreadySaved = savedLeads.some((l) => l.id === lead.id);
+    if (!alreadySaved) trackActivity(lead, 'guardado');
     setSavedLeads((prev) => {
       if (prev.some((l) => l.id === lead.id)) {
         return prev.filter((l) => l.id !== lead.id);
@@ -121,6 +172,7 @@ export default function App() {
 
   const handleUpdateLead = (updated: BusinessLead) => {
     setActiveLead(updated);
+    setTrackedBusinesses((prev) => refreshBusinessSnapshot(prev, updated));
     setSavedLeads((prev) =>
       prev.map((l) => (l.id === updated.id ? updated : l))
     );
@@ -142,6 +194,7 @@ export default function App() {
       activeScreen={activeScreen}
       onNavigate={setActiveScreen}
       leadsCount={savedLeads.length}
+      historyCount={trackedBusinesses.length}
       hasActiveBusiness={activeLead !== null}
       activeBusinessName={activeLead?.name}
       monthlyCallsCount={quotaSettings.monthlyPlacesCallsCount}
@@ -157,13 +210,12 @@ export default function App() {
         <SearchScreen
           initialZone={searchZone}
           initialNiche={searchNiche}
-          onNavigateToBusiness={(lead) => {
-            setActiveLead(lead);
-            setActiveScreen('ficha');
-          }}
+          onNavigateToBusiness={openFicha}
           onNavigateToSettings={() => setActiveScreen('ajustes')}
           onSaveLead={handleSaveLead}
           isSavedLead={isSavedLead}
+          onTrack={trackActivity}
+          onSearchPerformed={handleSearchPerformed}
           googleCloudApiKey={quotaSettings.googleCloudApiKey}
           onIncrementQuota={() => {
             setQuotaSettings((prev) => ({
@@ -182,6 +234,7 @@ export default function App() {
             isSaved={isSavedLead(activeLead.id)}
             onSaveLead={handleSaveLead}
             onUpdateLead={handleUpdateLead}
+            onTrack={trackActivity}
             onBack={() => setActiveScreen('buscar')}
             googleCloudApiKey={quotaSettings.googleCloudApiKey}
           />
@@ -232,13 +285,32 @@ export default function App() {
       {activeScreen === 'leads' && (
         <MisLeads
           leads={savedLeads}
-          onNavigateToBusiness={(lead) => {
-            setActiveLead(lead);
-            setActiveScreen('ficha');
-          }}
+          onNavigateToBusiness={openFicha}
           onUpdateLead={handleUpdateLead}
+          onTrack={trackActivity}
           onDeleteLead={handleDeleteLead}
           onNavigateToSearch={() => setActiveScreen('buscar')}
+        />
+      )}
+
+      {activeScreen === 'historial' && (
+        <HistorialScreen
+          businesses={trackedBusinesses}
+          searches={searchLog}
+          onOpenFicha={(lead) => openFicha(savedLeads.find((l) => l.id === lead.id) ?? lead)}
+          onAddApproach={(lead, channel, note) =>
+            trackActivity(lead, 'acercamiento', { channel, note: note || undefined })
+          }
+          onDeleteBusiness={(id) => setTrackedBusinesses((prev) => prev.filter((t) => t.id !== id))}
+          onClearAll={() => {
+            setTrackedBusinesses([]);
+            setSearchLog([]);
+          }}
+          onRepeatSearch={(zone, niche) => {
+            setSearchZone(zone);
+            setSearchNiche(niche);
+            setActiveScreen('buscar');
+          }}
         />
       )}
 

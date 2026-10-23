@@ -33,7 +33,10 @@
 8. **Mini-CRM y Embudo de Ventas:**
    * Tablero Kanban y tabla con etapas: *Nuevo*, *Analizado*, *Contactado*, *Respondió*, *Reunión*, *Cliente* y *Descartado*. Notas, fechas de próxima acción, exportación a **CSV / Excel** y copia de seguridad en JSON.
 
-9. **Control de Cuotas:**
+9. **Historial de prospección (trazabilidad):**
+   * Registra cada búsqueda y cada negocio visto, con la actividad de contacto (WhatsApp, llamada, web, correo, Maps) y los acercamientos que registres a mano. Filtros, línea de tiempo por negocio y exportación a CSV.
+
+10. **Control de Cuotas:**
    * Medidor de consumo de llamadas a Google Places con alerta preventiva de límite mensual.
 
 ---
