@@ -10,7 +10,8 @@ import {
   ExternalLink,
   ChevronRight,
   ShieldCheck,
-  Zap
+  Zap,
+  History
 } from 'lucide-react';
 import { ScreenType } from '../../types';
 
@@ -18,6 +19,7 @@ interface SidebarProps {
   activeScreen: ScreenType;
   onNavigate: (screen: ScreenType) => void;
   leadsCount?: number;
+  historyCount?: number;
   hasActiveBusiness?: boolean;
   activeBusinessName?: string;
   monthlyCallsCount?: number;
@@ -31,6 +33,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   activeScreen,
   onNavigate,
   leadsCount = 0,
+  historyCount = 0,
   hasActiveBusiness = false,
   activeBusinessName,
   monthlyCallsCount = 0,
@@ -78,6 +81,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: Users,
       description: 'Embudo de prospección CRM',
       badge: leadsCount > 0 ? leadsCount : undefined,
+    },
+    {
+      id: 'historial',
+      label: 'Historial',
+      icon: History,
+      description: 'Trazabilidad de negocios y búsquedas',
+      badge: historyCount > 0 ? historyCount : undefined,
     },
     {
       id: 'ajustes',

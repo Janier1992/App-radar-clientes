@@ -35,7 +35,8 @@ import {
   PipelineStatus, 
   PageSpeedAudit, 
   GeminiAnalysis, 
-  ProspectingDrafts 
+  ProspectingDrafts,
+  ActivityType
 } from '../../types';
 import { runBusinessAnalysis, generateDrafts } from '../../services/analyzer';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
@@ -46,6 +47,7 @@ interface FichaNegocioProps {
   isSaved: boolean;
   onSaveLead: (lead: BusinessLead) => void;
   onUpdateLead: (updated: BusinessLead) => void;
+  onTrack?: (lead: BusinessLead, type: ActivityType) => void;
   onBack: () => void;
   googleCloudApiKey?: string;
 }
@@ -56,6 +58,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
   isSaved,
   onSaveLead,
   onUpdateLead,
+  onTrack,
   onBack,
   googleCloudApiKey,
 }) => {
@@ -109,6 +112,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
       };
 
       onUpdateLead(updatedLead);
+      onTrack?.(updatedLead, 'analisis');
       setPipelineStatus(updatedLead.pipelineStatus);
     } catch (err) {
       console.warn('Aviso al analizar negocio:', err);
@@ -302,6 +306,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                 <>
                   <a
                     href={`tel:${lead.nationalPhoneNumber.replace(/\s+/g, '')}`}
+                    onClick={() => onTrack?.(lead, 'llamada')}
                     className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold shadow-md shadow-emerald-950/40 transition-colors cursor-pointer"
                   >
                     <PhoneCall className="w-4 h-4" />
@@ -311,6 +316,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                   {whatsAppGeneralUrl && (
                     <a
                       href={whatsAppGeneralUrl}
+                      onClick={() => onTrack?.(lead, 'whatsapp')}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 text-xs font-semibold shadow-md transition-colors cursor-pointer"
@@ -331,6 +337,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
               {lead.websiteUri ? (
                 <a
                   href={lead.websiteUri}
+                  onClick={() => onTrack?.(lead, 'web')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 text-xs font-semibold transition-colors cursor-pointer"
@@ -349,6 +356,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
               {lead.googleMapsUri && (
                 <a
                   href={lead.googleMapsUri}
+                  onClick={() => onTrack?.(lead, 'maps')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-100 text-xs font-semibold transition-colors cursor-pointer"
@@ -759,6 +767,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                     {whatsAppDirectDraftUrl && (
                       <a
                         href={whatsAppDirectDraftUrl}
+                        onClick={() => onTrack?.(lead, 'whatsapp')}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-md shadow-emerald-950/40 transition-colors cursor-pointer"

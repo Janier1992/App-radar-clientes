@@ -23,7 +23,7 @@ import {
   AlertCircle,
   MessageSquare
 } from 'lucide-react';
-import { BusinessLead, PipelineStatus } from '../../types';
+import { ActivityType, BusinessLead, PipelineStatus } from '../../types';
 import { LeadsAnalyticsSummary } from './LeadsAnalyticsSummary';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
 
@@ -31,6 +31,7 @@ interface MisLeadsProps {
   leads: BusinessLead[];
   onNavigateToBusiness: (lead: BusinessLead) => void;
   onUpdateLead: (lead: BusinessLead) => void;
+  onTrack?: (lead: BusinessLead, type: ActivityType) => void;
   onDeleteLead: (id: string) => void;
   onNavigateToSearch: () => void;
 }
@@ -97,6 +98,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
   leads,
   onNavigateToBusiness,
   onUpdateLead,
+  onTrack,
   onDeleteLead,
   onNavigateToSearch,
 }) => {
@@ -427,6 +429,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                             <div className="flex items-center justify-between gap-1">
                               <a
                                 href={`tel:${lead.nationalPhoneNumber.replace(/\s+/g, '')}`}
+                  onClick={() => onTrack?.(lead, 'llamada')}
                                 className="text-[11px] text-slate-300 hover:text-emerald-400 flex items-center gap-1 font-mono"
                               >
                                 <Phone className="w-3 h-3 text-emerald-400" />
@@ -435,6 +438,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                               {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                                 <a
                                   href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, `Hola, me comunico con ${lead.name}. Quisiera consultar sobre sus servicios.`) || undefined}
+                  onClick={() => onTrack?.(lead, 'whatsapp')}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   className="text-emerald-400 hover:text-emerald-200 p-1 rounded-sm hover:bg-emerald-500/10"
@@ -563,6 +567,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                           <div className="flex items-center gap-1.5">
                             <a
                               href={`tel:${lead.nationalPhoneNumber.replace(/\s+/g, '')}`}
+                  onClick={() => onTrack?.(lead, 'llamada')}
                               className="text-emerald-400 hover:underline font-mono"
                             >
                               {lead.nationalPhoneNumber}
@@ -570,6 +575,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                             {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                               <a
                                 href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, `Hola, me comunico con ${lead.name}. Quisiera consultar información sobre sus servicios.`) || undefined}
+                  onClick={() => onTrack?.(lead, 'whatsapp')}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-emerald-400 hover:text-emerald-200 p-1 rounded-sm hover:bg-emerald-500/10"
@@ -585,7 +591,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                       </td>
                       <td className="p-3">
                         {lead.email ? (
-                          <a href={`mailto:${lead.email}`} className="text-sky-400 hover:underline break-all">
+                          <a href={`mailto:${lead.email}`} onClick={() => onTrack?.(lead, 'correo')} className="text-sky-400 hover:underline break-all">
                             {lead.email}
                           </a>
                         ) : (
@@ -596,6 +602,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                         {lead.websiteClassification.type === 'own' ? (
                           <a
                             href={lead.websiteUri}
+                  onClick={() => onTrack?.(lead, 'web')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-emerald-400 hover:underline flex items-center gap-1"

@@ -8,7 +8,8 @@ import {
   SearchErrorState, 
   BusinessLead, 
   ScreenType,
-  FavoriteSearch 
+  FavoriteSearch,
+  ActivityType
 } from '../../types';
 import { 
   Search, 
@@ -48,6 +49,8 @@ interface SearchScreenProps {
   onNavigateToSettings: () => void;
   onSaveLead: (lead: BusinessLead) => void;
   isSavedLead: (id: string) => boolean;
+  onTrack?: (lead: BusinessLead, type: ActivityType) => void;
+  onSearchPerformed?: (zone: string, niche: string, resultsCount: number) => void;
   googleCloudApiKey?: string;
   onIncrementQuota?: () => void;
   initialZone?: string;
@@ -59,6 +62,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   onNavigateToSettings,
   onSaveLead,
   isSavedLead,
+  onTrack,
+  onSearchPerformed,
   googleCloudApiKey,
   onIncrementQuota,
   initialZone = 'El Poblado, Medellín',
@@ -184,6 +189,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
           const liveResults = await searchGooglePlaces(targetZone, targetNiche, googleCloudApiKey);
           if (liveResults && liveResults.length > 0) {
             setResults(liveResults);
+            onSearchPerformed?.(targetZone, targetNiche, liveResults.length);
             // Búsqueda automática de correos en segundo plano (la tabla se va llenando sola)
             void runEmailSearch(liveResults);
             if (onIncrementQuota) onIncrementQuota();
@@ -324,7 +330,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
 
   const renderEmail = (lead: BusinessLead) =>
     lead.email ? (
-      <a href={`mailto:${lead.email}`} className="text-sky-400 hover:underline break-all">
+      <a href={`mailto:${lead.email}`} onClick={() => onTrack?.(lead, 'correo')} className="text-sky-400 hover:underline break-all">
         {lead.email}
       </a>
     ) : emailLoadingIds.has(lead.id) ? (
@@ -787,6 +793,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                           <>
                             <a
                               href={`tel:${lead.nationalPhoneNumber.replace(/\s+/g, '')}`}
+                  onClick={() => onTrack?.(lead, 'llamada')}
                               className="p-2 rounded-lg bg-slate-800 hover:bg-emerald-600 text-slate-300 hover:text-white transition-colors"
                               title={`Llamar: ${lead.nationalPhoneNumber}`}
                             >
@@ -796,6 +803,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                             {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                               <a
                                 href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, `Hola, me comunico con ${lead.name}. Quisiera consultar sobre sus servicios.`) || undefined}
+                  onClick={() => onTrack?.(lead, 'whatsapp')}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="p-2 rounded-lg bg-emerald-500/15 hover:bg-emerald-600 text-emerald-400 hover:text-white transition-colors"
@@ -810,6 +818,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                         {lead.websiteUri ? (
                           <a
                             href={lead.websiteUri}
+                  onClick={() => onTrack?.(lead, 'web')}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
@@ -919,6 +928,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                               <div className="flex items-center gap-1.5">
                                 <a
                                   href={`tel:${lead.nationalPhoneNumber.replace(/\s+/g, '')}`}
+                  onClick={() => onTrack?.(lead, 'llamada')}
                                   className="text-emerald-400 hover:underline font-mono"
                                 >
                                   {lead.nationalPhoneNumber}
@@ -926,6 +936,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                                 {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                                   <a
                                     href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, `Hola, me comunico con ${lead.name}. Quisiera consultar información sobre sus servicios.`) || undefined}
+                  onClick={() => onTrack?.(lead, 'whatsapp')}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-emerald-400 hover:text-emerald-200 p-1 rounded-sm hover:bg-emerald-500/10"
@@ -944,6 +955,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                             {hasOwn ? (
                               <a
                                 href={lead.websiteUri}
+                  onClick={() => onTrack?.(lead, 'web')}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-emerald-400 hover:underline flex items-center gap-1"

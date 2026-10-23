@@ -23,6 +23,7 @@ import {
 import { AppQuotaSettings, SellerProfile, BusinessLead } from '../../types';
 import { testGooglePlacesConnection, GooglePlacesErrorDetails } from '../../services/googlePlacesClient';
 import { isGeminiConfigured } from '../../services/geminiClient';
+import { loadSearchLog, loadTrackedBusinesses } from '../../services/activityLog';
 
 interface AjustesScreenProps {
   quotaSettings: AppQuotaSettings;
@@ -126,6 +127,8 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
       leads: allLeads,
       quotaSettings,
       sellerProfile,
+      activityLog: loadTrackedBusinesses(),
+      searchLog: loadSearchLog(),
     };
 
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
@@ -632,7 +635,7 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
               Exportar copia de seguridad ({leadsCount} leads guardados)
             </span>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Descarga un archivo JSON completo con todas las fichas, notas, auditorías y ajustes de la aplicación.
+              Descarga un archivo JSON completo con todas las fichas, notas, auditorías, historial de prospección y ajustes de la aplicación.
             </p>
           </div>
 

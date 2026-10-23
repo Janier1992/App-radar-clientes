@@ -8,6 +8,7 @@ interface LayoutProps {
   onNavigate: (screen: ScreenType) => void;
   children: React.ReactNode;
   leadsCount?: number;
+  historyCount?: number;
   hasActiveBusiness?: boolean;
   activeBusinessName?: string;
   monthlyCallsCount?: number;
@@ -22,6 +23,7 @@ export const Layout: React.FC<LayoutProps> = ({
   onNavigate,
   children,
   leadsCount = 0,
+  historyCount = 0,
   hasActiveBusiness = false,
   activeBusinessName,
   monthlyCallsCount = 0,
@@ -48,6 +50,7 @@ export const Layout: React.FC<LayoutProps> = ({
         activeScreen={activeScreen}
         onNavigate={onNavigate}
         leadsCount={leadsCount}
+        historyCount={historyCount}
         hasActiveBusiness={hasActiveBusiness}
         activeBusinessName={activeBusinessName}
         monthlyCallsCount={monthlyCallsCount}

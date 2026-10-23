@@ -57,7 +57,7 @@ figcaption b{color:var(--em)}
  <h1>Radar de Clientes</h1>
  <p class="lead" style="max-width:5in;font-size:16px">Manual de usuario: encuentra negocios locales, detecta quién necesita una web o automatización y contáctalos con una propuesta lista.</p>
  <div class="pills"><span class="pill">Buscar negocios</span><span class="pill">Detectar web propia</span><span class="pill">Correo y teléfono</span><span class="pill">Score de oportunidad</span><span class="pill">Propuestas con IA</span><span class="pill">Mini-CRM</span></div>
- <p class="lead" style="font-size:12px">Guía rápida para el equipo de la agencia · octubre 2026 · v4</p>
+ <p class="lead" style="font-size:12px">Guía rápida para el equipo de la agencia · octubre 2026 · v5</p>
 </div>
 
 <div class="sec first"><span class="num">01</span><span class="tag">Introducción</span></div>
@@ -69,8 +69,8 @@ figcaption b{color:var(--em)}
  <div class="card"><h3>Ficha y propuesta</h3><p>Auditoría de la web y textos listos para WhatsApp, llamada y correo.</p></div>
  <div class="card"><h3>Radar de nichos</h3><p>Compara categorías de una zona para saber cuál conviene atacar primero.</p></div>
  <div class="card"><h3>Mis leads</h3><p>Embudo de ventas con estados, notas, fechas y exportación a Excel.</p></div>
- <div class="card"><h3>Ajustes</h3><p>Tu perfil comercial, para que los mensajes salgan a tu nombre.</p></div>
- <div class="card"><h3>Cuota</h3><p>Contador de consultas a Google para no pasarse del límite mensual.</p></div>
+ <div class="card"><h3>Ajustes</h3><p>Tu perfil comercial, para que los mensajes salgan a tu nombre, y la copia de seguridad.</p></div>
+ <div class="card"><h3>Historial</h3><p>Registro de los negocios que viste, los canales que usaste y tus búsquedas.</p></div>
 </div>
 <h2>Cómo funciona, en cinco pasos</h2>
 <div class="steps"><div class="step"><b>1</b>Configura tu perfil</div><span class="arrow">→</span><div class="step"><b>2</b>Busca zona y nicho</div><span class="arrow">→</span><div class="step"><b>3</b>Revisa los resultados</div><span class="arrow">→</span><div class="step"><b>4</b>Abre la ficha y analiza</div><span class="arrow">→</span><div class="step"><b>5</b>Contacta y haz seguimiento</div></div>
@@ -78,7 +78,7 @@ figcaption b{color:var(--em)}
 <h2>Antes de empezar</h2>
 <ul><li>Entra desde el navegador (computadora o celular) con el enlace de la app que te compartió la agencia.</li><li>Las claves de Google y Gemini ya están configuradas en el servidor: <b>no tienes que ingresar ninguna</b>.</li><li>Ve a <b>Ajustes → Mi perfil comercial</b> y completa tu nombre, la agencia y la propuesta de valor. Es lo que usa la IA para firmar los mensajes.</li></ul>
 <h2>La pantalla principal</h2>
-<p>A la izquierda está el <b>menú</b> con las cinco secciones (Buscar, Ficha del negocio, Radar de nichos, Mis leads y Ajustes) y, abajo, el <b>medidor de cuota mensual</b>. A la derecha se muestra la sección activa.</p>
+<p>A la izquierda está el <b>menú</b> con las seis secciones (Buscar, Ficha del negocio, Radar de nichos, Mis leads, Historial y Ajustes) y, abajo, el <b>medidor de cuota mensual</b>. A la derecha se muestra la sección activa.</p>
 <figure><img src="img/buscar-inicio.jpg"><figcaption><b>Figura 1.</b> Pantalla de búsqueda: menú lateral, formulario de zona y nicho, atajos y favoritos.</figcaption></figure>
 <p class="small">Todas las capturas de este manual usan negocios y datos de ejemplo, no clientes reales.</p>
 
@@ -173,17 +173,35 @@ figcaption b{color:var(--em)}
 <p>La tabla incluye el <b>correo</b> de cada lead, su estado, la presencia web y la oportunidad. Con <b>Exportar CSV</b> descargas la lista filtrada (nombre, teléfono, correo, web, puntaje, estado, notas) y la abres en Excel.</p>
 <figure><img src="img/leads-tabla.jpg"><figcaption><b>Figura 14.</b> Vista de tabla con correo, estado editable y botón de Excel.</figcaption></figure>
 
-<div class="sec pb"><span class="num">07</span><span class="tag">Ajustes</span></div>
+<div class="sec pb"><span class="num">07</span><span class="tag">Historial</span></div>
+<h1>Historial de prospección</h1>
+<p>El <b>Historial</b> deja constancia de qué negocios has visto y de qué hiciste con cada uno, para no repetir contactos y saber en qué punto está cada negocio. Se llena <b>solo</b>, mientras trabajas.</p>
+<h2>Qué se registra automáticamente</h2>
+<ul><li><b>Cada búsqueda:</b> fecha, zona, nicho y cuántos resultados salieron.</li><li><b>Cada negocio:</b> cuando abres su ficha, lo analizas, lo guardas en Mis leads, abres su WhatsApp, pulsas llamar, visitas su web, abres Google Maps o abres su correo. Cada acción queda con fecha y hora.</li></ul>
+<h2>Estados de cada negocio</h2>
+<table><tr><th>Estado</th><th>Qué significa</th></tr>
+ <tr><td>Solo visto</td><td>Abriste su ficha o lo analizaste, pero no usaste ningún canal de contacto.</td></tr>
+ <tr><td>Canal abierto, sin confirmar</td><td>Abriste WhatsApp, la llamada o su correo. La app <b>no puede saber</b> si enviaste el mensaje.</td></tr>
+ <tr><td>Acercamiento registrado</td><td>Tú dejaste registrado que enviaste la solicitud (ver más abajo).</td></tr></table>
+<h2>Dejar constancia de un acercamiento enviado</h2>
+<p>Pulsa la flecha de un negocio para ver su <b>línea de tiempo</b>. A la derecha elige el canal (WhatsApp, llamada, correo, visita presencial u otro), escribe una nota opcional, por ejemplo «envié propuesta de web», y pulsa <b>Registrar</b>.</p>
+<figure><img src="img/historial-negocios.jpg"><figcaption><b>Figura 15.</b> Negocios con su actividad, su estado y la línea de tiempo con el registro de un acercamiento.</figcaption></figure>
+<h2>Búsquedas realizadas</h2>
+<p>En la pestaña <b>Búsquedas</b> ves todas tus consultas. El botón <b>Repetir</b> te lleva a Buscar con esa zona y ese nicho ya escritos.</p>
+<figure><img src="img/historial-busquedas.jpg"><figcaption><b>Figura 16.</b> Registro de búsquedas, con el botón para repetirlas.</figcaption></figure>
+<h2>Filtrar, exportar y limpiar</h2>
+<ul><li>Busca por nombre, categoría, dirección o correo y filtra por estado.</li><li><b>Exportar CSV</b> descarga la lista (con cuántas veces usaste cada canal y el último acercamiento) para abrirla en Excel.</li><li><b>Ficha →</b> reabre la ficha del negocio; el icono de papelera lo quita del historial.</li></ul>
+<div class="warn"><b>Ojo con los datos:</b> el historial se guarda <b>en tu navegador</b>, como tus leads, y no se comparte con el resto del equipo. Guarda hasta 300 negocios y 200 búsquedas (lo más antiguo se descarta). La copia de seguridad JSON de Ajustes también incluye el historial.</div>
+
+<div class="sec pb"><span class="num">08</span><span class="tag">Ajustes</span></div>
 <h1>Ajustes y perfil comercial</h1>
 <p>En <b>Ajustes</b> configuras lo que personaliza tus mensajes. Completa estos datos antes de generar propuestas:</p>
-<ul><li><b>Tu nombre</b> y el de <b>tu agencia</b>: aparecen en la firma de los textos.</li><li><b>Propuesta de valor:</b> el gancho de venta que la IA usa para redactar.</li><li><b>Tono predeterminado:</b> cercano, profesional o directo.</li><li><b>Monitor de cuota:</b> define cuándo salta el aviso preventivo de consultas a Google (por defecto a las 800).</li><li><b>Copia de seguridad:</b> el botón <b>Descargar JSON</b> guarda todas tus fichas, notas y ajustes en un archivo. Úsalo para no perder datos o pasarlos a otro navegador.</li></ul>
-<figure><img src="img/ajustes.jpg"><figcaption><b>Figura 15.</b> Perfil comercial de prospección (Gemini activo) y copia de seguridad de datos locales.</figcaption></figure>
-<p class="small">La clave de Google ya está configurada en el servidor. Esta sección también permite usar una clave propia y probar la conexión, pero no es necesario.</p>
+<ul><li><b>Tu nombre</b> y el de <b>tu agencia</b>: aparecen en la firma de los textos.</li><li><b>Propuesta de valor:</b> el gancho de venta que la IA usa para redactar.</li><li><b>Tono predeterminado:</b> cercano, profesional o directo.</li><li><b>Monitor de cuota:</b> define cuándo salta el aviso preventivo de consultas a Google (por defecto a las 800). La clave de Google ya está configurada en el servidor; no necesitas cambiarla.</li><li><b>Copia de seguridad:</b> el botón <b>Descargar JSON</b> guarda todas tus fichas, notas, historial y ajustes en un archivo. Úsalo para no perder datos o pasarlos a otro navegador.</li></ul>
+<figure><img src="img/ajustes.jpg"><figcaption><b>Figura 17.</b> Perfil comercial de prospección (Gemini activo) y copia de seguridad de datos locales.</figcaption></figure>
 <h2>Preguntas frecuentes</h2>
 <p><span class="q">¿Por qué salen datos de ejemplo?</span> Si Google no responde o hay un problema con la clave, la app muestra negocios de demostración y un aviso. Avisa al responsable técnico.</p>
 <p><span class="q">¿Un negocio no tiene correo y debería?</span> Pulsa el botón de reintentar; si sigue sin aparecer, búscalo en su perfil de Google Maps o contáctalo por WhatsApp.</p>
 <p><span class="q">¿Por qué una categoría del Radar dice «Estimado»?</span> Porque no se pudo consultar Google para esa categoría (sin clave o error de Google). Sus números son una referencia del sector, no una medición.</p>
 <p><span class="q">¿Por qué no aparecen las notas de velocidad?</span> Google PageSpeed no pudo medir esa web o se alcanzó su límite de consultas. La ficha muestra el motivo; pide al responsable técnico que revise que «PageSpeed Insights API» esté habilitada.</p>
-<p><span class="q">¿Puedo usarlo desde el celular?</span> Sí, la app se adapta a pantallas pequeñas.</p>
-<p><span class="q">¿Veo la cuota?</span> Sí, en la parte inferior del menú y en <b>Ajustes</b> hay un medidor de consultas del mes.</p>
+<p><span class="q">¿Puedo usarlo desde el celular? ¿Veo la cuota?</span> Sí a ambas: la app se adapta a pantallas pequeñas, y en la parte inferior del menú y en <b>Ajustes</b> hay un medidor de consultas del mes.</p>
 </body></html>
