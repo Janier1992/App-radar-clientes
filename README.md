@@ -34,7 +34,7 @@
    * Tablero Kanban y tabla con etapas: *Nuevo*, *Analizado*, *Contactado*, *Respondió*, *Reunión*, *Cliente* y *Descartado*. Notas, fechas de próxima acción, exportación a **CSV / Excel** y copia de seguridad en JSON.
 
 9. **Historial de prospección (trazabilidad):**
-   * Registra cada búsqueda y cada negocio visto, con la actividad de contacto (WhatsApp, llamada, web, correo, Maps) y los acercamientos que registres a mano. Filtros, línea de tiempo por negocio y exportación a CSV.
+   * Registra cada búsqueda y cada negocio visto, con la actividad de contacto (WhatsApp, llamada, web, correo, Maps) y los acercamientos que registres a mano. Filtros, orden, línea de tiempo por negocio y **exportación ordenada a Excel (.xlsx, 4 hojas), PDF y CSV**.
 
 10. **Control de Cuotas:**
    * Medidor de consumo de llamadas a Google Places con alerta preventiva de límite mensual.

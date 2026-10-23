@@ -19,6 +19,9 @@ import {
   BookmarkCheck,
   Handshake,
   RotateCcw,
+  FileSpreadsheet,
+  FileText,
+  Loader2,
 } from 'lucide-react';
 import {
   ActivityType,
@@ -31,9 +34,11 @@ import {
   ACTIVITY_LABELS,
   ApproachStatus,
   CHANNEL_LABELS,
+  STATUS_LABELS,
   countEvents,
   getApproachStatus,
 } from '../../services/activityLog';
+import { exportHistoryCsv, exportHistoryPdf, exportHistoryXlsx } from '../../services/historyExport';
 
 interface HistorialScreenProps {
   businesses: TrackedBusiness[];
@@ -81,9 +86,6 @@ const formatDate = (iso: string) =>
     minute: '2-digit',
   });
 
-const csvCell = (value: string | number | undefined) =>
-  `"${String(value ?? '').replace(/"/g, '""')}"`;
-
 export const HistorialScreen: React.FC<HistorialScreenProps> = ({
   businesses,
   searches,
@@ -96,6 +98,10 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
   const [tab, setTab] = useState<'negocios' | 'busquedas'>('negocios');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ApproachStatus>('all');
+  const [sortBy, setSortBy] = useState<'reciente' | 'nombre' | 'estado'>('reciente');
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exporting, setExporting] = useState<null | 'xlsx' | 'pdf' | 'csv'>(null);
+  const [exportError, setExportError] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [channel, setChannel] = useState<ApproachChannel>('whatsapp');
   const [note, setNote] = useState('');
@@ -109,9 +115,12 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
     return c;
   }, [businesses]);
 
+  const STATUS_ORDER: Record<ApproachStatus, number> = { acercamiento: 0, canal_abierto: 1, solo_visto: 2 };
+  const SORT_LABELS = { reciente: 'Más reciente primero', nombre: 'Nombre (A-Z)', estado: 'Estado de acercamiento' } as const;
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return businesses.filter((b) => {
+    const list = businesses.filter((b) => {
       if (statusFilter !== 'all' && getApproachStatus(b) !== statusFilter) return false;
       if (!q) return true;
       return (
@@ -121,46 +130,37 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
         (b.lead.email || '').toLowerCase().includes(q)
       );
     });
-  }, [businesses, query, statusFilter]);
-
-  const handleExportCSV = () => {
-    if (filtered.length === 0) return;
-    const headers = [
-      'Negocio', 'Categoría', 'Teléfono', 'Correo', 'Web', 'Dirección',
-      'Primera vez visto', 'Última actividad', 'Fichas vistas', 'WhatsApp abierto',
-      'Llamadas', 'Visitas a su web', 'Acercamientos registrados', 'Estado',
-      'Último acercamiento (canal)', 'Último acercamiento (nota)',
-    ];
-    const rows = filtered.map((b) => {
-      const lastApproach = b.events.find((e) => e.type === 'acercamiento');
-      return [
-        b.lead.name,
-        b.lead.primaryTypeDisplayName,
-        b.lead.nationalPhoneNumber,
-        b.lead.email,
-        b.lead.websiteUri,
-        b.lead.formattedAddress,
-        formatDate(b.firstSeenAt),
-        formatDate(b.lastActivityAt),
-        countEvents(b, 'ficha'),
-        countEvents(b, 'whatsapp'),
-        countEvents(b, 'llamada'),
-        countEvents(b, 'web'),
-        countEvents(b, 'acercamiento'),
-        STATUS_META[getApproachStatus(b)].label,
-        lastApproach?.channel ? CHANNEL_LABELS[lastApproach.channel] : '',
-        lastApproach?.note,
-      ].map(csvCell).join(';');
+    return [...list].sort((a, b) => {
+      if (sortBy === 'nombre') return a.lead.name.localeCompare(b.lead.name, 'es', { numeric: true });
+      if (sortBy === 'estado') {
+        const diff = STATUS_ORDER[getApproachStatus(a)] - STATUS_ORDER[getApproachStatus(b)];
+        if (diff !== 0) return diff;
+      }
+      return b.lastActivityAt.localeCompare(a.lastActivityAt);
     });
-    const csv = '﻿' + [headers.map(csvCell).join(';'), ...rows].join('\r\n');
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `radar_historial_${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  }, [businesses, query, statusFilter, sortBy]);
+
+  const filterNote = [
+    `Estado: ${statusFilter === 'all' ? 'todos' : STATUS_LABELS[statusFilter]}`,
+    query.trim() ? `Búsqueda: "${query.trim()}"` : '',
+    `Orden: ${SORT_LABELS[sortBy]}`,
+  ].filter(Boolean).join(' · ');
+
+  const handleExport = async (format: 'xlsx' | 'pdf' | 'csv') => {
+    setExportOpen(false);
+    setExportError('');
+    setExporting(format);
+    try {
+      const options = { businesses: filtered, searches, filterNote };
+      if (format === 'xlsx') await exportHistoryXlsx(options);
+      else if (format === 'pdf') await exportHistoryPdf(options);
+      else exportHistoryCsv(options);
+    } catch (err) {
+      console.warn('Error al exportar el historial:', err);
+      setExportError('No se pudo generar el archivo. Intenta de nuevo.');
+    } finally {
+      setExporting(null);
+    }
   };
 
   const handleAddApproach = (b: TrackedBusiness) => {
@@ -186,17 +186,45 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
             Registro de los negocios que has visto y de los canales que usaste para acercarte a cada uno, más las búsquedas que realizaste. Se guarda en este navegador.
           </p>
         </div>
-        {businesses.length > 0 && (
+        {(businesses.length > 0 || searches.length > 0) && (
           <div className="flex items-center gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={handleExportCSV}
-              disabled={filtered.length === 0}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 disabled:opacity-40 border border-slate-800 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
-            >
-              <Download className="w-4 h-4" />
-              Exportar CSV ({filtered.length})
-            </button>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setExportOpen((o) => !o)}
+                disabled={exporting !== null || (filtered.length === 0 && searches.length === 0)}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white text-xs font-semibold transition-colors cursor-pointer"
+              >
+                {exporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                {exporting ? 'Generando...' : 'Exportar'}
+                <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+              {exportOpen && (
+                <div className="absolute right-0 mt-1.5 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-20 overflow-hidden">
+                  <p className="px-3.5 py-2 text-[11px] text-slate-400 border-b border-slate-800">
+                    Se exportan los <strong className="text-slate-200">{filtered.length} negocios</strong> que ves en pantalla (con el filtro y orden actuales) y las {searches.length} búsquedas.
+                  </p>
+                  {([
+                    ['xlsx', FileSpreadsheet, 'Excel (.xlsx)', 'Libro con 4 hojas: Resumen, Negocios, Actividad y Búsquedas'],
+                    ['pdf', FileText, 'PDF', 'Informe ordenado, listo para imprimir o compartir'],
+                    ['csv', Download, 'CSV', 'Solo la tabla de negocios, para otros programas'],
+                  ] as const).map(([fmt, Icon, title, desc]) => (
+                    <button
+                      key={fmt}
+                      type="button"
+                      onClick={() => handleExport(fmt)}
+                      className="w-full text-left px-3.5 py-2.5 hover:bg-slate-800 flex items-start gap-2.5 cursor-pointer"
+                    >
+                      <Icon className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                      <span>
+                        <span className="block text-xs font-semibold text-slate-100">{title}</span>
+                        <span className="block text-[11px] text-slate-400">{desc}</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             {confirmClear ? (
               <span className="inline-flex items-center gap-2 text-xs text-rose-300">
                 ¿Borrar todo?
@@ -241,6 +269,10 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
         </div>
       ) : (
         <>
+          {exportError && (
+            <div className="bg-rose-950/40 border border-rose-500/40 rounded-xl px-4 py-2.5 text-xs text-rose-200">{exportError}</div>
+          )}
+
           {/* Resumen */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {[
@@ -297,6 +329,16 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
                   <option value="acercamiento">Acercamiento registrado</option>
                   <option value="canal_abierto">Canal abierto, sin confirmar</option>
                   <option value="solo_visto">Solo visto</option>
+                </select>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as 'reciente' | 'nombre' | 'estado')}
+                  className="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-hidden"
+                  aria-label="Ordenar por"
+                >
+                  <option value="reciente">Más reciente primero</option>
+                  <option value="nombre">Nombre (A-Z)</option>
+                  <option value="estado">Estado de acercamiento</option>
                 </select>
               </div>
 
