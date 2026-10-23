@@ -13,7 +13,7 @@ export interface HistoryExportOptions {
   filterNote: string; // descripción legible de filtros y orden aplicados
 }
 
-const PIPELINE_LABELS: Record<PipelineStatus, string> = {
+export const PIPELINE_LABELS: Record<PipelineStatus, string> = {
   nuevo: 'Nuevo',
   analizado: 'Analizado',
   contactado: 'Contactado',
@@ -23,22 +23,22 @@ const PIPELINE_LABELS: Record<PipelineStatus, string> = {
   descartado: 'Descartado',
 };
 
-const SERVICE_LABELS: Record<string, string> = {
+export const SERVICE_LABELS: Record<string, string> = {
   web_nueva: 'Web nueva',
   agente_whatsapp: 'Agente de WhatsApp',
   sistema_citas: 'Sistema de citas',
 };
 
-const webTypeLabel = (lead: BusinessLead) =>
+export const webTypeLabel = (lead: BusinessLead) =>
   lead.websiteClassification.type === 'own'
     ? 'Web propia'
     : lead.websiteClassification.type === 'directory_or_social'
     ? `Red social / directorio${lead.websiteClassification.platform ? ` (${lead.websiteClassification.platform})` : ''}`
     : 'Sin web';
 
-const stamp = () => new Date().toISOString().slice(0, 10);
+export const stamp = () => new Date().toISOString().slice(0, 10);
 
-function downloadBlob(blob: Blob, filename: string) {
+export function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -49,7 +49,7 @@ function downloadBlob(blob: Blob, filename: string) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-const formatDateTime = (iso: string) =>
+export const formatDateTime = (iso: string) =>
   new Date(iso).toLocaleString('es-CO', {
     day: '2-digit',
     month: '2-digit',
@@ -290,7 +290,7 @@ export async function exportHistoryXlsx({ businesses, searches, filterNote }: Hi
 
 // ----------------------------------------------------------------- PDF
 // jsPDF usa fuentes estándar (Latin-1): se eliminan emojis y símbolos fuera de ese rango.
-const pdfText = (value: string | number | null | undefined) =>
+export const pdfText = (value: string | number | null | undefined) =>
   String(value ?? '').replace(/[^ -~ -ÿ–—‘’“”•…€]/g, '');
 
 export async function exportHistoryPdf({ businesses, searches, filterNote }: HistoryExportOptions) {
