@@ -112,5 +112,11 @@ export function getApproachStatus(t: TrackedBusiness): ApproachStatus {
   return 'solo_visto';
 }
 
+export const STATUS_LABELS: Record<ApproachStatus, string> = {
+  acercamiento: 'Acercamiento registrado',
+  canal_abierto: 'Canal abierto, sin confirmar',
+  solo_visto: 'Solo visto',
+};
+
 export const countEvents = (t: TrackedBusiness, type: ActivityType) =>
   t.events.filter((e) => e.type === type).length;

@@ -57,7 +57,7 @@ figcaption b{color:var(--em)}
  <h1>Radar de Clientes</h1>
  <p class="lead" style="max-width:5in;font-size:16px">Manual de usuario: encuentra negocios locales, detecta quién necesita una web o automatización y contáctalos con una propuesta lista.</p>
  <div class="pills"><span class="pill">Buscar negocios</span><span class="pill">Detectar web propia</span><span class="pill">Correo y teléfono</span><span class="pill">Score de oportunidad</span><span class="pill">Propuestas con IA</span><span class="pill">Mini-CRM</span></div>
- <p class="lead" style="font-size:12px">Guía rápida para el equipo de la agencia · octubre 2026 · v5</p>
+ <p class="lead" style="font-size:12px">Guía rápida para el equipo de la agencia · octubre 2026 · v6</p>
 </div>
 
 <div class="sec first"><span class="num">01</span><span class="tag">Introducción</span></div>
@@ -189,15 +189,23 @@ figcaption b{color:var(--em)}
 <h2>Búsquedas realizadas</h2>
 <p>En la pestaña <b>Búsquedas</b> ves todas tus consultas. El botón <b>Repetir</b> te lleva a Buscar con esa zona y ese nicho ya escritos.</p>
 <figure><img src="img/historial-busquedas.jpg"><figcaption><b>Figura 16.</b> Registro de búsquedas, con el botón para repetirlas.</figcaption></figure>
-<h2>Filtrar, exportar y limpiar</h2>
-<ul><li>Busca por nombre, categoría, dirección o correo y filtra por estado.</li><li><b>Exportar CSV</b> descarga la lista (con cuántas veces usaste cada canal y el último acercamiento) para abrirla en Excel.</li><li><b>Ficha →</b> reabre la ficha del negocio; el icono de papelera lo quita del historial.</li></ul>
+<h2>Exportar el historial</h2>
+<p>El botón <b>Exportar</b> (arriba a la derecha) genera el archivo con los negocios que ves en pantalla, respetando el filtro y el orden elegidos, más todas las búsquedas.</p>
+<figure><img src="img/historial-exportar.jpg"><figcaption><b>Figura 17.</b> Menú de exportación: Excel, PDF o CSV.</figcaption></figure>
+<table><tr><th>Formato</th><th>Qué contiene y para qué sirve</th></tr>
+ <tr><td>Excel (.xlsx)</td><td>Libro con 4 hojas: <b>Resumen</b> (totales y negocios por categoría), <b>Negocios</b> (una fila por negocio con 27 columnas: contacto, web, valoración, oportunidad, estado, conteo por canal y último acercamiento), <b>Actividad</b> (una fila por acción, ideal para tablas dinámicas) y <b>Búsquedas</b>. Las fechas y los números son datos reales de Excel, con filtros y primera fila fija, para ordenar, filtrar y analizar sin retocar nada.</td></tr>
+ <tr><td>PDF</td><td>Informe ordenado en horizontal: resumen, tabla de negocios con su estado, lista de acercamientos registrados y búsquedas realizadas, con fecha de generación y número de página. Sirve para imprimir o compartir.</td></tr>
+ <tr><td>CSV</td><td>Solo la tabla de negocios, para abrirla en otros programas.</td></tr></table>
+<figure><img src="img/historial-pdf.jpg"><figcaption><b>Figura 18.</b> Ejemplo de la primera página del informe PDF (datos de prueba).</figcaption></figure>
+<h2>Filtrar y limpiar</h2>
+<ul><li>Busca por nombre, categoría, dirección o correo y filtra por estado.</li><li>Ordena la lista por <b>más reciente</b>, <b>nombre (A-Z)</b> o <b>estado de acercamiento</b>. Lo que ves en pantalla es lo que se exporta.</li><li><b>Exportar</b> descarga el historial en <b>Excel</b>, <b>PDF</b> o <b>CSV</b> (ver arriba).</li><li><b>Ficha →</b> reabre la ficha del negocio; el icono de papelera lo quita del historial.</li></ul>
 <div class="warn"><b>Ojo con los datos:</b> el historial se guarda <b>en tu navegador</b>, como tus leads, y no se comparte con el resto del equipo. Guarda hasta 300 negocios y 200 búsquedas (lo más antiguo se descarta). La copia de seguridad JSON de Ajustes también incluye el historial.</div>
 
 <div class="sec pb"><span class="num">08</span><span class="tag">Ajustes</span></div>
 <h1>Ajustes y perfil comercial</h1>
 <p>En <b>Ajustes</b> configuras lo que personaliza tus mensajes. Completa estos datos antes de generar propuestas:</p>
 <ul><li><b>Tu nombre</b> y el de <b>tu agencia</b>: aparecen en la firma de los textos.</li><li><b>Propuesta de valor:</b> el gancho de venta que la IA usa para redactar.</li><li><b>Tono predeterminado:</b> cercano, profesional o directo.</li><li><b>Monitor de cuota:</b> define cuándo salta el aviso preventivo de consultas a Google (por defecto a las 800). La clave de Google ya está configurada en el servidor; no necesitas cambiarla.</li><li><b>Copia de seguridad:</b> el botón <b>Descargar JSON</b> guarda todas tus fichas, notas, historial y ajustes en un archivo. Úsalo para no perder datos o pasarlos a otro navegador.</li></ul>
-<figure><img src="img/ajustes.jpg"><figcaption><b>Figura 17.</b> Perfil comercial de prospección (Gemini activo) y copia de seguridad de datos locales.</figcaption></figure>
+<figure><img src="img/ajustes.jpg"><figcaption><b>Figura 19.</b> Perfil comercial de prospección (Gemini activo) y copia de seguridad de datos locales.</figcaption></figure>
 <h2>Preguntas frecuentes</h2>
 <p><span class="q">¿Por qué salen datos de ejemplo?</span> Si Google no responde o hay un problema con la clave, la app muestra negocios de demostración y un aviso. Avisa al responsable técnico.</p>
 <p><span class="q">¿Un negocio no tiene correo y debería?</span> Pulsa el botón de reintentar; si sigue sin aparecer, búscalo en su perfil de Google Maps o contáctalo por WhatsApp.</p>
