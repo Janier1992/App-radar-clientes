@@ -198,7 +198,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
         </div>
 
         {/* Menú Exportar */}
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-wrap items-center gap-2.5">
           <div className="relative">
             <button
               type="button"
@@ -212,7 +212,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
               <ChevronDown className="w-3.5 h-3.5" />
             </button>
             {exportOpen && (
-              <div className="absolute right-0 mt-1.5 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-20 overflow-hidden">
+              <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-72 max-w-[calc(100vw-2rem)] bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-20 overflow-hidden">
                 <p className="px-3.5 py-2 text-[11px] text-slate-400 border-b border-slate-800">
                   Se exportan los <strong className="text-slate-200">{filteredLeads.length} leads</strong> que ves con los filtros actuales.
                 </p>
