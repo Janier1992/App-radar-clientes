@@ -21,11 +21,15 @@ import {
   XCircle,
   FileSpreadsheet,
   AlertCircle,
-  MessageSquare
+  MessageSquare,
+  ChevronDown,
+  FileText,
+  Loader2
 } from 'lucide-react';
 import { ActivityType, BusinessLead, PipelineStatus } from '../../types';
 import { LeadsAnalyticsSummary } from './LeadsAnalyticsSummary';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
+import { exportLeadsCsv, exportLeadsPdf, exportLeadsXlsx } from '../../services/leadsExport';
 
 interface MisLeadsProps {
   leads: BusinessLead[];
@@ -106,6 +110,9 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterNiche, setFilterNiche] = useState<string>('all');
+  const [exportOpen, setExportOpen] = useState(false);
+  const [exporting, setExporting] = useState<null | 'xlsx' | 'pdf' | 'csv'>(null);
+  const [exportError, setExportError] = useState('');
 
   // Extraer nichos únicos
   const uniqueNiches = Array.from(
@@ -148,62 +155,27 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
     });
   };
 
-  // Exportar a CSV
-  const handleExportCSV = () => {
+  const filterNote = [
+    `Etapa: ${filterStatus === 'all' ? 'todas' : PIPELINE_COLUMNS.find((c) => c.id === filterStatus)?.label.replace(' 🎉', '') || filterStatus}`,
+    `Nicho: ${filterNiche === 'all' ? 'todos' : filterNiche}`,
+    searchTerm.trim() ? `Búsqueda: "${searchTerm.trim()}"` : '',
+  ].filter(Boolean).join(' · ');
+
+  const handleExport = async (format: 'xlsx' | 'pdf' | 'csv') => {
     if (filteredLeads.length === 0) return;
-
-    const headers = [
-      'Nombre',
-      'Categoría',
-      'Teléfono',
-      'Correo',
-      'Dirección',
-      'Tipo de Web',
-      'URL Web',
-      'Valoración',
-      'Reseñas',
-      'Puntuación Oportunidad',
-      'Estado Embudo',
-      'Fecha Próxima Acción',
-      'Servicio Recomendado',
-      'Notas',
-      'Enlace Google Maps'
-    ];
-
-    const rows = filteredLeads.map((l) => [
-      `"${(l.name || '').replace(/"/g, '""')}"`,
-      `"${(l.primaryTypeDisplayName || '').replace(/"/g, '""')}"`,
-      `"${(l.nationalPhoneNumber || '').replace(/"/g, '""')}"`,
-      `"${(l.email || '').replace(/"/g, '""')}"`,
-      `"${(l.formattedAddress || '').replace(/"/g, '""')}"`,
-      `"${l.websiteClassification.type === 'own' ? 'Web Propia' : l.websiteClassification.type === 'directory_or_social' ? `Red/Directorio (${l.websiteClassification.platform || ''})` : 'Sin Web'}"`,
-      `"${(l.websiteUri || '').replace(/"/g, '""')}"`,
-      l.rating ?? '',
-      l.userRatingCount ?? '',
-      l.opportunityScore ?? '',
-      `"${l.pipelineStatus}"`,
-      `"${l.nextActionDate || ''}"`,
-      `"${(l.analysis?.recommendedService || '').replace(/"/g, '""')}"`,
-      `"${(l.notes || '').replace(/"/g, '""')}"`,
-      `"${(l.googleMapsUri || '').replace(/"/g, '""')}"`,
-    ]);
-
-    // BOM para UTF-8 en Excel
-    const csvContent =
-      '\uFEFF' +
-      [headers.join(';'), ...rows.map((e) => e.join(';'))].join('\r\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute(
-      'download',
-      `radar_leads_${new Date().toISOString().slice(0, 10)}.csv`
-    );
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setExportOpen(false);
+    setExportError('');
+    setExporting(format);
+    try {
+      if (format === 'xlsx') await exportLeadsXlsx(filteredLeads, filterNote);
+      else if (format === 'pdf') await exportLeadsPdf(filteredLeads, filterNote);
+      else exportLeadsCsv(filteredLeads);
+    } catch (err) {
+      console.warn('Error al exportar los leads:', err);
+      setExportError('No se pudo generar el archivo. Intenta de nuevo.');
+    } finally {
+      setExporting(null);
+    }
   };
 
   return (
@@ -225,18 +197,46 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
           </p>
         </div>
 
-        {/* Botón Exportar CSV */}
+        {/* Menú Exportar */}
         <div className="flex items-center gap-2.5 shrink-0">
-          <button
-            type="button"
-            disabled={filteredLeads.length === 0}
-            onClick={handleExportCSV}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 border border-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer shadow-xs"
-            title="Exportar todos los leads filtrados a archivo CSV compatible con Excel"
-          >
-            <Download className="w-4 h-4 text-emerald-400" />
-            <span>Exportar CSV ({filteredLeads.length})</span>
-          </button>
+          <div className="relative">
+            <button
+              type="button"
+              disabled={filteredLeads.length === 0 || exporting !== null}
+              onClick={() => setExportOpen((o) => !o)}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 border border-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer shadow-xs"
+              title="Exportar los leads filtrados a Excel, PDF o CSV"
+            >
+              {exporting ? <Loader2 className="w-4 h-4 animate-spin text-emerald-400" /> : <Download className="w-4 h-4 text-emerald-400" />}
+              <span>{exporting ? 'Generando...' : `Exportar (${filteredLeads.length})`}</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </button>
+            {exportOpen && (
+              <div className="absolute right-0 mt-1.5 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl z-20 overflow-hidden">
+                <p className="px-3.5 py-2 text-[11px] text-slate-400 border-b border-slate-800">
+                  Se exportan los <strong className="text-slate-200">{filteredLeads.length} leads</strong> que ves con los filtros actuales.
+                </p>
+                {([
+                  ['xlsx', FileSpreadsheet, 'Excel (.xlsx)', 'Libro con resumen del embudo y tabla de leads'],
+                  ['pdf', FileText, 'PDF', 'Informe ordenado, listo para imprimir o compartir'],
+                  ['csv', Download, 'CSV', 'Para importar en otros programas'],
+                ] as const).map(([fmt, Icon, title, desc]) => (
+                  <button
+                    key={fmt}
+                    type="button"
+                    onClick={() => handleExport(fmt)}
+                    className="w-full text-left px-3.5 py-2.5 hover:bg-slate-800 flex items-start gap-2.5 cursor-pointer"
+                  >
+                    <Icon className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
+                    <span>
+                      <span className="block text-xs font-semibold text-slate-100">{title}</span>
+                      <span className="block text-[11px] text-slate-400">{desc}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           <button
             type="button"
@@ -248,6 +248,8 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
           </button>
         </div>
       </div>
+
+      {exportError && <p className="text-xs text-rose-300">{exportError}</p>}
 
       {/* Resumen Visual del Embudo y Analítica (Recharts) */}
       <LeadsAnalyticsSummary leads={leads} />
