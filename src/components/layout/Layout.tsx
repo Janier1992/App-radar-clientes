@@ -45,7 +45,7 @@ export const Layout: React.FC<LayoutProps> = ({
   }, [activeScreen]);
 
   return (
-    <div className="min-h-dvh bg-slate-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="h-dvh overflow-hidden bg-slate-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
       {/* Sidebar navigation */}
       <Sidebar
         activeScreen={activeScreen}
@@ -62,7 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({
       />
 
       {/* Main content wrapper */}
-      <div className="flex-1 flex flex-col min-w-0 h-dvh overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         {/* Top Header */}
         <Header
           activeScreen={activeScreen}
@@ -78,7 +78,7 @@ export const Layout: React.FC<LayoutProps> = ({
           onScroll={(e) => {
             if (activeScreen === 'buscar') searchScrollRef.current = e.currentTarget.scrollTop;
           }}
-          className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-950 p-4 sm:p-6 lg:p-8 pb-[max(1rem,env(safe-area-inset-bottom))]"
+          className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden overscroll-contain bg-slate-950 p-4 sm:p-6 lg:p-8 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
           <div className="max-w-7xl mx-auto w-full">
             {children}
