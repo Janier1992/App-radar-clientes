@@ -40,7 +40,13 @@ import {
 } from 'lucide-react';
 
 export default function App() {
-  const [activeScreen, setActiveScreen] = useState<ScreenType>('buscar');
+  const [activeScreen, setActiveScreen] = useState<ScreenType>(() => {
+    // Los accesos directos de la app instalada abren una pantalla con ?screen=...
+    const requested = new URLSearchParams(window.location.search).get('screen');
+    return requested && ['buscar', 'radar', 'leads', 'historial', 'ajustes'].includes(requested)
+      ? (requested as ScreenType)
+      : 'buscar';
+  });
   const [searchZone, setSearchZone] = useState('El Poblado, Medellín');
   const [searchNiche, setSearchNiche] = useState('talleres mecánicos');
   
