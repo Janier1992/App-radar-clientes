@@ -31,6 +31,7 @@ let state: PwaState = {
 const listeners = new Set<() => void>();
 let deferredPrompt: BeforeInstallPromptEvent | null = null;
 let waitingWorker: ServiceWorker | null = null;
+let updateRequested = false;
 
 const set = (patch: Partial<PwaState>) => {
   state = { ...state, ...patch };
@@ -77,9 +78,10 @@ export function initPwa() {
       console.warn('No se pudo registrar el service worker:', err);
     }
   });
+  // Solo se recarga cuando la persona pidió actualizar; en la primera instalación el worker toma el control sin recargar.
   let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloading) return;
+    if (!updateRequested || reloading) return;
     reloading = true;
     window.location.reload();
   });
@@ -95,6 +97,7 @@ export async function promptInstall() {
 }
 
 export function applyUpdate() {
+  updateRequested = true;
   waitingWorker?.postMessage('SKIP_WAITING');
 }
 
