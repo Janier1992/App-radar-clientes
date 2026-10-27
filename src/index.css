@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+/* Base de app instalable: sin desbordes laterales, sin saltos de zoom ni destellos al tocar. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+  background-color: #020617;
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+/* Evita que iOS haga zoom al enfocar campos de texto. */
+@media (max-width: 639px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Respeta la zona segura (notch / barra de gestos) con la app instalada. */
+@supports (padding: max(0px)) {
+  header.sticky {
+    padding-top: max(0.875rem, env(safe-area-inset-top));
+  }
+}
+
+/* Los campos dentro de filas flex pueden encogerse en lugar de empujar el diseño fuera de pantalla. */
+input,
+select,
+textarea {
+  min-width: 0;
+}

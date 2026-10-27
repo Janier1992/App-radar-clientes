@@ -1,6 +1,8 @@
 import React from 'react';
+import { usePwa, promptInstall } from '../../pwa/pwa';
 import { 
   Search, 
+  Download,
   Building2, 
   Radar, 
   Users, 
@@ -98,6 +100,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       badgeVariant: isOverLimit ? 'danger' : isNearLimit ? 'warning' : 'default',
     },
   ];
+
+  const { canInstall } = usePwa();
 
   const quotaPercent = Math.min(100, Math.round((monthlyCallsCount / monthlyCallsLimit) * 100));
 
@@ -199,6 +203,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
             );
           })}
         </nav>
+
+        {canInstall && (
+          <div className="px-4 pb-3">
+            <button
+              type="button"
+              onClick={promptInstall}
+              className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-emerald-600/15 hover:bg-emerald-600/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold transition-colors cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              Instalar app
+            </button>
+          </div>
+        )}
 
         {/* Quota & status box with visual alert */}
         <div className="p-4 border-t border-slate-800/80 bg-slate-900/60">

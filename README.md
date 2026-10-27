@@ -36,7 +36,12 @@
 9. **Historial de prospección (trazabilidad):**
    * Registra cada búsqueda y cada negocio visto, con la actividad de contacto (WhatsApp, llamada, web, correo, Maps) y los acercamientos que registres a mano. Filtros, orden, línea de tiempo por negocio y **exportación ordenada a Excel (.xlsx, 4 hojas), PDF y CSV**.
 
-10. **Control de Cuotas:**
+10. **App instalable (PWA) y 100 % responsiva:**
+   * Se instala como app en Android, iOS, Windows, macOS y ChromeOS (botón *Instalar* o *Añadir a pantalla de inicio*), con icono propio, accesos directos y pantalla completa.
+   * Funciona sin conexión para ver leads e historial; las búsquedas y auditorías requieren Internet. Avisa cuando hay una versión nueva.
+   * Diseño adaptable de 320 px a pantallas de escritorio, sin desbordamiento horizontal.
+
+11. **Control de Cuotas:**
    * Medidor de consumo de llamadas a Google Places con alerta preventiva de límite mensual.
 
 ---

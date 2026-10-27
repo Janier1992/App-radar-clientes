@@ -2,6 +2,7 @@ import React, { useState, useRef, useLayoutEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ScreenType } from '../../types';
+import { PwaBanner } from '../../pwa/PwaBanner';
 
 interface LayoutProps {
   activeScreen: ScreenType;
@@ -44,7 +45,7 @@ export const Layout: React.FC<LayoutProps> = ({
   }, [activeScreen]);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+    <div className="min-h-dvh bg-slate-950 text-slate-100 flex flex-col lg:flex-row antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
       {/* Sidebar navigation */}
       <Sidebar
         activeScreen={activeScreen}
@@ -61,7 +62,7 @@ export const Layout: React.FC<LayoutProps> = ({
       />
 
       {/* Main content wrapper */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 h-dvh overflow-hidden">
         {/* Top Header */}
         <Header
           activeScreen={activeScreen}
@@ -77,13 +78,14 @@ export const Layout: React.FC<LayoutProps> = ({
           onScroll={(e) => {
             if (activeScreen === 'buscar') searchScrollRef.current = e.currentTarget.scrollTop;
           }}
-          className="flex-1 overflow-y-auto bg-slate-950 p-4 sm:p-6 lg:p-8"
+          className="flex-1 overflow-y-auto overflow-x-hidden bg-slate-950 p-4 sm:p-6 lg:p-8 pb-[max(1rem,env(safe-area-inset-bottom))]"
         >
           <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>
         </main>
       </div>
+      <PwaBanner />
     </div>
   );
 };
