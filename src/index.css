@@ -7,16 +7,19 @@ html {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* El único elemento que se desplaza es <main> (ver Layout): la ventana queda fija al alto de la pantalla.
+   Así la app instalada no depende del scroll del documento, que en modo standalone no siempre responde. */
 html,
 body,
 #root {
+  height: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow: hidden;
   background-color: #020617;
 }
 
 body {
-  overscroll-behavior-y: none;
+  overscroll-behavior: none;
 }
 
 img,
