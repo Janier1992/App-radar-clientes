@@ -26,6 +26,7 @@ import {
   Zap, 
   Layers, 
   Share2, 
+  FileText,
   Info,
   HelpCircle
 } from 'lucide-react';
@@ -40,6 +41,7 @@ import {
 } from '../../types';
 import { runBusinessAnalysis, generateDrafts } from '../../services/analyzer';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
+import { buildOutreachMessage, canShareFiles, shareOutreachWithPdf, getReservasIaPdfUrl } from '../../services/outreachMessage';
 
 interface FichaNegocioProps {
   lead: BusinessLead;
@@ -78,14 +80,21 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
   const isSocialWebsite = lead.websiteClassification.type === 'directory_or_social';
 
   // URLs directas de WhatsApp
-  const whatsAppDirectDraftUrl = buildWhatsAppDirectUrl(
-    lead.nationalPhoneNumber,
-    lead.drafts?.whatsappMessage
-  );
-  const whatsAppGeneralUrl = buildWhatsAppDirectUrl(
-    lead.nationalPhoneNumber,
-    `Hola, me comunico con ${lead.name}. Estuve revisando su ficha en Google y me gustaría hacerles una consulta.`
-  );
+  // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace a la presentación de ReservasIA.
+  const whatsappText = buildOutreachMessage(lead, sellerProfile, lead.drafts?.tone || selectedTone);
+  const whatsAppDirectDraftUrl = buildWhatsAppDirectUrl(lead.nationalPhoneNumber, whatsappText);
+  const whatsAppGeneralUrl = whatsAppDirectDraftUrl;
+  const [shareError, setShareError] = useState('');
+  const handleShareWithPdf = async () => {
+    setShareError('');
+    try {
+      const result = await shareOutreachWithPdf(whatsappText);
+      if (result === 'shared') onTrack?.(lead, 'whatsapp');
+    } catch (err) {
+      console.warn('No se pudo compartir el PDF:', err);
+      setShareError('No se pudo adjuntar el PDF. Usa «Enviar por WhatsApp» (incluye el enlace).');
+    }
+  };
 
   // Manejo de ejecución del análisis
   const handleStartAnalysis = async () => {
@@ -757,7 +766,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => handleCopyText(lead.drafts!.whatsappMessage, 'whatsapp')}
+                      onClick={() => handleCopyText(whatsappText, 'whatsapp')}
                       className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold cursor-pointer transition-colors"
                     >
                       {copiedField === 'whatsapp' ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
@@ -779,8 +788,34 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                     )}
                   </div>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed font-sans bg-slate-900/60 p-3.5 rounded-lg border border-slate-800/80">
-                  {lead.drafts.whatsappMessage}
+                <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed font-sans bg-slate-900/60 p-3.5 rounded-lg border border-slate-800/80 break-words">
+                  {whatsappText}
+                </p>
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  <a
+                    href={getReservasIaPdfUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold transition-colors"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    Ver presentación PDF
+                  </a>
+                  {canShareFiles() && (
+                    <button
+                      type="button"
+                      onClick={handleShareWithPdf}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600/20 hover:bg-sky-600/30 border border-sky-500/30 text-sky-200 font-semibold cursor-pointer transition-colors"
+                      title="Abre la hoja de compartir del celular con el PDF adjunto; elige WhatsApp y el chat del negocio"
+                    >
+                      <Share2 className="w-3.5 h-3.5" />
+                      Enviar con el PDF adjunto
+                    </button>
+                  )}
+                </div>
+                {shareError && <p className="text-xs text-amber-300">{shareError}</p>}
+                <p className="text-[11px] text-slate-500">
+                  WhatsApp no permite adjuntar archivos desde un enlace: «Enviar por WhatsApp» incluye el enlace a la presentación (se ve como vista previa en el chat). Desde el celular, «Enviar con el PDF adjunto» manda el archivo.
                 </p>
               </div>
             )}
