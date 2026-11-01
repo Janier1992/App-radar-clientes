@@ -29,6 +29,8 @@
 
 7. **Generador de Propuestas Comerciales Multicanal:**
    * Guiones de llamada (30 segundos), mensajes de WhatsApp y correos adaptados al problema detectado, en tono **Cercano**, **Profesional** o **Directo**, con enlace directo a `wa.me/57...`.
+   * **Mensaje de WhatsApp de primer contacto:** al tocar el botón de WhatsApp (en la búsqueda, en Mis leads o en la ficha) se abre el chat con un mensaje personalizado con el nombre, la zona y la valoración reales del negocio, la oferta de **landing page** (si no tiene web propia) y del agente **ReservasIA**, una frase adaptada a su rubro y el enlace a la presentación comercial (`public/docs/ReservasIA-Presentacion-Comercial.pdf`, se sirve desde la misma app, sin backend).
+   * WhatsApp no deja adjuntar archivos desde un enlace `wa.me`; por eso el mensaje lleva el enlace al PDF (WhatsApp muestra la vista previa). Desde el celular, el botón **Enviar con el PDF adjunto** de la ficha abre la hoja de compartir con el archivo.
 
 8. **Mini-CRM y Embudo de Ventas:**
    * Tablero Kanban y tabla con etapas: *Nuevo*, *Analizado*, *Contactado*, *Respondió*, *Reunión*, *Cliente* y *Descartado*. Notas, fechas de próxima acción, exportación a **Excel (.xlsx), PDF y CSV** y copia de seguridad en JSON.

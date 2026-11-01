@@ -44,6 +44,8 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+  // Los PDF (presentaciones comerciales) pesan varios MB: siempre van a la red, no se guardan en caché.
+  if (url.pathname.endsWith('.pdf')) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(

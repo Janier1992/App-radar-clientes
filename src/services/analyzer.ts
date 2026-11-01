@@ -1,3 +1,4 @@
+import { buildOutreachMessage } from './outreachMessage';
 import { BusinessLead, PageSpeedAudit, GeminiAnalysis, ProspectingDrafts, SellerProfile } from '../types';
 import { calculatePreliminaryScore } from './opportunityScore';
 import { generateGeminiAnalysis } from './geminiClient';
@@ -167,7 +168,7 @@ export function generateDrafts(
       tone: 'cercano',
       generatedAt: new Date().toISOString(),
       phoneScript: `«Hola, buenos días. ¿Me comunicas con el encargado o dueño de ${lead.name}? Te habla ${sellerName}. Te llamo muy rápido porque estuve viendo su negocio en ${lead.formattedAddress.split(',')[0]} y las excelentes calificaciones que tienen de sus clientes. Noté un detalle: ${analysis.plainProblems[0]?.toLowerCase() || 'no cuentan con un canal directo de WhatsApp para responder cotizaciones al instante'}. Me dedico a apoyar a negocios de Medellín y Colombia a conseguir más clientes con ${serviceText}. Quería preguntarte: ¿te gustaría que te envíe un video corto de 2 minutos mostrándote cómo resolverlo sin ningún compromiso?»`,
-      whatsappMessage: `¡Hola! 👋 Le escribo porque estuve conociendo el trabajo de ${lead.name} y tienen una excelente reputación en la zona. Revisando su presencia digital noté una oportunidad clave: ${analysis.plainProblems[1] || 'no tienen botón directo de WhatsApp ni reservas en línea'}. Esto les ayudaría muchísimo a no perder consultas de clientes en noches y fines de semana. Si le parece bien, ¿le comparto un ejemplo rápido de cómo quedaría para su negocio? Cordial saludo, ${sellerName}.`,
+      whatsappMessage: buildOutreachMessage(lead, seller, 'cercano'),
       emailSubject: `Oportunidad para ${lead.name} en la captación de clientes en ${lead.formattedAddress.split(',')[0]}`,
       emailBody: `Hola, equipo de ${lead.name}:\n\nEspero que se encuentren muy bien. Los contacto porque conozco su negocio en la zona y tienen una calificación destacada por parte de sus clientes.\n\nRevisando su presencia digital, identifiqué que ${analysis.plainProblems[0] || 'la página web actual tarda en cargar en celulares y no cuenta con reservas en línea'}.\n\nApoyo a empresas locales a implementar ${serviceText} para que no se escape ningún cliente potencial. ¿Tendrían 5 minutos esta semana para una llamada breve o prefieren que les comparta una propuesta en PDF?\n\nCordial saludo,\n${sellerName}\n${seller.companyOrAgency}`,
     };
@@ -178,7 +179,7 @@ export function generateDrafts(
       tone: 'directo',
       generatedAt: new Date().toISOString(),
       phoneScript: `«Buenas tardes, ¿con la persona encargada de ${lead.name}? Soy ${sellerName}. Voy directo al grano: tienen ${lead.userRatingCount || 'muchas'} calificaciones excelentes en Google, pero ${analysis.plainProblems[0]?.toLowerCase() || 'su presencia digital está perdiendo clientes por falta de velocidad en celulares'}. Diseñé una solución con ${serviceText} para solucionarlo de inmediato. ¿Con quién puedo coordinar para enviarle una demostración de 2 minutos?»`,
-      whatsappMessage: `Buenas tardes, le habla ${sellerName}. Detecté 2 puntos clave donde ${lead.name} puede estar perdiendo clientes: 1) ${analysis.plainProblems[0] || 'Carga lenta en celulares'} y 2) ${analysis.plainProblems[1] || 'Sin agendamiento automático'}. Con ${serviceText} pueden solucionarlo esta misma semana. ¿Le comparto el resumen breve por aquí?`,
+      whatsappMessage: buildOutreachMessage(lead, seller, 'directo'),
       emailSubject: `Oportunidad de mejora directa para ${lead.name} (${analysis.recommendedService.replace('_', ' ')})`,
       emailBody: `Estimado/a responsable de ${lead.name}:\n\nAnalizando la presencia digital de su sector en Medellín y ${lead.formattedAddress.split(',')[0]}, detecté que ${analysis.plainProblems[0]}.\n\nPara negocios con su volumen de clientes, esto puede representar perder entre 10 y 25 clientes interesados cada mes.\n\nPodemos resolverlo implementando ${serviceText}.\n\nSi cuentan con disponibilidad esta semana, les muestro la solución en 10 minutos.\n\nAtentamente,\n${sellerName}\n${seller.companyOrAgency}`,
     };
@@ -189,7 +190,7 @@ export function generateDrafts(
     tone: 'profesional',
     generatedAt: new Date().toISOString(),
     phoneScript: `«Buenos días. Mi nombre es ${sellerName}, consultor en digitalización de negocios locales. Me comunico con ${lead.name} tras realizar una revisión de su presencia digital en ${lead.formattedAddress.split(',')[0]}. Identificamos una oportunidad importante: ${analysis.plainProblems[0]?.toLowerCase() || 'facilitar el contacto inmediato y reservas a sus clientes'}. Nos especializamos en ${serviceText}. ¿Con quién podría agendar una breve conversación de 5 minutos para presentárselo?»`,
-    whatsappMessage: `Estimados señores de ${lead.name}: Les saluda ${sellerName}. Tras revisar su presencia digital en ${lead.formattedAddress.split(',')[0]}, observamos que cuentan con una clientela muy favorable, pero ${analysis.plainProblems[1] || 'su sitio web carece de canal directo de WhatsApp'}. Hemos diseñado una propuesta orientada a ${serviceText}. ¿Podríamos compartirles un resumen ejecutivo? Gracias por su atención.`,
+    whatsappMessage: buildOutreachMessage(lead, seller, 'profesional'),
     emailSubject: `Revisión digital de ${lead.name} y propuesta de optimización`,
     emailBody: `Estimado/a responsable de ${lead.name}:\n\nMi nombre es ${sellerName}, consultor en ${seller.companyOrAgency}.\n\nRecientemente analizamos las métricas digitales de los negocios del sector ${lead.primaryTypeDisplayName || 'servicios'} en su localidad. Destacamos la sólida reputación de su empresa (${lead.rating || 4.5} ★ sobre ${lead.userRatingCount || 20} opiniones).\n\nSin embargo, su infraestructura web actual presenta las siguientes áreas de mejora:\n- ${analysis.plainProblems.slice(0, 3).join('\n- ')}\n\nNuestra propuesta consiste en integrar ${serviceText}, garantizando una atención ágil y mayor conversión de prospectos a clientes.\n\nQuedo a su entera disposición para coordinar una breve llamada informativa.\n\nAtentamente,\n${sellerName}\n${seller.companyOrAgency}`,
   };

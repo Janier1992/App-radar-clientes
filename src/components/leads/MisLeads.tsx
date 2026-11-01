@@ -29,6 +29,7 @@ import {
 import { ActivityType, BusinessLead, PipelineStatus } from '../../types';
 import { LeadsAnalyticsSummary } from './LeadsAnalyticsSummary';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
+import { buildOutreachMessage } from '../../services/outreachMessage';
 import { exportLeadsCsv, exportLeadsPdf, exportLeadsXlsx } from '../../services/leadsExport';
 
 interface MisLeadsProps {
@@ -439,7 +440,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                               </a>
                               {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                                 <a
-                                  href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, `Hola, me comunico con ${lead.name}. Quisiera consultar sobre sus servicios.`) || undefined}
+                                  href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildOutreachMessage(lead)) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -576,7 +577,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                             </a>
                             {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                               <a
-                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, `Hola, me comunico con ${lead.name}. Quisiera consultar información sobre sus servicios.`) || undefined}
+                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildOutreachMessage(lead)) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                 target="_blank"
                                 rel="noopener noreferrer"
