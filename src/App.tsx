@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Layout } from './components/layout/Layout';
 import { SearchScreen } from './components/search/SearchScreen';
 import { FichaNegocio } from './components/ficha/FichaNegocio';
@@ -6,9 +6,10 @@ import { RadarNichos } from './components/radar/RadarNichos';
 import { MisLeads } from './components/leads/MisLeads';
 import { AjustesScreen } from './components/ajustes/AjustesScreen';
 import { HistorialScreen } from './components/historial/HistorialScreen';
-import { OutreachProvider } from './services/outreachContext';
-import { PendingSendPrompt, markPendingSend } from './components/outreach/PendingSendPrompt';
+import { OutreachActions, OutreachProvider } from './services/outreachContext';
+import { PendingSendPrompt, clearPendingSend, markPendingSend } from './components/outreach/PendingSendPrompt';
 import { STEP_LABELS } from './services/outreachMessage';
+import { BlockedEntry, addBlocked, loadBlocked, removeBlocked, saveBlocked } from './services/doNotContact';
 import { approachCount, nextActionAfter, suggestedStep } from './services/outreachPlan';
 import {
   addBusinessEvent,
@@ -151,6 +152,12 @@ export default function App() {
     saveSearchLog(searchLog);
   }, [searchLog]);
 
+  // Negocios que pidieron no recibir más mensajes
+  const [blocked, setBlocked] = useState<BlockedEntry[]>(loadBlocked);
+  useEffect(() => {
+    saveBlocked(blocked);
+  }, [blocked]);
+
   const trackActivity = (
     lead: BusinessLead,
     type: ActivityType,
@@ -162,7 +169,12 @@ export default function App() {
   };
 
   // Confirmación rápida tras WhatsApp: registra el acercamiento, avanza el embudo y deja la fecha del siguiente seguimiento.
-  const confirmWhatsAppSent = (lead: BusinessLead) => {
+  const confirmWhatsAppSent = (lead: BusinessLead, reply?: string) => {
+    if (reply) {
+      // Una respuesta rápida no es un paso de la secuencia: solo queda en el historial.
+      trackActivity(lead, 'acercamiento', { channel: 'whatsapp', note: `Respuesta rápida: ${reply}` });
+      return;
+    }
     const tracked = trackedBusinesses.find((t) => t.id === lead.id);
     const step = suggestedStep(tracked);
     const count = approachCount(tracked) + 1;
@@ -180,6 +192,42 @@ export default function App() {
       )
     );
   };
+
+  // Acciones del embudo de respuestas (se comparten por contexto con la ficha, la cola y el historial)
+  const outreachActions = useMemo<OutreachActions>(
+    () => ({
+      markResponded: (lead) => {
+        setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, 'respondio'));
+        setSavedLeads((prev) => {
+          const now = new Date().toISOString();
+          if (!prev.some((l) => l.id === lead.id)) {
+            return [...prev, { ...lead, pipelineStatus: 'respondio', savedAt: now, updatedAt: now }];
+          }
+          return prev.map((l) =>
+            l.id === lead.id && ['nuevo', 'analizado', 'contactado'].includes(l.pipelineStatus)
+              ? { ...l, pipelineStatus: 'respondio', nextActionDate: undefined, updatedAt: now }
+              : l
+          );
+        });
+      },
+      markDoNotContact: (lead, reason) => {
+        setBlocked((prev) => addBlocked(prev, lead, reason));
+        setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, 'no_contactar', { note: reason }));
+        setSavedLeads((prev) =>
+          prev.map((l) =>
+            l.id === lead.id ? { ...l, pipelineStatus: 'descartado', nextActionDate: undefined, updatedAt: new Date().toISOString() } : l
+          )
+        );
+        clearPendingSend(lead.id);
+      },
+      unblock: (id) => setBlocked((prev) => removeBlocked(prev, id)),
+      sendReply: (lead, label) => {
+        setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, 'whatsapp'));
+        markPendingSend(lead, { reply: label });
+      },
+    }),
+    []
+  );
 
   const handleSearchPerformed = (zone: string, niche: string, resultsCount: number) => {
     setSearchLog((prev) => addSearchEntry(prev, { zone, niche, resultsCount }));
@@ -222,7 +270,7 @@ export default function App() {
   };
 
   return (
-    <OutreachProvider seller={sellerProfile} tracked={trackedBusinesses}>
+    <OutreachProvider seller={sellerProfile} tracked={trackedBusinesses} blocked={blocked} actions={outreachActions}>
     <PendingSendPrompt tracked={trackedBusinesses} onConfirm={confirmWhatsAppSent} />
     <Layout
       activeScreen={activeScreen}

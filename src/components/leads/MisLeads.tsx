@@ -24,7 +24,8 @@ import {
   MessageSquare,
   ChevronDown,
   FileText,
-  Loader2
+  Loader2,
+  Ban
 } from 'lucide-react';
 import { ActivityType, BusinessLead, PipelineStatus } from '../../types';
 import { LeadsAnalyticsSummary } from './LeadsAnalyticsSummary';
@@ -108,7 +109,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
   onDeleteLead,
   onNavigateToSearch,
 }) => {
-  const { messageFor, tracked } = useOutreach();
+  const { waUrl, isBlockedLead, tracked } = useOutreach();
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -443,9 +444,12 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                                 <Phone className="w-3 h-3 text-emerald-400" />
                                 <span>{lead.nationalPhoneNumber}</span>
                               </a>
-                              {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
+                              {isBlockedLead(lead) && (
+                              <span title="Marcado como «no contactar»" className="p-1 text-rose-400"><Ban className="w-3.5 h-3.5" /></span>
+                            )}
+                            {waUrl(lead) && (
                                 <a
-                                  href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
+                                  href={waUrl(lead) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -580,9 +584,12 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                             >
                               {lead.nationalPhoneNumber}
                             </a>
-                            {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
+                            {isBlockedLead(lead) && (
+                              <span title="Marcado como «no contactar»" className="p-1 text-rose-400"><Ban className="w-3.5 h-3.5" /></span>
+                            )}
+                            {waUrl(lead) && (
                               <a
-                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
+                                href={waUrl(lead) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                 target="_blank"
                                 rel="noopener noreferrer"

@@ -43,6 +43,7 @@ import { runBusinessAnalysis, generateDrafts } from '../../services/analyzer';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
 import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, canShareFiles, shareOutreachWithPdf, getReservasIaPdfUrl } from '../../services/outreachMessage';
 import { useOutreach } from '../../services/outreachContext';
+import { ContactStatusBar, QuickReplies } from '../outreach/QuickReplies';
 
 interface FichaNegocioProps {
   lead: BusinessLead;
@@ -82,12 +83,12 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
 
   // URLs directas de WhatsApp
   // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace a la presentación de ReservasIA.
-  const { messageFor, stepFor } = useOutreach();
+  const { messageFor, stepFor, waUrl, isBlockedLead } = useOutreach();
   const [selectedStep, setSelectedStep] = useState<OutreachStep | null>(null);
   const suggestedStepForLead = stepFor(lead);
   const activeStep = selectedStep ?? suggestedStepForLead;
   const whatsappText = messageFor(lead, activeStep, lead.drafts?.tone || selectedTone);
-  const whatsAppDirectDraftUrl = buildWhatsAppDirectUrl(lead.nationalPhoneNumber, whatsappText);
+  const whatsAppDirectDraftUrl = waUrl(lead, activeStep, lead.drafts?.tone || selectedTone);
   const whatsAppGeneralUrl = whatsAppDirectDraftUrl;
   const [shareError, setShareError] = useState('');
   const handleShareWithPdf = async () => {
@@ -490,7 +491,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                 Oportunidad directa detectada: Negocio sin web propia
               </h4>
               <p className="text-amber-300/80 mt-1 leading-relaxed text-xs">
-                Este negocio no cuenta con página web propia registrada (solo dispone de {isSocialWebsite ? lead.websiteClassification.platform || 'perfil social' : 'su ficha de Google Maps'}). No requiere llamadas a PageSpeed porque la propuesta comercial principal es evidente: **desarrollo de una web profesional de captura con botón de WhatsApp y sistema de reservas**.
+                Este negocio no cuenta con página web propia registrada (solo dispone de {isSocialWebsite ? lead.websiteClassification.platform || 'perfil social' : 'su ficha de Google Maps'}). No requiere llamadas a PageSpeed porque la propuesta comercial principal es evidente: desarrollo de una web profesional de captura con botón de WhatsApp y sistema de reservas.
               </p>
             </div>
           </div>
@@ -695,6 +696,13 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
       )}
 
       {/* SECCIÓN 3: Primer Contacto y Borradores de Venta */}
+      {/* Estado de contacto y respuestas rápidas (disponible aunque aún no se haya analizado el negocio) */}
+      <section className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-5 space-y-4">
+        <h3 className="text-sm font-bold text-slate-100">Seguimiento con el negocio</h3>
+        <ContactStatusBar lead={lead} />
+        <QuickReplies lead={lead} />
+      </section>
+
       {lead.drafts && (
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-800">
@@ -825,7 +833,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                     <FileText className="w-3.5 h-3.5" />
                     Ver presentación PDF
                   </a>
-                  {canShareFiles() && (
+                  {canShareFiles() && !isBlockedLead(lead) && (
                     <button
                       type="button"
                       onClick={handleShareWithPdf}
@@ -838,6 +846,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                   )}
                 </div>
                 {shareError && <p className="text-xs text-amber-300">{shareError}</p>}
+
                 <p className="text-[11px] text-slate-500">
                   WhatsApp no permite adjuntar archivos desde un enlace: «Enviar por WhatsApp» incluye el enlace a la presentación (se ve como vista previa en el chat). Desde el celular, «Enviar con el PDF adjunto» manda el archivo.
                 </p>

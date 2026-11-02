@@ -33,6 +33,8 @@
    * **Secuencia de seguimiento:** primer contacto + Seguimiento 1 (a los 2 días), Seguimiento 2 (3 días después, con un beneficio según el rubro) y Cierre amable (4 días después). Los botones de WhatsApp envían automáticamente el mensaje que toca según los acercamientos ya registrados; en la ficha puedes elegir otro paso.
    * **Contactar hoy:** bloque en *Mis leads* con seguimientos vencidos, acciones programadas, envíos sin confirmar y primeros contactos (por oportunidad), con un tope sugerido de 20 mensajes al día.
    * **Confirmación rápida:** al volver de WhatsApp aparece «¿Enviaste el mensaje?»; con «Sí, lo envié» se registra el acercamiento, el lead pasa a *Contactado* y se programa la fecha del siguiente seguimiento.
+   * **Cuando el negocio responde:** botón «El negocio respondió» (en la cola, la ficha y el historial) que lo pasa a *Respondió* y lo sube al tope de «Contactar hoy»; **respuestas rápidas** de un toque para las objeciones más comunes (precio, «lo consulto», «ya tengo web», «mándame información», «ahora no», «no me interesa») y para proponer la demo.
+   * **Lista de «no contactar»:** si un negocio pide no recibir mensajes, queda bloqueado (también por teléfono): no se abre WhatsApp para él, sale de la cola y puede gestionarse desde Ajustes. Además, la app avisa si ya le escribiste a otro registro con el mismo teléfono.
    * WhatsApp no deja adjuntar archivos desde un enlace `wa.me`; por eso el mensaje lleva el enlace al PDF (WhatsApp muestra la vista previa). Desde el celular, el botón **Enviar con el PDF adjunto** de la ficha abre la hoja de compartir con el archivo.
 
 8. **Mini-CRM y Embudo de Ventas:**

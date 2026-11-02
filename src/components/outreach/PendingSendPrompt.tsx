@@ -11,12 +11,13 @@ const EVENT_NAME = 'radar:pending-send';
 interface Pending {
   lead: BusinessLead;
   at: number;
+  reply?: string; // nombre de la respuesta rápida, si lo enviado no es un paso de la secuencia
 }
 
 /** Se llama al tocar un botón de WhatsApp: deja pendiente la pregunta «¿lo enviaste?» para cuando se vuelva a la app. */
-export function markPendingSend(lead: BusinessLead) {
+export function markPendingSend(lead: BusinessLead, opts?: { reply?: string }) {
   try {
-    localStorage.setItem(PENDING_KEY, JSON.stringify({ lead, at: Date.now() } satisfies Pending));
+    localStorage.setItem(PENDING_KEY, JSON.stringify({ lead, at: Date.now(), reply: opts?.reply } satisfies Pending));
   } catch {
     /* sin almacenamiento: no hay confirmación rápida */
   }
@@ -38,6 +39,14 @@ function readPending(): Pending | null {
   }
 }
 
+/** Quita la pregunta pendiente de un negocio (por ejemplo, si acaba de marcarse «no contactar»). */
+export function clearPendingSend(leadId: string) {
+  if (readPending()?.lead.id === leadId) {
+    clearPending();
+    window.dispatchEvent(new Event(EVENT_NAME));
+  }
+}
+
 const clearPending = () => {
   try {
     localStorage.removeItem(PENDING_KEY);
@@ -48,7 +57,7 @@ const clearPending = () => {
 
 interface Props {
   tracked: TrackedBusiness[];
-  onConfirm: (lead: BusinessLead) => void;
+  onConfirm: (lead: BusinessLead, reply?: string) => void;
 }
 
 /** Tarjeta flotante que aparece al volver de WhatsApp para registrar el acercamiento con un toque. */
@@ -105,10 +114,13 @@ export const PendingSendPrompt: React.FC<Props> = ({ tracked, onConfirm }) => {
           <div className="min-w-0 flex-1">
             <p className="text-sm font-semibold text-slate-100">¿Enviaste el mensaje a {pending.lead.name}?</p>
             <p className="text-[11px] text-slate-400 mt-0.5">
-              Se registrará como acercamiento por WhatsApp ({STEP_LABELS[step]})
-              {step !== OUTREACH_STEPS[OUTREACH_STEPS.length - 1]
-                ? ` y te recordaremos el siguiente seguimiento en ${waitDays} días.`
-                : ' y la secuencia quedará completa.'}
+              {pending.reply
+                ? `Se registrará como respuesta por WhatsApp (${pending.reply}).`
+                : `Se registrará como acercamiento por WhatsApp (${STEP_LABELS[step]})${
+                    step !== OUTREACH_STEPS[OUTREACH_STEPS.length - 1]
+                      ? ` y te recordaremos el siguiente seguimiento en ${waitDays} días.`
+                      : ' y la secuencia quedará completa.'
+                  }`}
             </p>
           </div>
           <button
@@ -124,7 +136,7 @@ export const PendingSendPrompt: React.FC<Props> = ({ tracked, onConfirm }) => {
           <button
             type="button"
             onClick={() => {
-              onConfirm(pending.lead);
+              onConfirm(pending.lead, pending.reply);
               close();
             }}
             className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold cursor-pointer"

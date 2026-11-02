@@ -23,6 +23,8 @@ export const ACTIVITY_LABELS: Record<ActivityType, string> = {
   maps: 'Abrió Google Maps',
   correo: 'Abrió su correo',
   acercamiento: 'Acercamiento registrado',
+  respondio: 'El negocio respondió',
+  no_contactar: 'Marcado como «no contactar»',
 };
 
 export const CHANNEL_LABELS: Record<ApproachChannel, string> = {
