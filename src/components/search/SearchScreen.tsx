@@ -41,7 +41,7 @@ import { searchGooglePlaces, GooglePlacesErrorDetails } from '../../services/goo
 import { getMockResultsForNiche } from '../../services/mockNicheDirectory';
 import { isContaminatedBusiness } from '../../services/nicheClassifier';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
-import { buildOutreachMessage } from '../../services/outreachMessage';
+import { useOutreach } from '../../services/outreachContext';
 import { findEmailsForLeads } from '../../services/emailFinder';
 import { isGeminiConfigured } from '../../services/geminiClient';
 
@@ -70,6 +70,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   initialZone = 'El Poblado, Medellín',
   initialNiche = 'talleres mecánicos',
 }) => {
+  const { messageFor } = useOutreach();
   const [zone, setZone] = useState(initialZone);
   const [niche, setNiche] = useState(initialNiche);
 
@@ -803,7 +804,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
 
                             {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                               <a
-                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildOutreachMessage(lead)) || undefined}
+                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -936,7 +937,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                                 </a>
                                 {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                                   <a
-                                    href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildOutreachMessage(lead)) || undefined}
+                                    href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                     target="_blank"
                                     rel="noopener noreferrer"

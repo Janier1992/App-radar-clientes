@@ -2,6 +2,31 @@ import { BusinessLead, SellerProfile } from '../types';
 
 export type OutreachTone = 'cercano' | 'profesional' | 'directo';
 
+/** Secuencia de acercamiento: primer mensaje y tres seguimientos escalonados. */
+export type OutreachStep = 'primer_contacto' | 'seguimiento_1' | 'seguimiento_2' | 'cierre';
+
+export const OUTREACH_STEPS: OutreachStep[] = ['primer_contacto', 'seguimiento_1', 'seguimiento_2', 'cierre'];
+
+export const STEP_LABELS: Record<OutreachStep, string> = {
+  primer_contacto: 'Primer contacto',
+  seguimiento_1: 'Seguimiento 1',
+  seguimiento_2: 'Seguimiento 2',
+  cierre: 'Cierre amable',
+};
+
+/** Días de espera tras enviar cada paso antes de sugerir el siguiente. */
+export const STEP_WAIT_DAYS: Record<OutreachStep, number> = {
+  primer_contacto: 2,
+  seguimiento_1: 3,
+  seguimiento_2: 4,
+  cierre: 0,
+};
+
+/** Paso que toca según cuántos acercamientos ya se registraron (null = secuencia completa). */
+export function nextStepForCount(approachCount: number): OutreachStep | null {
+  return OUTREACH_STEPS[approachCount] ?? null;
+}
+
 /** Presentación comercial de ReservasIA, publicada junto a la app (carpeta public/docs). */
 export const RESERVASIA_PDF_PATH = '/docs/ReservasIA-Presentacion-Comercial.pdf';
 export const RESERVASIA_PDF_NAME = 'ReservasIA-Presentacion-Comercial.pdf';
@@ -38,6 +63,16 @@ const SECTOR_LINES: Record<Sector, string> = {
   formacion: 'Para academias, gimnasios y jardines controla los cupos grupales y las clases de prueba, y guarda la ficha de cada alumno.',
   belleza: 'Para peluquerías y centros de estética guarda el historial de cada cliente (fórmulas, preferencias) y lo avisa antes de su cita.',
   general: 'Se adapta al horario, los precios y las reglas de su negocio, y atiende con la misma calidez que su equipo.',
+};
+
+/** Un beneficio concreto por rubro para el segundo seguimiento (según la presentación comercial). */
+const SECTOR_BENEFITS: Record<Sector, string> = {
+  salud: 'recordatorios automáticos que ayudan a reducir las citas perdidas y una agenda sin cruces, cuidando la privacidad de los pacientes.',
+  vehiculos: 'la ficha de cada vehículo (placa, modelo) y un tablero por etapas —en fila, lavando, listo—, para saber siempre qué sigue.',
+  gastronomia: 'un menú con QR en la mesa y un aviso por WhatsApp cuando el pedido está listo.',
+  formacion: 'control de cupos y de clases de prueba, con recordatorios automáticos para cada alumno.',
+  belleza: 'el historial de cada cliente y recordatorios antes de cada cita.',
+  general: 'una agenda sin dobles reservas y recordatorios automáticos para que no se pierda ningún cliente.',
 };
 
 function detectSector(lead: BusinessLead): Sector {
@@ -81,8 +116,10 @@ export function buildOutreachMessage(
   lead: BusinessLead,
   seller: SellerProfile = loadSellerProfile(),
   tone: OutreachTone = seller.defaultTone || 'cercano',
-  pdfUrl: string = getReservasIaPdfUrl()
+  pdfUrl: string = getReservasIaPdfUrl(),
+  step: OutreachStep = 'primer_contacto'
 ): string {
+  if (step !== 'primer_contacto') return buildFollowUpMessage(lead, seller, tone, pdfUrl, step);
   const web = webSituation(lead);
   const sector = detectSector(lead);
   const zone = firstZone(lead);
@@ -151,6 +188,53 @@ export function buildOutreachMessage(
     '',
     `¿Les parece si les muestro en 10 minutos cómo quedaría para *${lead.name}*? Sin compromiso 🙌`,
   ].join('\n');
+}
+
+/** Seguimientos: breves, sin presionar, y cada uno aporta algo distinto al anterior. */
+function buildFollowUpMessage(
+  lead: BusinessLead,
+  seller: SellerProfile,
+  tone: OutreachTone,
+  pdfUrl: string,
+  step: Exclude<OutreachStep, 'primer_contacto'>
+): string {
+  const sender = senderLine(seller);
+  const web = webSituation(lead);
+  const benefit = SECTOR_BENEFITS[detectSector(lead)];
+  const value =
+    web === 'own'
+      ? 'un asistente por WhatsApp que atiende, agenda y confirma citas 24/7, para que no se les pierda ningún cliente.'
+      : 'una landing page que carga rápido en el celular y un asistente por WhatsApp que atiende, agenda y confirma citas 24/7.';
+  const pdf = `📄 Por si se les pasó, aquí está la presentación:\n${pdfUrl}`;
+
+  if (step === 'seguimiento_1') {
+    if (tone === 'directo') {
+      return [`Hola, le habla ${sender}. Le escribí hace unos días sobre *${lead.name}*.`, '', `Le resumo: ${value}`, '', pdf, '', '¿La alcanzó a ver? Puedo explicársela en 10 minutos.'].join('\n');
+    }
+    if (tone === 'profesional') {
+      return [`Buenos días, le saluda nuevamente ${sender}.`, '', `Hace unos días le escribí sobre *${lead.name}*. Le comparto de forma breve lo esencial: ${value}`, '', pdf, '', 'Quedo atento para resolver cualquier duda o coordinar una reunión corta.'].join('\n');
+    }
+    return [`¡Hola de nuevo! 👋 Soy ${sender}. Les escribí hace unos días sobre *${lead.name}*.`, '', `Sé que el día a día no da tregua, así que se lo dejo cortito: ${value}`, '', pdf, '', '¿Alcanzaron a mirarla? Si prefieren, se las explico en una llamada de 10 minutos 🙌'].join('\n');
+  }
+
+  if (step === 'seguimiento_2') {
+    if (tone === 'directo') {
+      return [`${sender}, una última idea concreta para *${lead.name}*:`, '', `Con ReservasIA tendrían ${benefit}`, '', 'Les armo una demo corta con los datos de su negocio, sin costo. ¿Esta semana o la próxima?'].join('\n');
+    }
+    if (tone === 'profesional') {
+      return [`Buenos días, le saluda ${sender}.`, '', `Para *${lead.name}*, ReservasIA ofrece ${benefit}`, '', 'Podemos preparar una demostración breve con los datos de su negocio, sin costo ni compromiso. ¿Le queda mejor esta semana o la próxima?'].join('\n');
+    }
+    return [`¡Hola! 😊 Soy ${sender} otra vez. Quería compartirles algo concreto para *${lead.name}*:`, '', `✨ Con ReservasIA tendrían ${benefit}`, '', 'Si les sirve, les preparo una demo corta con los datos de su negocio, sin costo ni compromiso.', '', '¿Qué día les queda mejor para verla: esta semana o la próxima?'].join('\n');
+  }
+
+  // cierre
+  if (tone === 'directo') {
+    return [`${sender}: no insistiré más por ahora.`, '', `Si más adelante quieren que *${lead.name}* atienda y agende clientes automáticamente, aquí tienen la presentación:`, pdfUrl, '', 'Si prefieren que no les escriba, díganmelo y lo respeto.'].join('\n');
+  }
+  if (tone === 'profesional') {
+    return [`Buenos días, le saluda ${sender}.`, '', 'Para no ser insistente, este será mi último mensaje por ahora.', '', `Si en el futuro *${lead.name}* desea automatizar su atención y sus reservas, la presentación sigue disponible:`, pdfUrl, '', 'Si prefiere que no volvamos a escribirle, con gusto lo respetamos. Quedo atento y le deseo muchos éxitos.'].join('\n');
+  }
+  return [`Hola, soy ${sender}. Para no ser insistente, este será mi último mensaje por ahora 🙂`, '', `Si más adelante quieren que *${lead.name}* atienda y agende clientes de forma automática, aquí estaré; y la presentación sigue disponible:`, pdfUrl, '', 'Si prefieren que no les escriba más, solo díganmelo y lo respeto. ¡Muchos éxitos! 🌟'].join('\n');
 }
 
 /** ¿Este navegador puede compartir un archivo (hoja de compartir del celular)? */

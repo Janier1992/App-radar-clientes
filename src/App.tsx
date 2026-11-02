@@ -6,6 +6,10 @@ import { RadarNichos } from './components/radar/RadarNichos';
 import { MisLeads } from './components/leads/MisLeads';
 import { AjustesScreen } from './components/ajustes/AjustesScreen';
 import { HistorialScreen } from './components/historial/HistorialScreen';
+import { OutreachProvider } from './services/outreachContext';
+import { PendingSendPrompt, markPendingSend } from './components/outreach/PendingSendPrompt';
+import { STEP_LABELS } from './services/outreachMessage';
+import { approachCount, nextActionAfter, suggestedStep } from './services/outreachPlan';
 import {
   addBusinessEvent,
   addSearchEntry,
@@ -153,6 +157,28 @@ export default function App() {
     extra?: { channel?: ApproachChannel; note?: string }
   ) => {
     setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, type, extra));
+    // Al abrir WhatsApp se pregunta, al volver a la app, si el mensaje se envió de verdad.
+    if (type === 'whatsapp') markPendingSend(lead);
+  };
+
+  // Confirmación rápida tras WhatsApp: registra el acercamiento, avanza el embudo y deja la fecha del siguiente seguimiento.
+  const confirmWhatsAppSent = (lead: BusinessLead) => {
+    const tracked = trackedBusinesses.find((t) => t.id === lead.id);
+    const step = suggestedStep(tracked);
+    const count = approachCount(tracked) + 1;
+    trackActivity(lead, 'acercamiento', { channel: 'whatsapp', note: STEP_LABELS[step] });
+    setSavedLeads((prev) =>
+      prev.map((l) =>
+        l.id === lead.id
+          ? {
+              ...l,
+              pipelineStatus: l.pipelineStatus === 'nuevo' || l.pipelineStatus === 'analizado' ? 'contactado' : l.pipelineStatus,
+              nextActionDate: nextActionAfter(count, new Date()),
+              updatedAt: new Date().toISOString(),
+            }
+          : l
+      )
+    );
   };
 
   const handleSearchPerformed = (zone: string, niche: string, resultsCount: number) => {
@@ -196,6 +222,8 @@ export default function App() {
   };
 
   return (
+    <OutreachProvider seller={sellerProfile} tracked={trackedBusinesses}>
+    <PendingSendPrompt tracked={trackedBusinesses} onConfirm={confirmWhatsAppSent} />
     <Layout
       activeScreen={activeScreen}
       onNavigate={setActiveScreen}
@@ -331,5 +359,6 @@ export default function App() {
         />
       )}
     </Layout>
+    </OutreachProvider>
   );
 }

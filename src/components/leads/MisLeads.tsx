@@ -28,8 +28,9 @@ import {
 } from 'lucide-react';
 import { ActivityType, BusinessLead, PipelineStatus } from '../../types';
 import { LeadsAnalyticsSummary } from './LeadsAnalyticsSummary';
+import { ContactTodayPanel } from './ContactTodayPanel';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
-import { buildOutreachMessage } from '../../services/outreachMessage';
+import { useOutreach } from '../../services/outreachContext';
 import { exportLeadsCsv, exportLeadsPdf, exportLeadsXlsx } from '../../services/leadsExport';
 
 interface MisLeadsProps {
@@ -107,6 +108,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
   onDeleteLead,
   onNavigateToSearch,
 }) => {
+  const { messageFor, tracked } = useOutreach();
   const [viewMode, setViewMode] = useState<'kanban' | 'table'>('kanban');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -251,6 +253,9 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
       </div>
 
       {exportError && <p className="text-xs text-rose-300">{exportError}</p>}
+
+      {/* Cola de seguimiento: a quién escribir hoy */}
+      <ContactTodayPanel leads={leads} tracked={tracked} onTrack={onTrack} onOpenFicha={onNavigateToBusiness} />
 
       {/* Resumen Visual del Embudo y Analítica (Recharts) */}
       <LeadsAnalyticsSummary leads={leads} />
@@ -440,7 +445,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                               </a>
                               {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                                 <a
-                                  href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildOutreachMessage(lead)) || undefined}
+                                  href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -577,7 +582,7 @@ export const MisLeads: React.FC<MisLeadsProps> = ({
                             </a>
                             {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
                               <a
-                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildOutreachMessage(lead)) || undefined}
+                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                 target="_blank"
                                 rel="noopener noreferrer"

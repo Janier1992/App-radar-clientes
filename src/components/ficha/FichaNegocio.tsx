@@ -41,7 +41,8 @@ import {
 } from '../../types';
 import { runBusinessAnalysis, generateDrafts } from '../../services/analyzer';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
-import { buildOutreachMessage, canShareFiles, shareOutreachWithPdf, getReservasIaPdfUrl } from '../../services/outreachMessage';
+import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, canShareFiles, shareOutreachWithPdf, getReservasIaPdfUrl } from '../../services/outreachMessage';
+import { useOutreach } from '../../services/outreachContext';
 
 interface FichaNegocioProps {
   lead: BusinessLead;
@@ -81,7 +82,11 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
 
   // URLs directas de WhatsApp
   // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace a la presentación de ReservasIA.
-  const whatsappText = buildOutreachMessage(lead, sellerProfile, lead.drafts?.tone || selectedTone);
+  const { messageFor, stepFor } = useOutreach();
+  const [selectedStep, setSelectedStep] = useState<OutreachStep | null>(null);
+  const suggestedStepForLead = stepFor(lead);
+  const activeStep = selectedStep ?? suggestedStepForLead;
+  const whatsappText = messageFor(lead, activeStep, lead.drafts?.tone || selectedTone);
   const whatsAppDirectDraftUrl = buildWhatsAppDirectUrl(lead.nationalPhoneNumber, whatsappText);
   const whatsAppGeneralUrl = whatsAppDirectDraftUrl;
   const [shareError, setShareError] = useState('');
@@ -787,6 +792,25 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                       </a>
                     )}
                   </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Mensaje de la secuencia">
+                  {OUTREACH_STEPS.map((step) => (
+                    <button
+                      key={step}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeStep === step}
+                      onClick={() => setSelectedStep(step)}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border cursor-pointer transition-colors ${
+                        activeStep === step
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                      }`}
+                    >
+                      {STEP_LABELS[step]}
+                      {step === suggestedStepForLead ? ' · toca ahora' : ''}
+                    </button>
+                  ))}
                 </div>
                 <p className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed font-sans bg-slate-900/60 p-3.5 rounded-lg border border-slate-800/80 break-words">
                   {whatsappText}
