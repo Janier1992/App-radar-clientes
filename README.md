@@ -120,7 +120,7 @@ La app corre **100 % en el navegador**, sin backend propio.
 ## ⚠️ Limitaciones conocidas
 
 * **Las claves quedan visibles en el navegador** (no hay backend). Restringe ambas claves por dominio (*HTTP referrers*) en Google Cloud y AI Studio.
-* **Los leads, notas y el perfil se guardan en el navegador de cada persona** (`localStorage`); no se comparten entre el equipo. Usa *Exportar CSV* o la copia de seguridad JSON de Ajustes.
+* **Los leads, notas, historial y ajustes se guardan en el navegador de cada persona** (`localStorage`); no se comparten entre el equipo. Descarga la **copia de seguridad** de Ajustes con frecuencia (la app te lo recuerda cada 7 días) y usa **Restaurar copia** para recuperarla o pasarla a otro dispositivo (combinando o reemplazando). La copia no incluye la clave de Google escrita en Ajustes. La app también pide al navegador *almacenamiento protegido* para que no borre los datos por falta de espacio.
 * Los correos los encuentra Gemini a partir de información pública; **verifícalos** antes de enviar una propuesta.
 
 ---

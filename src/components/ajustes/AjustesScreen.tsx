@@ -27,6 +27,8 @@ import { isGeminiConfigured } from '../../services/geminiClient';
 import { loadSearchLog, loadTrackedBusinesses } from '../../services/activityLog';
 import { useOutreach } from '../../services/outreachContext';
 import { qrDataUrl } from '../../services/qr';
+import { BackupCard } from './BackupCard';
+import { AppData, BackupFile, RestoreMode } from '../../services/backup';
 import { OutreachSettings, DEFAULT_OUTREACH_SETTINGS } from '../../services/outreachSettings';
 import {
   OUTREACH_STEPS,
@@ -46,6 +48,8 @@ interface AjustesScreenProps {
   onUpdateSellerProfile: (updated: SellerProfile) => void;
   outreachSettings: OutreachSettings;
   onUpdateOutreachSettings: (updated: OutreachSettings) => void;
+  appData: AppData;
+  onRestoreBackup: (backup: BackupFile, mode: RestoreMode) => void;
   onImportLeads?: (leads: BusinessLead[]) => void;
   allLeads?: BusinessLead[];
 }
@@ -277,6 +281,8 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
   onUpdateSellerProfile,
   outreachSettings,
   onUpdateOutreachSettings,
+  appData,
+  onRestoreBackup,
   onImportLeads,
   allLeads = [],
 }) => {
@@ -355,28 +361,6 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
       ...quotaSettings,
       monthlyPlacesCallsCount: 0,
     });
-  };
-
-  // Exportar backup
-  const handleExportBackup = () => {
-    const backupData = {
-      exportedAt: new Date().toISOString(),
-      leads: allLeads,
-      quotaSettings,
-      sellerProfile,
-      activityLog: loadTrackedBusinesses(),
-      searchLog: loadSearchLog(),
-      doNotContact: blocked,
-      outreachSettings,
-    };
-
-    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `radar_backup_${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -867,32 +851,7 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
       <DigitalCardEditor settings={outreachSettings} seller={sellerProfile} onChange={onUpdateOutreachSettings} />
 
       {/* BLOQUE 4: COPIAS DE SEGURIDAD Y DATOS LOCALES */}
-      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">
-        <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
-          <Download className="w-4 h-4 text-emerald-400" />
-          Copia de Seguridad y Datos Locales
-        </h3>
-
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-950 border border-slate-800 rounded-lg p-4">
-          <div>
-            <span className="text-xs font-bold text-slate-200 block">
-              Exportar copia de seguridad ({leadsCount} leads guardados)
-            </span>
-            <p className="text-[11px] text-slate-400 mt-0.5">
-              Descarga un archivo JSON completo con todas las fichas, notas, auditorías, historial de prospección y ajustes de la aplicación.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            onClick={handleExportBackup}
-            className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold shrink-0 transition-colors cursor-pointer flex items-center gap-1.5 border border-slate-700"
-          >
-            <Download className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Descargar JSON</span>
-          </button>
-        </div>
-      </div>
+      <BackupCard data={appData} onRestore={onRestoreBackup} />
 
       {/* BLOQUE 5: NEGOCIOS QUE PIDIERON NO SER CONTACTADOS */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-3">
