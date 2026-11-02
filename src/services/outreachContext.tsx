@@ -6,6 +6,8 @@ import { findContactedDuplicate, suggestedStep } from './outreachPlan';
 import { BlockedEntry, isBlocked } from './doNotContact';
 import { QuickReplyId, buildQuickReply } from './quickReplies';
 import { buildWhatsAppDirectUrl } from './phoneUtils';
+import { buildEmailDraft, EmailDraft, gmailComposeUrl, mailtoUrl } from './emailMessage';
+import { buildCardUrl, isEmail } from './digitalCard';
 
 export interface OutreachActions {
   /** El negocio contestó: pasa a «Respondió» y queda al tope de la cola. */
@@ -27,6 +29,12 @@ interface OutreachValue {
   /** Enlace de WhatsApp con el mensaje del paso que toca; null si no hay teléfono o el negocio pidió no ser contactado. */
   waUrl: (lead: BusinessLead, step?: OutreachStep, tone?: OutreachTone) => string | null;
   replyUrl: (lead: BusinessLead, id: QuickReplyId) => string | null;
+  /** Enlace de la tarjeta digital propia (vacío si aún no se configuró un teléfono). */
+  cardUrl: string;
+  /** Correo del paso que toca (o del indicado) para este negocio. */
+  emailFor: (lead: BusinessLead, step?: OutreachStep, tone?: OutreachTone) => EmailDraft;
+  /** Enlaces para abrir el correo en el cliente del dispositivo o en Gmail; null si el negocio no tiene correo o está bloqueado. */
+  mailUrls: (lead: BusinessLead, step?: OutreachStep, tone?: OutreachTone) => { mailto: string; gmail: string } | null;
   /** Mensaje de WhatsApp del paso que toca (o del indicado) para este negocio. */
   messageFor: (lead: BusinessLead, step?: OutreachStep, tone?: OutreachTone) => string;
   stepFor: (lead: BusinessLead) => OutreachStep;
@@ -46,12 +54,31 @@ export const OutreachProvider: React.FC<{
 }> = ({ seller, tracked, blocked, actions, settings, children }) => {
   const value = useMemo<OutreachValue>(() => {
     // Los generadores de mensajes leen estos ajustes; se activan antes de armar cualquier texto.
-    setActiveOutreachSettings(settings);
+    const cardUrl = settings.cardPhone.trim()
+      ? buildCardUrl({
+          n: seller.name,
+          c: seller.companyOrAgency,
+          r: settings.cardRole,
+          p: settings.cardPhone,
+          e: settings.cardEmail,
+          w: settings.cardWeb,
+        })
+      : '';
+    setActiveOutreachSettings(settings, cardUrl);
     const stepFor = (lead: BusinessLead) => suggestedStep(tracked.find((t) => t.id === lead.id));
     const isBlockedLead = (lead: BusinessLead) => isBlocked(blocked, lead);
     const messageFor: OutreachValue['messageFor'] = (lead, step, tone) =>
       buildOutreachMessage(lead, seller, tone ?? toneForLead(lead, seller), getReservasIaPdfUrl(), step ?? stepFor(lead));
+    const emailFor: OutreachValue['emailFor'] = (lead, step, tone) =>
+      buildEmailDraft(lead, seller, tone ?? toneForLead(lead, seller), step ?? stepFor(lead));
     return {
+      cardUrl,
+      emailFor,
+      mailUrls: (lead, step, tone) => {
+        if (isBlockedLead(lead) || !isEmail(lead.email)) return null;
+        const draft = emailFor(lead, step, tone);
+        return { mailto: mailtoUrl(lead.email, draft), gmail: gmailComposeUrl(lead.email, draft) };
+      },
       seller,
       settings,
       tracked,

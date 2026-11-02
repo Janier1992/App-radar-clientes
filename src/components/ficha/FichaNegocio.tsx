@@ -83,11 +83,25 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
 
   // URLs directas de WhatsApp
   // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace a la presentación de ReservasIA.
-  const { messageFor, stepFor, waUrl, isBlockedLead } = useOutreach();
+  const { messageFor, stepFor, waUrl, isBlockedLead, emailFor, mailUrls, seller, settings, cardUrl } = useOutreach();
+  const [sheetBusy, setSheetBusy] = useState(false);
+  const handleVisitSheet = async () => {
+    setSheetBusy(true);
+    try {
+      const { exportVisitSheetPdf } = await import('../../services/visitSheet');
+      await exportVisitSheetPdf({ lead, seller, settings, cardUrl });
+    } catch (err) {
+      console.warn('No se pudo generar la hoja de visita:', err);
+    } finally {
+      setSheetBusy(false);
+    }
+  };
   const [selectedStep, setSelectedStep] = useState<OutreachStep | null>(null);
   const suggestedStepForLead = stepFor(lead);
   const activeStep = selectedStep ?? suggestedStepForLead;
   const whatsappText = messageFor(lead, activeStep, lead.drafts?.tone || selectedTone);
+  const emailDraft = emailFor(lead, activeStep, lead.drafts?.tone || selectedTone);
+  const mailLinks = mailUrls(lead, activeStep, lead.drafts?.tone || selectedTone);
   const whatsAppDirectDraftUrl = waUrl(lead, activeStep, lead.drafts?.tone || selectedTone);
   const whatsAppGeneralUrl = whatsAppDirectDraftUrl;
   const [shareError, setShareError] = useState('');
@@ -698,7 +712,19 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
       {/* SECCIÓN 3: Primer Contacto y Borradores de Venta */}
       {/* Estado de contacto y respuestas rápidas (disponible aunque aún no se haya analizado el negocio) */}
       <section className="bg-slate-900 border border-slate-800 rounded-xl p-4 sm:p-5 space-y-4">
-        <h3 className="text-sm font-bold text-slate-100">Seguimiento con el negocio</h3>
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="text-sm font-bold text-slate-100">Seguimiento con el negocio</h3>
+          <button
+            type="button"
+            onClick={handleVisitSheet}
+            disabled={sheetBusy}
+            title="PDF de una página con la propuesta para este negocio, ideal para una visita presencial"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-60 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer"
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-400" />
+            {sheetBusy ? 'Generando…' : 'Hoja para visita (PDF)'}
+          </button>
+        </div>
         <ContactStatusBar lead={lead} />
         <QuickReplies lead={lead} />
       </section>
@@ -874,16 +900,11 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
 
             {activeTabDraft === 'email' && (
               <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span className="font-semibold text-slate-300">Borrador de correo electrónico</span>
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
+                  <span className="font-semibold text-slate-300">Correo electrónico (mismo paso y tono que WhatsApp)</span>
                   <button
                     type="button"
-                    onClick={() =>
-                      handleCopyText(
-                        `Asunto: ${lead.drafts!.emailSubject}\n\n${lead.drafts!.emailBody}`,
-                        'email'
-                      )
-                    }
+                    onClick={() => handleCopyText(`Asunto: ${emailDraft.subject}\n\n${emailDraft.body}`, 'email')}
                     className="inline-flex items-center gap-1 text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
                   >
                     {copiedField === 'email' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
@@ -891,15 +912,70 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                   </button>
                 </div>
 
+                <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Correo de la secuencia">
+                  {OUTREACH_STEPS.map((step) => (
+                    <button
+                      key={step}
+                      type="button"
+                      role="tab"
+                      aria-selected={activeStep === step}
+                      onClick={() => setSelectedStep(step)}
+                      className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border cursor-pointer transition-colors ${
+                        activeStep === step
+                          ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                      }`}
+                    >
+                      {STEP_LABELS[step]}
+                    </button>
+                  ))}
+                </div>
+
                 <div className="space-y-2">
-                  <div className="text-xs bg-slate-900/60 p-2.5 rounded-md border border-slate-800 flex items-center gap-2">
-                    <span className="font-semibold text-slate-400">Asunto:</span>
-                    <span className="text-slate-200 font-medium">{lead.drafts.emailSubject}</span>
+                  <div className="text-xs bg-slate-900/60 p-2.5 rounded-md border border-slate-800 flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-slate-400">Para:</span>
+                    <span className="text-slate-200 font-medium break-all">{lead.email || 'Sin correo registrado'}</span>
                   </div>
-                  <div className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed bg-slate-900/60 p-3.5 rounded-lg border border-slate-800 font-sans">
-                    {lead.drafts.emailBody}
+                  <div className="text-xs bg-slate-900/60 p-2.5 rounded-md border border-slate-800 flex items-start gap-2">
+                    <span className="font-semibold text-slate-400 shrink-0">Asunto:</span>
+                    <span className="text-slate-200 font-medium break-words">{emailDraft.subject}</span>
+                  </div>
+                  <div className="text-xs sm:text-sm text-slate-200 whitespace-pre-line leading-relaxed bg-slate-900/60 p-3.5 rounded-lg border border-slate-800 font-sans break-words">
+                    {emailDraft.body}
                   </div>
                 </div>
+
+                <div className="flex flex-wrap items-center gap-2 text-xs">
+                  {mailLinks ? (
+                    <>
+                      <a
+                        href={mailLinks.mailto}
+                        onClick={() => onTrack?.(lead, 'correo')}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-500 text-white font-semibold"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        Abrir en mi correo
+                      </a>
+                      <a
+                        href={mailLinks.gmail}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() => onTrack?.(lead, 'correo')}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-semibold"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Abrir en Gmail
+                      </a>
+                    </>
+                  ) : (
+                    <span className="text-slate-500">
+                      {isBlockedLead(lead) ? 'Marcado como «no contactar».' : 'Este negocio no tiene un correo válido: cópialo y envíalo por otro canal.'}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-500">
+                  El correo lleva el enlace a la presentación en PDF (un enlace de correo no permite adjuntar archivos). Verifica la dirección antes de enviar.
+                </p>
               </div>
             )}
           </div>
