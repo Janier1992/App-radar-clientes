@@ -26,6 +26,8 @@ export const ACTIVITY_LABELS: Record<ActivityType, string> = {
   respondio: 'El negocio respondió',
   no_contactar: 'Marcado como «no contactar»',
   etapa: 'Cambió de etapa',
+  demo_agendada: 'Demo agendada',
+  propuesta: 'Propuesta generada',
 };
 
 export const CHANNEL_LABELS: Record<ApproachChannel, string> = {
@@ -69,7 +71,7 @@ export function addBusinessEvent(
   list: TrackedBusiness[],
   lead: BusinessLead,
   type: ActivityType,
-  extra?: Pick<ActivityEvent, 'channel' | 'note' | 'tone' | 'step' | 'stage'>
+  extra?: Pick<ActivityEvent, 'channel' | 'note' | 'tone' | 'step' | 'stage' | 'scheduledFor'>
 ): TrackedBusiness[] {
   const now = new Date().toISOString();
   const event: ActivityEvent = { id: newId(), type, at: now, ...extra };

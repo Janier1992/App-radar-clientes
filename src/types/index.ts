@@ -200,7 +200,9 @@ export type ActivityType =
   | 'acercamiento'
   | 'respondio' // el negocio contestó
   | 'no_contactar' // pidió no recibir más mensajes
-  | 'etapa'; // cambió de etapa en el embudo
+  | 'etapa' // cambió de etapa en el embudo
+  | 'demo_agendada' // se programó una demo
+  | 'propuesta'; // se generó una propuesta comercial
 
 export type ApproachChannel = 'whatsapp' | 'llamada' | 'correo' | 'presencial' | 'otro';
 
@@ -213,6 +215,7 @@ export interface ActivityEvent {
   tone?: 'cercano' | 'profesional' | 'directo'; // tono del mensaje enviado (solo en 'acercamiento')
   step?: 'primer_contacto' | 'seguimiento_1' | 'seguimiento_2' | 'cierre'; // paso de la secuencia
   stage?: PipelineStatus; // etapa a la que pasó (solo en 'etapa')
+  scheduledFor?: string; // fecha y hora de la demo (solo en 'demo_agendada')
 }
 
 export interface TrackedBusiness {

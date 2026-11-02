@@ -44,6 +44,7 @@ import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
 import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, canShareFiles, shareOutreachWithPdf, getReservasIaPdfUrl } from '../../services/outreachMessage';
 import { useOutreach } from '../../services/outreachContext';
 import { ContactStatusBar, QuickReplies } from '../outreach/QuickReplies';
+import { ProposalModal } from '../outreach/ProposalModal';
 
 interface FichaNegocioProps {
   lead: BusinessLead;
@@ -85,6 +86,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
   // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace a la presentación de ReservasIA.
   const { messageFor, stepFor, waUrl, isBlockedLead, emailFor, mailUrls, seller, settings, cardUrl } = useOutreach();
   const [sheetBusy, setSheetBusy] = useState(false);
+  const [proposalOpen, setProposalOpen] = useState(false);
   const handleVisitSheet = async () => {
     setSheetBusy(true);
     try {
@@ -724,9 +726,19 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
             <FileText className="w-3.5 h-3.5 text-emerald-400" />
             {sheetBusy ? 'Generando…' : 'Hoja para visita (PDF)'}
           </button>
+          <button
+            type="button"
+            onClick={() => setProposalOpen(true)}
+            title="Propuesta con tus precios, para enviar después de la demo"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer"
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-400" />
+            Propuesta con precios (PDF)
+          </button>
         </div>
         <ContactStatusBar lead={lead} />
         <QuickReplies lead={lead} />
+        {proposalOpen && <ProposalModal lead={lead} onClose={() => setProposalOpen(false)} />}
       </section>
 
       {lead.drafts && (
