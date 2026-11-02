@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Ban, Check, Copy, MessageSquare, MessageSquareReply } from 'lucide-react';
+import { Ban, CalendarPlus, Check, Copy, MessageSquare, MessageSquareReply } from 'lucide-react';
 import { BusinessLead } from '../../types';
 import { useOutreach } from '../../services/outreachContext';
 import { QUICK_REPLIES, QuickReplyId, buildQuickReply } from '../../services/quickReplies';
+import { ScheduleDemoModal } from './ScheduleDemoModal';
 
 interface Props {
   lead: BusinessLead;
@@ -105,6 +106,7 @@ export const ContactStatusBar: React.FC<Props> = ({ lead }) => {
   const blocked = isBlockedLead(lead);
   const duplicate = duplicateOf(lead);
   const [confirming, setConfirming] = useState(false);
+  const [scheduling, setScheduling] = useState(false);
 
   return (
     <div className="space-y-2">
@@ -135,6 +137,14 @@ export const ContactStatusBar: React.FC<Props> = ({ lead }) => {
             <Check className="w-3.5 h-3.5" />
             El negocio respondió
           </button>
+          <button
+            type="button"
+            onClick={() => setScheduling(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 font-semibold cursor-pointer"
+          >
+            <CalendarPlus className="w-3.5 h-3.5" />
+            Agendar demo
+          </button>
           {confirming ? (
             <span className="inline-flex items-center gap-2 text-rose-300">
               ¿No volver a escribirle?
@@ -164,6 +174,7 @@ export const ContactStatusBar: React.FC<Props> = ({ lead }) => {
           )}
         </div>
       )}
+      {scheduling && <ScheduleDemoModal lead={lead} onClose={() => setScheduling(false)} />}
     </div>
   );
 };

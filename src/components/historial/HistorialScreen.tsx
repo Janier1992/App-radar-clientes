@@ -22,6 +22,7 @@ import {
   Handshake,
   Ban,
   ArrowRight,
+  CalendarClock,
   RotateCcw,
   FileSpreadsheet,
   FileText,
@@ -82,6 +83,8 @@ const EVENT_ICONS: Record<ActivityType, React.ElementType> = {
   respondio: CheckCircle2,
   no_contactar: Ban,
   etapa: ArrowRight,
+  demo_agendada: CalendarClock,
+  propuesta: FileText,
 };
 
 const formatDate = (iso: string) =>

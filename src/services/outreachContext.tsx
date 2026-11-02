@@ -8,6 +8,7 @@ import { QuickReplyId, buildQuickReply } from './quickReplies';
 import { buildWhatsAppDirectUrl } from './phoneUtils';
 import { buildEmailDraft, EmailDraft, gmailComposeUrl, mailtoUrl } from './emailMessage';
 import { buildCardUrl, isEmail } from './digitalCard';
+import { DemoPlan, buildDemoConfirmation, buildDemoReminder } from './demoScheduling';
 
 export interface OutreachActions {
   /** El negocio contestó: pasa a «Respondió» y queda al tope de la cola. */
@@ -17,6 +18,10 @@ export interface OutreachActions {
   unblock: (id: string) => void;
   /** Se abrió WhatsApp con una respuesta rápida (se confirma al volver a la app). */
   sendReply: (lead: BusinessLead, label: string) => void;
+  /** Se agendó una demo: queda en el historial, el negocio pasa a «Reunión» y se programa la próxima acción. */
+  scheduleDemo: (lead: BusinessLead, plan: DemoPlan) => void;
+  /** Se generó una propuesta comercial (queda en el historial). */
+  logProposal: (lead: BusinessLead, note: string) => void;
 }
 
 interface OutreachValue {
@@ -29,6 +34,10 @@ interface OutreachValue {
   /** Enlace de WhatsApp con el mensaje del paso que toca; null si no hay teléfono o el negocio pidió no ser contactado. */
   waUrl: (lead: BusinessLead, step?: OutreachStep, tone?: OutreachTone) => string | null;
   replyUrl: (lead: BusinessLead, id: QuickReplyId) => string | null;
+  /** WhatsApp con la confirmación de una demo recién agendada. */
+  demoConfirmUrl: (lead: BusinessLead, plan: DemoPlan) => string | null;
+  /** WhatsApp con el recordatorio de una demo próxima. */
+  demoReminderUrl: (lead: BusinessLead, startISO: string) => string | null;
   /** Enlace de la tarjeta digital propia (vacío si aún no se configuró un teléfono). */
   cardUrl: string;
   /** Correo del paso que toca (o del indicado) para este negocio. */
@@ -91,6 +100,10 @@ export const OutreachProvider: React.FC<{
         isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead, step, tone)),
       replyUrl: (lead, id) =>
         isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildQuickReply(id, lead, seller)),
+      demoConfirmUrl: (lead, plan) =>
+        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildDemoConfirmation(lead, seller, plan)),
+      demoReminderUrl: (lead, startISO) =>
+        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildDemoReminder(lead, seller, startISO)),
       duplicateOf: (lead) => findContactedDuplicate(lead, tracked),
     };
   }, [seller, tracked, blocked, actions, settings]);

@@ -27,6 +27,7 @@ function loadSnoozed(today: string): string[] {
 }
 
 const KIND_STYLES: Record<QueueItem['kind'], string> = {
+  demo: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40',
   respondio: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
   seguimiento: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
   accion: 'bg-sky-500/10 text-sky-300 border-sky-500/30',
@@ -35,7 +36,7 @@ const KIND_STYLES: Record<QueueItem['kind'], string> = {
 };
 
 export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, onOpenFicha }) => {
-  const { waUrl, replyUrl, mailUrls, blocked, actions } = useOutreach();
+  const { waUrl, replyUrl, mailUrls, demoReminderUrl, blocked, actions } = useOutreach();
   const now = new Date();
   const today = now.toLocaleDateString('en-CA');
   const [snoozed, setSnoozed] = useState<string[]>(() => loadSnoozed(today));
@@ -94,7 +95,10 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
             <ul className="divide-y divide-slate-800/80">
               {visible.map((item) => {
                 const isMail = item.channel === 'correo';
-                const url = isMail
+                const isDemo = item.kind === 'demo';
+                const url = isDemo
+                  ? demoReminderUrl(item.lead, item.demoAt!)
+                  : isMail
                   ? mailUrls(item.lead, item.step)?.mailto ?? null
                   : item.replyId
                   ? replyUrl(item.lead, item.replyId)
@@ -110,7 +114,7 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                           {item.detail}
                         </span>
                         <span className="text-slate-500">
-                          · Mensaje: {item.replyId ? 'Proponer la demo' : STEP_LABELS[item.step]}
+                          · {isDemo ? 'Mensaje: recordatorio de la demo' : `Mensaje: ${item.replyId ? 'Proponer la demo' : STEP_LABELS[item.step]}`}
                         </span>
                       </div>
                       {(() => {
@@ -128,7 +132,9 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                           href={url}
                           {...(isMail ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                           onClick={() =>
-                            isMail
+                            isDemo
+                              ? onTrack?.(item.lead, 'whatsapp')
+                              : isMail
                               ? onTrack?.(item.lead, 'correo')
                               : item.replyId
                               ? actions.sendReply(item.lead, 'Proponer la demo')
@@ -148,7 +154,7 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                         <Eye className="w-3.5 h-3.5" />
                         Ficha
                       </button>
-                      {item.kind !== 'respondio' && (
+                      {item.kind !== 'respondio' && item.kind !== 'demo' && (
                         <button
                           type="button"
                           onClick={() => actions.markResponded(item.lead)}
@@ -159,6 +165,7 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                           Respondió
                         </button>
                       )}
+                      {!isDemo && (
                       <button
                         type="button"
                         onClick={() => {
@@ -172,6 +179,7 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                       >
                         <Ban className="w-3.5 h-3.5" />
                       </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => snooze(item.id)}

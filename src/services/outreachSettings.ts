@@ -12,6 +12,14 @@ export interface OutreachSettings {
   cardEmail: string;
   cardWeb: string;
   includeCardLink: boolean; // agregar el enlace de la tarjeta al final de los mensajes
+  // Propuesta comercial: textos libres para poder escribir rangos («Desde $900.000 COP»)
+  priceLanding: string; // landing page (pago único)
+  priceReservasSetup: string; // implementación de ReservasIA (pago único)
+  priceReservasMonthly: string; // ReservasIA (mensualidad)
+  proposalValidityDays: number; // vigencia de la propuesta
+  proposalTerms: string; // condiciones, una por línea (forma de pago, tiempos…)
+  founderOffer: string; // condición especial para clientes fundadores (opcional)
+  notificationsEnabled: boolean; // avisos del navegador con demos y seguimientos pendientes
 }
 
 export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
@@ -26,6 +34,13 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   cardEmail: '',
   cardWeb: '',
   includeCardLink: false,
+  priceLanding: '',
+  priceReservasSetup: '',
+  priceReservasMonthly: '',
+  proposalValidityDays: 15,
+  proposalTerms: '',
+  founderOffer: '',
+  notificationsEnabled: false,
 };
 
 const KEY = 'radar_outreach_settings';

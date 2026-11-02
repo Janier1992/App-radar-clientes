@@ -27,6 +27,7 @@ import { isGeminiConfigured } from '../../services/geminiClient';
 import { loadSearchLog, loadTrackedBusinesses } from '../../services/activityLog';
 import { useOutreach } from '../../services/outreachContext';
 import { qrDataUrl } from '../../services/qr';
+import { notificationPermission, requestNotificationPermission, sendTestNotification } from '../../services/notifications';
 import { BackupCard } from './BackupCard';
 import { AppData, BackupFile, RestoreMode } from '../../services/backup';
 import { OutreachSettings, DEFAULT_OUTREACH_SETTINGS } from '../../services/outreachSettings';
@@ -269,6 +270,96 @@ const DigitalCardEditor: React.FC<{
           )}
         </div>
       </div>
+    </div>
+  );
+};
+
+
+/** Precios y condiciones que se usan en la propuesta comercial (textos libres: admiten rangos). */
+const PricesCard: React.FC<{ settings: OutreachSettings; onChange: (s: OutreachSettings) => void }> = ({ settings, onChange }) => {
+  const set = <K extends keyof OutreachSettings>(key: K, value: OutreachSettings[K]) => onChange({ ...settings, [key]: value });
+  const field = 'w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden';
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">
+      <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+        <Briefcase className="w-4 h-4 text-emerald-400" />
+        Precios y propuesta comercial
+      </h3>
+      <p className="text-[11px] text-slate-400">
+        Estos valores aparecen en la propuesta en PDF de cada negocio (botón «Propuesta con precios» de la ficha). Escríbelos como quieras que los lea el cliente, por ejemplo «$1.500.000 COP» o «Desde $900.000 COP». Los que dejes vacíos no se muestran; la app nunca inventa cifras.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <label className="block space-y-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Landing page (pago único)</span>
+          <input className={field} value={settings.priceLanding} onChange={(e) => set('priceLanding', e.target.value)} placeholder="$ … COP" />
+        </label>
+        <label className="block space-y-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">ReservasIA: implementación</span>
+          <input className={field} value={settings.priceReservasSetup} onChange={(e) => set('priceReservasSetup', e.target.value)} placeholder="$ … COP" />
+        </label>
+        <label className="block space-y-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">ReservasIA: mensualidad</span>
+          <input className={field} value={settings.priceReservasMonthly} onChange={(e) => set('priceReservasMonthly', e.target.value)} placeholder="$ … COP / mes" />
+        </label>
+      </div>
+      <label className="block space-y-1">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Condición para clientes fundadores (opcional)</span>
+        <input className={field} value={settings.founderOffer} onChange={(e) => set('founderOffer', e.target.value)} placeholder="Ej. Precio especial para los primeros 10 clientes" />
+      </label>
+      <label className="block space-y-1">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Condiciones (una por línea)</span>
+        <textarea className={field} rows={3} value={settings.proposalTerms} onChange={(e) => set('proposalTerms', e.target.value)} placeholder={'50 % para iniciar y 50 % al entregar\nEntrega en X días hábiles'} />
+      </label>
+      <label className="block space-y-1 max-w-[12rem]">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Vigencia (días)</span>
+        <input type="number" min={1} max={90} className={field} value={settings.proposalValidityDays} onChange={(e) => set('proposalValidityDays', Number(e.target.value) || 15)} />
+      </label>
+    </div>
+  );
+};
+
+
+/** Avisos del navegador para demos y seguimientos. Solo funcionan mientras la app está abierta o en segundo plano. */
+const NotificationsCard: React.FC<{ settings: OutreachSettings; onChange: (s: OutreachSettings) => void }> = ({ settings, onChange }) => {
+  const [permission, setPermission] = useState(notificationPermission());
+  const supported = permission !== 'unsupported';
+
+  const toggle = async (enabled: boolean) => {
+    if (enabled) {
+      const result = permission === 'granted' ? 'granted' : await requestNotificationPermission();
+      setPermission(result);
+      if (result !== 'granted') return onChange({ ...settings, notificationsEnabled: false });
+    }
+    onChange({ ...settings, notificationsEnabled: enabled });
+  };
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-3">
+      <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+        <Clock className="w-4 h-4 text-emerald-400" />
+        Avisos del navegador
+      </h3>
+      <p className="text-[11px] text-slate-400">
+        Un aviso al día (entre 8 a. m. y 7 p. m.) con las demos próximas, los negocios que respondieron y los seguimientos vencidos. Sin un servidor, los avisos solo salen mientras la app esté abierta (también en segundo plano en computador); en el celular no llegan si el sistema la cierra.
+      </p>
+      {!supported ? (
+        <p className="text-xs text-slate-500">Este navegador no admite avisos.</p>
+      ) : (
+        <>
+          <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+            <input type="checkbox" checked={settings.notificationsEnabled && permission === 'granted'} onChange={(e) => toggle(e.target.checked)} />
+            Activar avisos de pendientes
+          </label>
+          {permission === 'denied' && (
+            <p className="text-[11px] text-amber-300">Bloqueaste los avisos para este sitio. Actívalos desde la configuración del navegador (candado junto a la dirección) y vuelve a marcar la casilla.</p>
+          )}
+          {settings.notificationsEnabled && permission === 'granted' && (
+            <button type="button" onClick={() => sendTestNotification()} className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-semibold cursor-pointer">
+              Probar aviso
+            </button>
+          )}
+        </>
+      )}
     </div>
   );
 };
@@ -847,6 +938,10 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
 
       {/* PLANTILLAS DE MENSAJES */}
       <MessageTemplatesCard settings={outreachSettings} seller={sellerProfile} onChange={onUpdateOutreachSettings} />
+
+      <NotificationsCard settings={outreachSettings} onChange={onUpdateOutreachSettings} />
+
+      <PricesCard settings={outreachSettings} onChange={onUpdateOutreachSettings} />
 
       <DigitalCardEditor settings={outreachSettings} seller={sellerProfile} onChange={onUpdateOutreachSettings} />
 

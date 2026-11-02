@@ -13,7 +13,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** Etapas en las que ya no tiene sentido seguir escribiendo. */
 const CLOSED_STATUSES: PipelineStatus[] = ['respondio', 'reunion', 'cliente', 'descartado'];
 
-export type QueueKind = 'respondio' | 'seguimiento' | 'accion' | 'confirmar' | 'primer_contacto';
+export type QueueKind = 'demo' | 'respondio' | 'seguimiento' | 'accion' | 'confirmar' | 'primer_contacto';
 
 export interface QueueItem {
   id: string;
@@ -25,6 +25,7 @@ export interface QueueItem {
   priority: number; // menor = más urgente
   replyId?: QuickReplyId; // si el negocio ya respondió: respuesta rápida sugerida
   channel: 'whatsapp' | 'correo'; // canal para escribirle
+  demoAt?: string; // fecha y hora de la demo (solo kind 'demo')
 }
 
 /** Fecha local en formato AAAA-MM-DD (la misma que usa el campo «próxima acción»). */
@@ -88,9 +89,32 @@ export function buildContactQueue(
   const currentLead = (lead: BusinessLead) => savedById.get(lead.id) ?? lead;
   const skip = (lead: BusinessLead) => snoozedToday.has(lead.id) || isBlocked(blocked, lead);
 
+  // -1) Demos de hoy o de mañana: lo primero es prepararlas y recordárselas al negocio
+  for (const t of tracked) {
+    if (skip(t.lead)) continue;
+    const demo = t.events.filter((e) => e.type === 'demo_agendada' && e.scheduledFor).sort((a, b) => b.at.localeCompare(a.at))[0];
+    if (!demo?.scheduledFor) continue;
+    const when = new Date(demo.scheduledFor).getTime();
+    const lead = currentLead(t.lead);
+    if (['cliente', 'descartado'].includes(lead.pipelineStatus)) continue;
+    if (when < now.getTime() - 3 * 3600_000 || when > now.getTime() + 36 * 3600_000) continue;
+    const sameDay = dateKey(new Date(when)) === today;
+    items.set(t.id, {
+      id: t.id,
+      kind: 'demo',
+      channel: 'whatsapp',
+      lead,
+      step: 'primer_contacto',
+      demoAt: demo.scheduledFor,
+      title: sameDay ? 'Demo hoy' : 'Demo mañana',
+      detail: new Date(when).toLocaleTimeString('es-CO', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      priority: -300 + (when - now.getTime()) / 3600_000,
+    });
+  }
+
   // 0) Negocios que ya respondieron: lo más valioso es contestarles rápido
   for (const lead of leads) {
-    if (lead.pipelineStatus !== 'respondio' || skip(lead) || !hasWhatsApp(lead)) continue;
+    if (lead.pipelineStatus !== 'respondio' || items.has(lead.id) || skip(lead) || !hasWhatsApp(lead)) continue;
     const answeredAt = trackedById.get(lead.id)?.events.find((e) => e.type === 'respondio')?.at;
     const days = answeredAt ? Math.floor((now.getTime() - new Date(answeredAt).getTime()) / DAY_MS) : 0;
     items.set(lead.id, {

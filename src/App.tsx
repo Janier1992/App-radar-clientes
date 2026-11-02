@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Layout } from './components/layout/Layout';
 import { SearchScreen } from './components/search/SearchScreen';
 import { FichaNegocio } from './components/ficha/FichaNegocio';
@@ -9,6 +9,8 @@ import { HistorialScreen } from './components/historial/HistorialScreen';
 import { OutreachActions, OutreachProvider } from './services/outreachContext';
 import { BackupReminder } from './components/outreach/BackupReminder';
 import { AppData, BackupFile, RestoreMode, applyBackup, ensureFirstSeen, requestPersistentStorage } from './services/backup';
+import { buildContactQueue } from './services/outreachPlan';
+import { notifyIfDue } from './services/notifications';
 import { PendingSendPrompt, clearPendingSend, markPendingSend } from './components/outreach/PendingSendPrompt';
 import { STEP_LABELS, toneForLead } from './services/outreachMessage';
 import { PIPELINE_LABELS } from './services/historyExport';
@@ -185,6 +187,25 @@ export default function App() {
     quota: quotaSettings,
   };
 
+  // Avisos del navegador: demos próximas, respondidos y seguimientos vencidos (solo si la app sigue abierta)
+  const latest = useRef({ leads: savedLeads, tracked: trackedBusinesses, blocked });
+  latest.current = { leads: savedLeads, tracked: trackedBusinesses, blocked };
+  useEffect(() => {
+    if (!outreachSettings.notificationsEnabled) return;
+    const check = () => {
+      const { leads, tracked, blocked: blockedList } = latest.current;
+      notifyIfDue(buildContactQueue(leads, tracked, new Date(), new Set(), blockedList)).catch(() => undefined);
+    };
+    check();
+    const timer = window.setInterval(check, 10 * 60 * 1000);
+    const onVisible = () => document.visibilityState === 'visible' && check();
+    document.addEventListener('visibilitychange', onVisible);
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, [outreachSettings.notificationsEnabled]);
+
   const restoreFromBackup = (backup: BackupFile, mode: RestoreMode) => {
     const next = applyBackup(appData, backup, mode);
     setSavedLeads(next.leads);
@@ -200,7 +221,7 @@ export default function App() {
   const trackActivity = (
     lead: BusinessLead,
     type: ActivityType,
-    extra?: Pick<ActivityEvent, 'channel' | 'note' | 'tone' | 'step' | 'stage'>
+    extra?: Pick<ActivityEvent, 'channel' | 'note' | 'tone' | 'step' | 'stage' | 'scheduledFor'>
   ) => {
     setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, type, extra));
     // Al abrir WhatsApp se pregunta, al volver a la app, si el mensaje se envió de verdad.
@@ -266,6 +287,31 @@ export default function App() {
         clearPendingSend(lead.id);
       },
       unblock: (id) => setBlocked((prev) => removeBlocked(prev, id)),
+      scheduleDemo: (lead, plan) => {
+        const now = new Date().toISOString();
+        const when = new Date(plan.startISO);
+        const day = when.toLocaleDateString('en-CA');
+        const needsStage = !['reunion', 'cliente'].includes(lead.pipelineStatus);
+        setTrackedBusinesses((prev) => {
+          let next = addBusinessEvent(prev, lead, 'demo_agendada', {
+            note: `${plan.mode} · ${plan.minutes} min`,
+            scheduledFor: plan.startISO,
+          });
+          if (needsStage) next = addBusinessEvent(next, lead, 'etapa', { stage: 'reunion', note: 'Pasó a Reunión' });
+          return next;
+        });
+        setSavedLeads((prev) => {
+          if (!prev.some((l) => l.id === lead.id)) {
+            return [...prev, { ...lead, pipelineStatus: 'reunion', nextActionDate: day, savedAt: now, updatedAt: now }];
+          }
+          return prev.map((l) =>
+            l.id === lead.id
+              ? { ...l, pipelineStatus: l.pipelineStatus === 'cliente' ? 'cliente' : 'reunion', nextActionDate: day, updatedAt: now }
+              : l
+          );
+        });
+      },
+      logProposal: (lead, note) => setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, 'propuesta', { note })),
       sendReply: (lead, label) => {
         setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, 'whatsapp'));
         markPendingSend(lead, { reply: label });

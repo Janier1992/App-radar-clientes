@@ -39,6 +39,25 @@ self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
+// Al tocar un aviso se enfoca la app (o se abre) en la pantalla de leads.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const target = (event.notification.data && event.notification.data.url) || '/?screen=leads';
+  event.waitUntil(
+    (async () => {
+      const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const client of clients) {
+        if ('focus' in client) {
+          await client.focus();
+          if ('navigate' in client) await client.navigate(target).catch(() => undefined);
+          return;
+        }
+      }
+      await self.clients.openWindow(target);
+    })()
+  );
+});
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
