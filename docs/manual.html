@@ -39,7 +39,7 @@ td:first-child{font-weight:700;white-space:nowrap;color:#f8fafc}
 .step b{display:block;font-size:20px;color:var(--em)}
 .arrow{align-self:center;color:#475569}
 figure{margin:.14in 0;break-inside:avoid}
-figure img{width:80%;margin:0 auto;display:block;border:1px solid #243247;border-radius:10px;box-shadow:0 8px 24px #00000066}
+figure img{width:64%;margin:0 auto;display:block;border:1px solid #243247;border-radius:10px;box-shadow:0 8px 24px #00000066}
 figcaption{font-size:10.5px;color:var(--mut);margin-top:.06in;text-align:center}
 figcaption b{color:var(--em)}
 .cover{page:cover;break-after:page;height:11in;margin:-.7in -.6in -.6in -.8in;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;background:radial-gradient(circle at 50% 38%,#0b3b2e 0,#04141f 38%,#020617 70%)}
@@ -50,37 +50,49 @@ figcaption b{color:var(--em)}
 .q{font-weight:800;color:var(--em)}
 .mono{font-family:ui-monospace,Menlo,monospace;background:#0b1325;border:1px solid var(--line);color:var(--sky);border-radius:5px;padding:1px 6px;font-size:11.5px}
 .small{font-size:10.5px;color:var(--mut)}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:.2in;align-items:start}.pair figure{margin:.1in 0}.pair figure img{width:100%}
+figure.sm img{width:54%}figure.tall img{width:26%}figure.wide img{width:78%}
 </style></head><body>
 
 <div class="cover">
  <div class="logo">◎</div>
  <h1>Radar de Clientes</h1>
- <p class="lead" style="max-width:5in;font-size:16px">Manual de usuario: encuentra negocios locales, detecta quién necesita una web o automatización y contáctalos con una propuesta lista.</p>
- <div class="pills"><span class="pill">Buscar negocios</span><span class="pill">Detectar web propia</span><span class="pill">Correo y teléfono</span><span class="pill">Score de oportunidad</span><span class="pill">Propuestas con IA</span><span class="pill">Mini-CRM</span></div>
- <p class="lead" style="font-size:12px">Guía rápida para el equipo de la agencia · octubre 2026 · v6</p>
+ <p class="lead" style="max-width:5in;font-size:16px">Manual de usuario: encuentra negocios locales, detecta quién necesita una web o automatización, contáctalos, haz seguimiento y cierra con una demo y una propuesta.</p>
+ <div class="pills"><span class="pill">Buscar negocios</span><span class="pill">Detectar web propia</span><span class="pill">Mensajes con tu oferta</span><span class="pill">Seguimiento</span><span class="pill">Demo y propuesta</span><span class="pill">Resumen y respaldo</span></div>
+ <p class="lead" style="font-size:12px">Guía rápida para el equipo de la agencia · noviembre 2026 · v7</p>
 </div>
 
 <div class="sec first"><span class="num">01</span><span class="tag">Introducción</span></div>
 <h1>¿Qué es Radar de Clientes?</h1>
-<p>Es una herramienta web interna para <b>prospección comercial</b>. Escribes una zona y un tipo de negocio (nicho) y la app te muestra los negocios reales de Google Maps, indica <b>si tienen página web propia</b>, cuánto potencial comercial tienen y, cuando se encuentra, su <b>correo electrónico</b>. Después genera mensajes de venta personalizados para contactarlos.</p>
+<p>Es una herramienta web interna para <b>prospección comercial</b>. Escribes una zona y un tipo de negocio (nicho) y la app te muestra los negocios reales de Google Maps, indica <b>si tienen página web propia</b>, cuánto potencial comercial tienen y, cuando se encuentra, su <b>correo electrónico</b>. Después prepara mensajes de venta personalizados, te recuerda a quién escribir cada día, te ayuda a agendar la demo y a enviar la propuesta.</p>
 <h2>¿Qué incluye?</h2>
 <div class="grid g3">
  <div class="card"><h3>Buscar</h3><p>Negocios por zona y nicho, con teléfono, web, correo, reseñas y puntaje.</p></div>
- <div class="card"><h3>Ficha y propuesta</h3><p>Auditoría de la web y textos listos para WhatsApp, llamada y correo.</p></div>
+ <div class="card"><h3>Ficha y auditoría</h3><p>Velocidad real de la web, diagnóstico en lenguaje simple y servicio recomendado.</p></div>
  <div class="card"><h3>Radar de nichos</h3><p>Compara categorías de una zona para saber cuál conviene atacar primero.</p></div>
- <div class="card"><h3>Mis leads</h3><p>Embudo de ventas con estados, notas, fechas y exportación a Excel.</p></div>
- <div class="card"><h3>Ajustes</h3><p>Tu perfil comercial, para que los mensajes salgan a tu nombre, y la copia de seguridad.</p></div>
- <div class="card"><h3>Historial</h3><p>Registro de los negocios que viste, los canales que usaste y tus búsquedas.</p></div>
+ <div class="card"><h3>Acercamiento</h3><p>Mensaje de WhatsApp y correo con tu oferta y la presentación de ReservasIA, en cuatro pasos.</p></div>
+ <div class="card"><h3>Contactar hoy</h3><p>La lista de a quién escribir hoy: demos, respuestas, seguimientos y primeros contactos.</p></div>
+ <div class="card"><h3>Cierre</h3><p>Agenda la demo, envía la propuesta con precios y comparte tu tarjeta digital.</p></div>
+ <div class="card"><h3>Mis leads</h3><p>Embudo de ventas con estados, notas, fechas y exportación a Excel, PDF y CSV.</p></div>
+ <div class="card"><h3>Historial y resumen</h3><p>Todo lo que hiciste con cada negocio y qué mensajes funcionan mejor.</p></div>
+ <div class="card"><h3>Ajustes</h3><p>Tu perfil, plantillas, precios, tarjeta, avisos y la copia de seguridad.</p></div>
 </div>
-<h2>Cómo funciona, en cinco pasos</h2>
-<div class="steps"><div class="step"><b>1</b>Configura tu perfil</div><span class="arrow">→</span><div class="step"><b>2</b>Busca zona y nicho</div><span class="arrow">→</span><div class="step"><b>3</b>Revisa los resultados</div><span class="arrow">→</span><div class="step"><b>4</b>Abre la ficha y analiza</div><span class="arrow">→</span><div class="step"><b>5</b>Contacta y haz seguimiento</div></div>
+<h2>Cómo funciona, en seis pasos</h2>
+<div class="steps"><div class="step"><b>1</b>Configura tu perfil</div><span class="arrow">→</span><div class="step"><b>2</b>Busca zona y nicho</div><span class="arrow">→</span><div class="step"><b>3</b>Revisa los resultados</div><span class="arrow">→</span><div class="step"><b>4</b>Abre la ficha y analiza</div><span class="arrow">→</span><div class="step"><b>5</b>Contacta y haz seguimiento</div><span class="arrow">→</span><div class="step"><b>6</b>Agenda la demo y envía la propuesta</div></div>
 <div class="note"><b>Idea clave:</b> los negocios con muchas reseñas y buena reputación pero <b>sin web propia</b> son tus mejores prospectos: tienen clientes, pero no están captándolos online.</div>
 <h2>Antes de empezar</h2>
-<ul><li>Entra desde el navegador (computadora o celular) con el enlace de la app que te compartió la agencia.</li><li>Las claves de Google y Gemini ya están configuradas en el servidor: <b>no tienes que ingresar ninguna</b>.</li><li>Ve a <b>Ajustes → Mi perfil comercial</b> y completa tu nombre, la agencia y la propuesta de valor. Es lo que usa la IA para firmar los mensajes.</li></ul>
+<ul><li>Entra desde el navegador (computadora o celular) con el enlace de la app que te compartió la agencia.</li><li>Las claves de Google y Gemini ya vienen configuradas en la app: <b>no tienes que ingresar ninguna</b>.</li><li>Ve a <b>Ajustes → Mi perfil comercial</b> y completa tu nombre, la agencia y la propuesta de valor. Es lo que usa la IA para firmar los mensajes.</li><li>En <b>Ajustes</b> también escribe tu <b>tarjeta digital</b>, tus <b>precios</b> y, si quieres, tu propia firma (ver capítulos 08 y 10).</li><li><b>Instala la app</b> en tu celular o computador (ver más abajo).</li></ul>
 <h2>La pantalla principal</h2>
-<p>A la izquierda está el <b>menú</b> con las seis secciones (Buscar, Ficha del negocio, Radar de nichos, Mis leads, Historial y Ajustes) y, abajo, el <b>medidor de cuota mensual</b>. A la derecha se muestra la sección activa.</p>
+<p>A la izquierda (en el celular, en el botón ☰) está el <b>menú</b> con las seis secciones (Buscar, Ficha del negocio, Radar de nichos, Mis leads, Historial y Ajustes) y, abajo, el <b>medidor de cuota mensual</b>. A la derecha se muestra la sección activa.</p>
 <figure><img src="img/buscar-inicio.jpg"><figcaption><b>Figura 1.</b> Pantalla de búsqueda: menú lateral, formulario de zona y nicho, atajos y favoritos.</figcaption></figure>
 <p class="small">Todas las capturas de este manual usan negocios y datos de ejemplo, no clientes reales.</p>
+<h2>Instalar como app</h2>
+<p>Radar de Clientes se instala como una aplicación, con su icono y en pantalla completa; es la mejor forma de usarla en el celular.</p>
+<table><tr><th>Dispositivo</th><th>Cómo instalarla</th></tr>
+ <tr><td>Android (Chrome)</td><td>Pulsa <b>Instalar</b> en el aviso que aparece, o en ⋮ → <b>Instalar app</b>. También hay un botón «Instalar app» en el menú.</td></tr>
+ <tr><td>iPhone (Safari)</td><td>Pulsa <b>Compartir</b> y luego <b>Añadir a pantalla de inicio</b>.</td></tr>
+ <tr><td>Computador (Chrome o Edge)</td><td>Pulsa el icono de instalar en la barra de direcciones.</td></tr></table>
+<ul><li>Sin Internet puedes <b>ver tus leads e historial</b>; buscar, auditar y la IA sí necesitan conexión.</li><li>Cuando aparezca «<b>Hay una versión nueva</b>», pulsa <b>Actualizar</b>.</li></ul>
 
 <div class="sec"><span class="num">02</span><span class="tag">Buscar</span></div>
 <h1>Buscar negocios</h1>
@@ -142,10 +154,10 @@ figcaption b{color:var(--em)}
 <figure><img src="img/ficha-propuesta.jpg"><figcaption><b>Figura 8.</b> Diagnóstico, servicio recomendado y borradores de primer contacto con selector de tono.</figcaption></figure>
 <div class="grid g3"><div class="card"><h3>Cercano</h3><p>Amable y directo, para negocios pequeños y familiares.</p></div><div class="card"><h3>Profesional</h3><p>Formal, para clínicas, inmobiliarias y empresas.</p></div><div class="card"><h3>Directo</h3><p>Va al grano, con los puntos clave.</p></div></div>
 <table><tr><th>Canal</th><th>Qué obtienes</th></tr>
- <tr><td>WhatsApp</td><td>Mensaje listo; <b>Copiar mensaje</b> o <b>Enviar por WhatsApp</b> abre el chat con el número del negocio.</td></tr>
+ <tr><td>WhatsApp</td><td>Mensaje armado con los datos del negocio, tu oferta y el enlace a la presentación. <b>Enviar por WhatsApp</b> abre el chat con su número. Ver capítulo 07.</td></tr>
  <tr><td>Guion de llamada</td><td>Texto de 30 segundos para presentarte por teléfono.</td></tr>
- <tr><td>Correo electrónico</td><td>Asunto y cuerpo del correo; copia y envía desde tu propio correo.</td></tr></table>
-<p>Revisa y ajusta siempre el texto antes de enviarlo.</p>
+ <tr><td>Correo electrónico</td><td>Asunto y cuerpo del paso que toca; se abre en tu correo o en Gmail.</td></tr></table>
+<p>Revisa y ajusta siempre el texto antes de enviarlo. Más abajo, la sección <b>Seguimiento con el negocio</b> reúne el resto de herramientas: <b>El negocio respondió</b>, <b>Agendar demo</b>, <b>No contactar</b>, las respuestas rápidas, la <b>Hoja para visita</b> y la <b>Propuesta con precios</b> (capítulos 07 y 08).</p>
 <h2>4. Hacer seguimiento</h2>
 <p>Al final de la ficha, en <b>Seguimiento y Registro Comercial (CRM)</b>, guarda la <b>fase del embudo</b>, la <b>fecha de próxima acción</b> y tus <b>notas privadas</b>, y pulsa <b>Guardar cambios del lead</b>.</p>
 
@@ -164,20 +176,78 @@ figcaption b{color:var(--em)}
 <div class="sec pb"><span class="num">06</span><span class="tag">Mis leads</span></div>
 <h1>Mis leads: tu embudo de ventas</h1>
 <p>Aquí quedan los negocios que guardaste. Arriba hay un panel de <b>métricas</b> (negocios en el embudo, conversión, respuesta y valor estimado) que puedes plegar. Luego, un buscador por nombre, dirección, teléfono, correo o notas, y filtros por estado y nicho.</p>
-<div class="warn"><b>Ojo con los datos:</b> tus leads, notas y perfil se guardan <b>en tu navegador</b>, no en un servidor compartido. Cada persona del equipo ve solo lo suyo, y si borras los datos del navegador se pierden. Exporta el CSV con frecuencia y compártelo si necesitan coordinarse para no contactar dos veces al mismo negocio.</div>
-<figure><img src="img/leads-metricas.jpg"><figcaption><b>Figura 12.</b> Métricas del embudo y valor estimado de las oportunidades.</figcaption></figure>
+<div class="warn"><b>Ojo con los datos:</b> tus leads, notas, historial y ajustes se guardan <b>en tu navegador</b>, no en un servidor compartido. Cada persona del equipo ve solo lo suyo, y si borras los datos del navegador se pierden. <b>Descarga una copia de seguridad</b> cada semana (Ajustes) y exporta el Excel si necesitan coordinarse para no contactar dos veces al mismo negocio.</div>
+<h2>Contactar hoy</h2>
+<p>Arriba de las métricas hay un panel con <b>a quién escribir hoy</b>. Lo arma solo con lo que ya registraste (ver capítulo 07).</p>
+<figure class="sm"><img src="img/leads-hoy.jpg"><figcaption><b>Figura 12.</b> «Contactar hoy»: demo próxima, negocio que respondió, seguimientos vencidos y primeros contactos.</figcaption></figure>
+<figure class="sm"><img src="img/leads-metricas.jpg"><figcaption><b>Figura 13.</b> Métricas del embudo y valor estimado de las oportunidades.</figcaption></figure>
 <h2>Tablero Kanban</h2>
 <p>Una columna por etapa: <b>Nuevo, Analizado, Contactado, Respondió, Reunión, Cliente y Descartado</b>. Mueve cada negocio con el selector de su tarjeta.</p>
-<figure><img src="img/leads-kanban.jpg"><figcaption><b>Figura 13.</b> Vista Kanban, con las métricas plegadas.</figcaption></figure>
+<figure class="sm"><img src="img/leads-kanban.jpg"><figcaption><b>Figura 14.</b> Vista Kanban, con las métricas plegadas.</figcaption></figure>
 <h2>Vista de tabla y exportación</h2>
-<p>La tabla incluye el <b>correo</b> de cada lead, su estado, la presencia web y la oportunidad. Con <b>Exportar CSV</b> descargas la lista filtrada (nombre, teléfono, correo, web, puntaje, estado, notas) y la abres en Excel.</p>
-<figure><img src="img/leads-tabla.jpg"><figcaption><b>Figura 14.</b> Vista de tabla con correo, estado editable y botón de Excel.</figcaption></figure>
+<p>La tabla incluye el <b>correo</b> de cada lead, su estado, la presencia web y la oportunidad. El botón <b>Exportar</b> descarga la lista filtrada (nombre, teléfono, correo, web, puntaje, etapa, notas) en <b>Excel</b> (con hoja de resumen por etapa), <b>PDF</b> o <b>CSV</b>.</p>
+<figure class="sm"><img src="img/leads-tabla.jpg"><figcaption><b>Figura 15.</b> Vista de tabla con correo, estado editable y menú de exportación.</figcaption></figure>
 
-<div class="sec pb"><span class="num">07</span><span class="tag">Historial</span></div>
+<div class="sec pb"><span class="num">07</span><span class="tag">Acercamiento</span></div>
+<h1>Acercamiento y seguimiento</h1>
+<p>Escribir una vez casi nunca basta. La app arma <b>cuatro mensajes</b> y te recuerda cuándo toca cada uno. Tú siempre revisas y pulsas enviar: no hay envíos automáticos.</p>
+<h2>El mensaje de primer contacto</h2>
+<p>Al pulsar el botón de WhatsApp de un negocio (en Buscar, Mis leads, la ficha o «Contactar hoy») se abre su chat con un mensaje que incluye:</p>
+<ul><li>su <b>nombre, barrio y calificación real</b> de Google (solo si existe y tiene reseñas suficientes);</li><li>un comentario sobre su presencia web: sin web, solo redes o web propia;</li><li>tu oferta: <b>landing page</b> (si no tienen web propia) y <b>ReservasIA</b>, el asistente de reservas por WhatsApp;</li><li>una frase pensada para su <b>rubro</b> (salud, talleres, restaurantes, academias, belleza…);</li><li>el <b>enlace a la presentación en PDF</b> y una invitación a una demo corta.</li></ul>
+<figure class="sm"><img src="img/mensaje-whatsapp.jpg"><figcaption><b>Figura 16.</b> Mensaje listo con los cuatro pasos de la secuencia; el que toca ahora aparece marcado.</figcaption></figure>
+<div class="note"><b>Sobre el PDF:</b> WhatsApp no permite adjuntar un archivo desde un enlace, así que el mensaje lleva el <b>enlace</b> a la presentación (WhatsApp muestra una vista previa). Desde el celular, el botón <b>Enviar con el PDF adjunto</b> de la ficha abre la hoja de compartir con el archivo; ahí eliges WhatsApp y el chat del negocio.</div>
+<h2>La secuencia de cuatro pasos</h2>
+<table><tr><th>Paso</th><th>Cuándo</th><th>Qué dice</th></tr>
+ <tr><td>Primer contacto</td><td>Al inicio</td><td>Presentación, oferta y PDF.</td></tr>
+ <tr><td>Seguimiento 1</td><td>2 días después</td><td>Recordatorio breve y el PDF por si se les pasó.</td></tr>
+ <tr><td>Seguimiento 2</td><td>3 días después</td><td>Un beneficio concreto para su rubro y propuesta de demo.</td></tr>
+ <tr><td>Cierre amable</td><td>4 días después</td><td>Último mensaje, sin presionar; respeta si no quieren más.</td></tr></table>
+<p>Los botones de WhatsApp envían <b>automáticamente el paso que toca</b>, según los acercamientos que registraste. En la ficha puedes elegir otro paso con las pestañas. Todo existe en los tres tonos y también por <b>correo</b>:</p>
+<figure class="sm"><img src="img/correo-ficha.jpg"><figcaption><b>Figura 17.</b> Pestaña Correo: mismo paso y tono, con el enlace a la presentación; se abre en tu correo o en Gmail.</figcaption></figure>
+<h2>Confirmar el envío</h2>
+<p>Abrir WhatsApp no demuestra que enviaste el mensaje. Al volver a la app aparece <b>¿Enviaste el mensaje?</b>:</p>
+<ul><li><b>Sí, lo envié</b>: queda registrado el acercamiento, el negocio pasa a <b>Contactado</b> y se programa la fecha del siguiente seguimiento.</li><li><b>No lo envié</b>: no se registra nada.</li></ul>
+<h2>Contactar hoy</h2>
+<p>En <b>Mis leads</b>, el panel ordena lo que toca hacer. Si el negocio no tiene celular pero sí correo, el botón es <b>Correo</b>.</p>
+<table><tr><th>Orden</th><th>Qué aparece</th></tr>
+ <tr><td>1. Demo de hoy o mañana</td><td>Con botón para recordársela por WhatsApp.</td></tr>
+ <tr><td>2. Respondieron</td><td>Negocios a los que debes contestar: es lo más urgente.</td></tr>
+ <tr><td>3. Seguimientos vencidos</td><td>El paso que ya toca, con los días de retraso.</td></tr>
+ <tr><td>4. Acciones y envíos sin confirmar</td><td>Fechas que programaste y chats abiertos sin confirmar.</td></tr>
+ <tr><td>5. Primer contacto</td><td>Guardados que aún no han recibido mensaje, de mayor a menor oportunidad.</td></tr></table>
+<ul><li>Cada fila sugiere una <b>franja horaria</b> según el rubro (es orientativa) y avisa los domingos o fuera de horario.</li><li>El contador muestra cuántos mensajes llevas del <b>tope sugerido de 20 al día</b>; cambia de color al acercarte.</li><li><b>Mañana</b> quita un negocio de la lista de hoy.</li></ul>
+<h2>Cuando el negocio responde</h2>
+<p>En la ficha, la sección <b>Seguimiento con el negocio</b> (y la fila expandida del Historial) tiene:</p>
+<ul><li><b>El negocio respondió</b>: lo pasa a <i>Respondió</i> y lo sube al primer lugar de «Contactar hoy». También está en cada fila del panel.</li><li><b>Respuestas rápidas</b> para lo que suelen contestar: <i>me interesa</i>, <i>¿cuánto cuesta?</i>, <i>lo tengo que consultar</i>, <i>ya tengo página web</i>, <i>mándame información</i>, <i>ahora no</i> y <i>no me interesa</i>. Eliges, revisas el texto, y lo copias o lo envías por WhatsApp. La de precio <b>no inventa cifras</b>: lleva la conversación a la demo.</li></ul>
+<figure class="sm"><img src="img/ficha-seguimiento.jpg"><figcaption><b>Figura 18.</b> Seguimiento con el negocio: respondió, agendar demo, no contactar y respuestas rápidas.</figcaption></figure>
+<h2>No contactar y duplicados</h2>
+<ul><li><b>No contactar</b>: si un negocio pide no recibir más mensajes, márcalo. La app deja de abrir WhatsApp para él (también si aparece con otro registro pero el mismo teléfono), lo saca de la cola y lo pasa a <i>Descartado</i>. Se administra en <b>Ajustes → Lista de «no contactar»</b>. Respeta siempre estas solicitudes (Ley 1581).</li><li>Si ya le escribiste a otro registro con el <b>mismo teléfono</b>, la ficha lo avisa y el negocio deja de salir como «Primer contacto».</li></ul>
+<div class="warn"><b>Buenas prácticas:</b> escribe de uno en uno y revisa cada mensaje; WhatsApp puede bloquear números que envían muchos mensajes seguidos. No superes el tope diario sugerido, respeta los «no» y no envíes spam.</div>
+
+<div class="sec pb"><span class="num">08</span><span class="tag">Cierre</span></div>
+<h1>Cerrar: demo, propuesta y tarjeta</h1>
+<h2>Agendar la demo</h2>
+<p>Cuando el negocio muestre interés, pulsa <b>Agendar demo</b> (en la ficha o en el Historial). Elige fecha, hora, duración y modalidad (videollamada, llamada o visita) y, si quieres, el enlace o el lugar.</p>
+<ul><li>El negocio pasa a <b>Reunión</b>, la fecha queda como próxima acción y la demo cuenta en el Resumen.</li><li>Puedes llevarla a tu calendario con <b>Google Calendar</b> o con un archivo <b>.ics</b> (Apple, Outlook), que incluye avisos 1 día y 30 minutos antes.</li><li>Envía la <b>confirmación por WhatsApp</b> al negocio (o cópiala). El día anterior y el mismo día, la demo aparece <b>primero</b> en «Contactar hoy», con su recordatorio.</li></ul>
+<figure><img src="img/demo-listo.jpg"><figcaption><b>Figura 19.</b> Demo agendada: calendario, archivo .ics y confirmación por WhatsApp.</figcaption></figure>
+<h2>Propuesta comercial y hoja para visita</h2>
+<p>En la ficha hay dos PDF de una página, con <b>datos reales</b> del negocio (nunca cifras inventadas):</p>
+<table><tr><th>Documento</th><th>Para qué sirve</th></tr>
+ <tr><td>Propuesta con precios</td><td>Para enviar <b>después de la demo</b>. Eliges qué servicios incluye (landing, ReservasIA o ambos) y agregas una nota. Trae lo que se vio en el negocio, qué incluye, la <b>inversión</b>, cómo empezar, las condiciones, la vigencia y tus datos con el QR de tu tarjeta.</td></tr>
+ <tr><td>Hoja para visita</td><td>Para llevar a una <b>visita presencial</b> o enviar: datos del negocio, puntajes de velocidad y problemas detectados (si ya lo analizaste), cómo ayudamos y tus datos.</td></tr></table>
+<div class="pair"><figure><img src="img/propuesta-pdf.jpg"><figcaption><b>Figura 20.</b> Propuesta con precios.</figcaption></figure><figure><img src="img/hoja-visita.jpg"><figcaption><b>Figura 21.</b> Hoja para visita.</figcaption></figure></div>
+<div class="warn"><b>Tus precios:</b> los escribes en <b>Ajustes → Precios y propuesta comercial</b>, como quieras que los lea el cliente (por ejemplo «Desde $900.000 COP»). Los que dejes vacíos no se muestran; si no escribes ninguno, la propuesta dice «el valor se define en la demo».</div>
+<h2>Tu tarjeta digital</h2>
+<p>En <b>Ajustes → Tarjeta digital</b> escribes tu WhatsApp, una frase, tu correo y tu web. La app genera un <b>enlace y un código QR</b>. Quien lo abra ve una página con botones para escribirte por WhatsApp, llamarte, escribirte por correo, ver tu web y la presentación de ReservasIA, y <b>Guardar contacto</b>.</p>
+<figure class="tall"><img src="img/tarjeta-publica.jpg"><figcaption><b>Figura 22.</b> La tarjeta, vista desde el celular de un cliente.</figcaption></figure>
+<ul><li>Los datos viajan <b>dentro del enlace</b>: no se guardan en ningún servidor. Si cambias tu teléfono o tus datos, el enlace y el QR anteriores siguen mostrando los datos viejos: comparte y reimprime los nuevos.</li><li>Puedes activar que el enlace se agregue <b>al final de tus mensajes</b>.</li></ul>
+<figure class="wide"><img src="img/ajustes-tarjeta.jpg"><figcaption><b>Figura 23.</b> Editor de la tarjeta con su código QR descargable.</figcaption></figure>
+
+<div class="sec pb"><span class="num">09</span><span class="tag">Historial</span></div>
 <h1>Historial de prospección</h1>
 <p>El <b>Historial</b> deja constancia de qué negocios has visto y de qué hiciste con cada uno, para no repetir contactos y saber en qué punto está cada negocio. Se llena <b>solo</b>, mientras trabajas.</p>
 <h2>Qué se registra automáticamente</h2>
-<ul><li><b>Cada búsqueda:</b> fecha, zona, nicho y cuántos resultados salieron.</li><li><b>Cada negocio:</b> cuando abres su ficha, lo analizas, lo guardas en Mis leads, abres su WhatsApp, pulsas llamar, visitas su web, abres Google Maps o abres su correo. Cada acción queda con fecha y hora.</li></ul>
+<ul><li><b>Cada búsqueda:</b> fecha, zona, nicho y cuántos resultados salieron.</li><li><b>Cada negocio:</b> cuando abres su ficha, lo analizas, lo guardas en Mis leads, abres su WhatsApp, pulsas llamar, visitas su web, abres Google Maps o abres su correo. Cada acción queda con fecha y hora.</li><li><b>Lo que tú confirmas:</b> los acercamientos enviados (con su paso y tono), cuando el negocio respondió, los cambios de etapa del embudo, las demos agendadas, las propuestas generadas y los «no contactar».</li></ul>
 <h2>Estados de cada negocio</h2>
 <table><tr><th>Estado</th><th>Qué significa</th></tr>
  <tr><td>Solo visto</td><td>Abriste su ficha o lo analizaste, pero no usaste ningún canal de contacto.</td></tr>
@@ -185,31 +255,50 @@ figcaption b{color:var(--em)}
  <tr><td>Acercamiento registrado</td><td>Tú dejaste registrado que enviaste la solicitud (ver más abajo).</td></tr></table>
 <h2>Dejar constancia de un acercamiento enviado</h2>
 <p>Pulsa la flecha de un negocio para ver su <b>línea de tiempo</b>. A la derecha elige el canal (WhatsApp, llamada, correo, visita presencial u otro), escribe una nota opcional, por ejemplo «envié propuesta de web», y pulsa <b>Registrar</b>.</p>
-<figure><img src="img/historial-negocios.jpg"><figcaption><b>Figura 15.</b> Negocios con su actividad, su estado y la línea de tiempo con el registro de un acercamiento.</figcaption></figure>
+<figure class="sm"><img src="img/historial-negocios.jpg"><figcaption><b>Figura 24.</b> Negocios con su actividad, su estado y la línea de tiempo con el registro de un acercamiento.</figcaption></figure>
 <h2>Búsquedas realizadas</h2>
 <p>En la pestaña <b>Búsquedas</b> ves todas tus consultas. El botón <b>Repetir</b> te lleva a Buscar con esa zona y ese nicho ya escritos.</p>
-<figure><img src="img/historial-busquedas.jpg"><figcaption><b>Figura 16.</b> Registro de búsquedas, con el botón para repetirlas.</figcaption></figure>
+<figure class="sm"><img src="img/historial-busquedas.jpg"><figcaption><b>Figura 25.</b> Registro de búsquedas, con el botón para repetirlas.</figcaption></figure>
 <h2>Exportar el historial</h2>
 <p>El botón <b>Exportar</b> (arriba a la derecha) genera el archivo con los negocios que ves en pantalla, respetando el filtro y el orden elegidos, más todas las búsquedas.</p>
-<figure><img src="img/historial-exportar.jpg"><figcaption><b>Figura 17.</b> Menú de exportación: Excel, PDF o CSV.</figcaption></figure>
+<figure class="sm"><img src="img/historial-exportar.jpg"><figcaption><b>Figura 26.</b> Menú de exportación: Excel, PDF o CSV.</figcaption></figure>
 <table><tr><th>Formato</th><th>Qué contiene y para qué sirve</th></tr>
  <tr><td>Excel (.xlsx)</td><td>Libro con 4 hojas: <b>Resumen</b> (totales y negocios por categoría), <b>Negocios</b> (una fila por negocio con 27 columnas: contacto, web, valoración, oportunidad, estado, conteo por canal y último acercamiento), <b>Actividad</b> (una fila por acción, ideal para tablas dinámicas) y <b>Búsquedas</b>. Las fechas y los números son datos reales de Excel, con filtros y primera fila fija, para ordenar, filtrar y analizar sin retocar nada.</td></tr>
  <tr><td>PDF</td><td>Informe ordenado en horizontal: resumen, tabla de negocios con su estado, lista de acercamientos registrados y búsquedas realizadas, con fecha de generación y número de página. Sirve para imprimir o compartir.</td></tr>
  <tr><td>CSV</td><td>Solo la tabla de negocios, para abrirla en otros programas.</td></tr></table>
-<figure><img src="img/historial-pdf.jpg"><figcaption><b>Figura 18.</b> Ejemplo de la primera página del informe PDF (datos de prueba).</figcaption></figure>
+<figure class="sm"><img src="img/historial-pdf.jpg"><figcaption><b>Figura 27.</b> Ejemplo de la primera página del informe PDF (datos de prueba).</figcaption></figure>
 <h2>Filtrar y limpiar</h2>
 <ul><li>Busca por nombre, categoría, dirección o correo y filtra por estado.</li><li>Ordena la lista por <b>más reciente</b>, <b>nombre (A-Z)</b> o <b>estado de acercamiento</b>. Lo que ves en pantalla es lo que se exporta.</li><li><b>Exportar</b> descarga el historial en <b>Excel</b>, <b>PDF</b> o <b>CSV</b> (ver arriba).</li><li><b>Ficha →</b> reabre la ficha del negocio; el icono de papelera lo quita del historial.</li></ul>
-<div class="warn"><b>Ojo con los datos:</b> el historial se guarda <b>en tu navegador</b>, como tus leads, y no se comparte con el resto del equipo. Guarda hasta 300 negocios y 200 búsquedas (lo más antiguo se descarta). La copia de seguridad JSON de Ajustes también incluye el historial.</div>
+<div class="warn"><b>Ojo con los datos:</b> el historial se guarda <b>en tu navegador</b>, como tus leads, y no se comparte con el resto del equipo. Guarda hasta 300 negocios y 200 búsquedas (lo más antiguo se descarta). La copia de seguridad de Ajustes también lo incluye.</div>
+<h2>Resumen: qué está funcionando</h2>
+<p>La pestaña <b>Resumen</b> calcula, con tu historial, los <b>mensajes enviados</b>, los <b>negocios contactados</b>, cuántos <b>respondieron</b> y cuántas <b>demos y cierres</b> hubo en los últimos 7 días, 30 días o todo el historial. Además muestra:</p>
+<ul><li>la <b>tasa de respuesta por rubro</b> y por <b>tono</b> del mensaje;</li><li>qué <b>paso</b> de la secuencia provocó cada respuesta;</li><li>la <b>franja horaria</b> con más respuestas y el mejor rubro, cuando hay datos suficientes (al menos 5).</li><li>Para que sirva, usa «Sí, lo envié» y «El negocio respondió»; lo enviado antes de esta versión aparece como «Sin dato».</li></ul>
+<figure class="sm"><img src="img/historial-resumen.jpg"><figcaption><b>Figura 28.</b> Resumen de prospección (con pocos datos, la app avisa que las comparaciones aún no son confiables).</figcaption></figure>
 
-<div class="sec pb"><span class="num">08</span><span class="tag">Ajustes</span></div>
+
+<div class="sec pb"><span class="num">10</span><span class="tag">Ajustes</span></div>
 <h1>Ajustes y perfil comercial</h1>
-<p>En <b>Ajustes</b> configuras lo que personaliza tus mensajes. Completa estos datos antes de generar propuestas:</p>
-<ul><li><b>Tu nombre</b> y el de <b>tu agencia</b>: aparecen en la firma de los textos.</li><li><b>Propuesta de valor:</b> el gancho de venta que la IA usa para redactar.</li><li><b>Tono predeterminado:</b> cercano, profesional o directo.</li><li><b>Monitor de cuota:</b> define cuándo salta el aviso preventivo de consultas a Google (por defecto a las 800). La clave de Google ya está configurada en el servidor; no necesitas cambiarla.</li><li><b>Copia de seguridad:</b> el botón <b>Descargar JSON</b> guarda todas tus fichas, notas, historial y ajustes en un archivo. Úsalo para no perder datos o pasarlos a otro navegador.</li></ul>
-<figure><img src="img/ajustes.jpg"><figcaption><b>Figura 19.</b> Perfil comercial de prospección (Gemini activo) y copia de seguridad de datos locales.</figcaption></figure>
+<p>En <b>Ajustes</b> configuras lo que personaliza tus mensajes y protege tus datos. Completa estos bloques antes de empezar:</p>
+<ul><li><b>Perfil comercial:</b> tu nombre, tu agencia, la propuesta de valor y el tono predeterminado.</li><li><b>Plantillas de mensajes:</b> saludo inicial (tono cercano), dato de contacto, firma, minutos de la demo, enlace propio a la presentación y si se ofrece landing page a quien no tiene web. La vista previa se actualiza al escribir, por paso y por tono, y se aplica al primer contacto, a los seguimientos y a las respuestas rápidas.</li><li><b>Precios y propuesta comercial</b>, <b>Tarjeta digital</b> y <b>Avisos del navegador</b> (ver capítulo 08 y siguientes).</li><li><b>Monitor de cuota:</b> define cuándo salta el aviso preventivo de consultas a Google (por defecto a las 800).</li></ul>
+<figure><img src="img/ajustes-plantillas.jpg"><figcaption><b>Figura 29.</b> Plantillas de mensajes con vista previa en vivo.</figcaption></figure>
+<h2>Avisos del navegador</h2>
+<p>Al activarlos, la app envía <b>un aviso al día</b> (entre 8 a. m. y 7 p. m.) con las demos próximas, los negocios que respondieron y los seguimientos vencidos. <b>Solo funcionan mientras la app está abierta</b> (en el computador también en segundo plano); en el celular no llegan si el sistema la cierra.</p>
+<h2>Copia de seguridad y restauración</h2>
+<p>Tus datos viven solo en tu navegador, así que la <b>copia de seguridad</b> es tu red de protección.</p>
+<ul><li><b>Descargar copia:</b> guarda leads, historial, búsquedas, lista de «no contactar», perfil y plantillas en un archivo. <b>No incluye la clave de Google</b> que escribas en Ajustes. Guárdalo en un lugar privado: contiene datos de tus prospectos.</li><li><b>Restaurar copia:</b> eliges el archivo, ves qué trae y decides entre <b>Combinar</b> (suma lo nuevo y conserva el registro más reciente; no borra nada) o <b>Reemplazar todo</b> (pide confirmación).</li><li><b>Pasar datos a otro dispositivo:</b> descarga o envía la copia («Enviar a otro dispositivo» en el celular) y restáurala allí.</li><li>La app te <b>recuerda cada 7 días</b> si no has descargado una copia reciente.</li></ul>
+<figure class="wide"><img src="img/ajustes-respaldo.jpg"><figcaption><b>Figura 30.</b> Estado de la última copia, descarga y restauración.</figcaption></figure>
+<h2>Lista de «no contactar»</h2>
+<p>Muestra los negocios bloqueados con su fecha y motivo. <b>Quitar</b> permite volver a contactarlos (úsalo solo si ellos lo piden).</p>
+<figure><img src="img/ajustes.jpg"><figcaption><b>Figura 31.</b> Parte superior de Ajustes: perfil comercial y cuota.</figcaption></figure>
 <h2>Preguntas frecuentes</h2>
 <p><span class="q">¿Por qué salen datos de ejemplo?</span> Si Google no responde o hay un problema con la clave, la app muestra negocios de demostración y un aviso. Avisa al responsable técnico.</p>
 <p><span class="q">¿Un negocio no tiene correo y debería?</span> Pulsa el botón de reintentar; si sigue sin aparecer, búscalo en su perfil de Google Maps o contáctalo por WhatsApp.</p>
 <p><span class="q">¿Por qué una categoría del Radar dice «Estimado»?</span> Porque no se pudo consultar Google para esa categoría (sin clave o error de Google). Sus números son una referencia del sector, no una medición.</p>
 <p><span class="q">¿Por qué no aparecen las notas de velocidad?</span> Google PageSpeed no pudo medir esa web o se alcanzó su límite de consultas. La ficha muestra el motivo; pide al responsable técnico que revise que «PageSpeed Insights API» esté habilitada.</p>
+<p><span class="q">¿Por qué no veo mis leads en otro celular o computador?</span> Los datos se guardan en cada navegador. Descarga una copia en el primero y usa <b>Restaurar copia</b> en el segundo.</p>
+<p><span class="q">¿Puedo adjuntar el PDF en el chat de WhatsApp?</span> No desde un enlace: el mensaje lleva el enlace a la presentación. En el celular, <b>Enviar con el PDF adjunto</b> (ficha) abre la hoja de compartir con el archivo.</p>
+<p><span class="q">¿La propuesta salió sin precios?</span> Escríbelos en <b>Ajustes → Precios y propuesta comercial</b>. La app nunca inventa cifras.</p>
+<p><span class="q">¿Por qué un negocio desapareció de «Contactar hoy»?</span> Respondió y ya lo atendiste, quedó en Reunión, Cliente o Descartado, lo marcaste como «no contactar», o lo pospusiste con «Mañana».</p>
+<p><span class="q">¿Los avisos llegan con la app cerrada?</span> No. Sin un servidor, solo salen mientras la app esté abierta.</p>
 <p><span class="q">¿Puedo usarlo desde el celular? ¿Veo la cuota?</span> Sí a ambas: la app se adapta a pantallas pequeñas, y en la parte inferior del menú y en <b>Ajustes</b> hay un medidor de consultas del mes.</p>
 </body></html>

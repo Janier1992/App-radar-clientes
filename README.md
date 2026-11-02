@@ -130,7 +130,7 @@ La app corre **100 % en el navegador**, sin backend propio.
 
 ## 📚 Documentación
 
-Manual de usuario para el equipo: [`docs/manual-usuario-radar-clientes.pdf`](docs/manual-usuario-radar-clientes.pdf).
+Manual de usuario para el equipo (v7, noviembre 2026): [`docs/manual-usuario-radar-clientes.pdf`](docs/manual-usuario-radar-clientes.pdf). Se genera desde `docs/manual.html`.
 
 ---
 
