@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from 'react';
+import { ContactStatusBar, QuickReplies } from '../outreach/QuickReplies';
 import {
   History,
   Search,
@@ -18,6 +19,7 @@ import {
   Sparkles,
   BookmarkCheck,
   Handshake,
+  Ban,
   RotateCcw,
   FileSpreadsheet,
   FileText,
@@ -75,6 +77,8 @@ const EVENT_ICONS: Record<ActivityType, React.ElementType> = {
   maps: MapPin,
   correo: Mail,
   acercamiento: Handshake,
+  respondio: CheckCircle2,
+  no_contactar: Ban,
 };
 
 const formatDate = (iso: string) =>
@@ -365,7 +369,7 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
                           const status = getApproachStatus(b);
                           const isOpen = expandedId === b.id;
                           const chips = (
-                            ['ficha', 'whatsapp', 'llamada', 'correo', 'web', 'acercamiento'] as ActivityType[]
+                            ['ficha', 'whatsapp', 'llamada', 'correo', 'web', 'acercamiento', 'respondio', 'no_contactar'] as ActivityType[]
                           )
                             .map((type) => ({ type, n: countEvents(b, type) }))
                             .filter((c) => c.n > 0);
@@ -494,6 +498,10 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
                                             <Plus className="w-3.5 h-3.5" />
                                             Registrar
                                           </button>
+                                        </div>
+                                        <div className="mt-4 pt-3 border-t border-slate-800/80 space-y-3">
+                                          <ContactStatusBar lead={b.lead} />
+                                          <QuickReplies lead={b.lead} />
                                         </div>
                                         {status === 'acercamiento' && (
                                           <p className="text-[11px] text-emerald-300 mt-2 flex items-center gap-1">

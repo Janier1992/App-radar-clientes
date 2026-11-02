@@ -18,12 +18,14 @@ import {
   AlertTriangle,
   Info,
   Clock,
-  ExternalLink
+  ExternalLink,
+  Ban
 } from 'lucide-react';
 import { AppQuotaSettings, SellerProfile, BusinessLead } from '../../types';
 import { testGooglePlacesConnection, GooglePlacesErrorDetails } from '../../services/googlePlacesClient';
 import { isGeminiConfigured } from '../../services/geminiClient';
 import { loadSearchLog, loadTrackedBusinesses } from '../../services/activityLog';
+import { useOutreach } from '../../services/outreachContext';
 
 interface AjustesScreenProps {
   quotaSettings: AppQuotaSettings;
@@ -44,6 +46,7 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
   onImportLeads,
   allLeads = [],
 }) => {
+  const { blocked, actions } = useOutreach();
   // Estados locales para formularios
   const [apiKey, setApiKey] = useState(quotaSettings.googleCloudApiKey || '');
   const [showKey, setShowKey] = useState(false);
@@ -129,6 +132,7 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
       sellerProfile,
       activityLog: loadTrackedBusinesses(),
       searchLog: loadSearchLog(),
+      doNotContact: blocked,
     };
 
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
@@ -648,6 +652,41 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
             <span>Descargar JSON</span>
           </button>
         </div>
+      </div>
+
+      {/* BLOQUE 5: NEGOCIOS QUE PIDIERON NO SER CONTACTADOS */}
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-3">
+        <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+          <Ban className="w-4 h-4 text-rose-400" />
+          Lista de «no contactar» ({blocked.length})
+        </h3>
+        <p className="text-[11px] text-slate-400">
+          Estos negocios pidieron no recibir más mensajes. La app no abre WhatsApp para ellos, los saca de «Contactar hoy» y reconoce el mismo teléfono aunque aparezca con otro registro. Respeta siempre estas solicitudes (Ley 1581).
+        </p>
+        {blocked.length === 0 ? (
+          <p className="text-xs text-slate-500">Todavía no has marcado ningún negocio.</p>
+        ) : (
+          <ul className="divide-y divide-slate-800/80 border border-slate-800 rounded-lg overflow-hidden">
+            {blocked.map((b) => (
+              <li key={b.id} className="px-3 py-2.5 flex flex-wrap items-center gap-2 text-xs bg-slate-950/40">
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold text-slate-200 truncate">{b.name}</p>
+                  <p className="text-[11px] text-slate-500">
+                    {new Date(b.at).toLocaleDateString('es-CO')}
+                    {b.reason ? ` · ${b.reason}` : ''}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => actions.unblock(b.id)}
+                  className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold cursor-pointer"
+                >
+                  Quitar
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

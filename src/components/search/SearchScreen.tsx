@@ -34,7 +34,8 @@ import {
   RotateCcw,
   MessageSquare,
   Mail,
-  Loader2
+  Loader2,
+  Ban
 } from 'lucide-react';
 import { classifyWebsite, calculatePreliminaryScore } from '../../services/opportunityScore';
 import { searchGooglePlaces, GooglePlacesErrorDetails } from '../../services/googlePlacesClient';
@@ -70,7 +71,7 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   initialZone = 'El Poblado, Medellín',
   initialNiche = 'talleres mecánicos',
 }) => {
-  const { messageFor } = useOutreach();
+  const { waUrl, isBlockedLead } = useOutreach();
   const [zone, setZone] = useState(initialZone);
   const [niche, setNiche] = useState(initialNiche);
 
@@ -802,9 +803,12 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                               <PhoneCall className="w-3.5 h-3.5" />
                             </a>
 
-                            {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
+                            {isBlockedLead(lead) && (
+                              <span title="Marcado como «no contactar»" className="p-1 text-rose-400"><Ban className="w-3.5 h-3.5" /></span>
+                            )}
+                            {waUrl(lead) && (
                               <a
-                                href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
+                                href={waUrl(lead) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -935,9 +939,12 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
                                 >
                                   {lead.nationalPhoneNumber}
                                 </a>
-                                {buildWhatsAppDirectUrl(lead.nationalPhoneNumber) && (
+                                {isBlockedLead(lead) && (
+                              <span title="Marcado como «no contactar»" className="p-1 text-rose-400"><Ban className="w-3.5 h-3.5" /></span>
+                            )}
+                            {waUrl(lead) && (
                                   <a
-                                    href={buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead)) || undefined}
+                                    href={waUrl(lead) || undefined}
                   onClick={() => onTrack?.(lead, 'whatsapp')}
                                     target="_blank"
                                     rel="noopener noreferrer"

@@ -1,6 +1,8 @@
 import { BusinessLead, PipelineStatus, TrackedBusiness } from '../types';
 import { cleanColombianPhoneNumber, isMobilePhoneNumber } from './phoneUtils';
 import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, STEP_WAIT_DAYS, nextStepForCount } from './outreachMessage';
+import { BlockedEntry, isBlocked, normalizePhone } from './doNotContact';
+import type { QuickReplyId } from './quickReplies';
 
 /** Tope diario recomendado para cuidar el número de WhatsApp y no parecer spam. */
 export const DAILY_LIMIT = 20;
@@ -9,7 +11,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** Etapas en las que ya no tiene sentido seguir escribiendo. */
 const CLOSED_STATUSES: PipelineStatus[] = ['respondio', 'reunion', 'cliente', 'descartado'];
 
-export type QueueKind = 'seguimiento' | 'accion' | 'confirmar' | 'primer_contacto';
+export type QueueKind = 'respondio' | 'seguimiento' | 'accion' | 'confirmar' | 'primer_contacto';
 
 export interface QueueItem {
   id: string;
@@ -19,6 +21,7 @@ export interface QueueItem {
   title: string; // motivo corto
   detail: string;
   priority: number; // menor = más urgente
+  replyId?: QuickReplyId; // si el negocio ya respondió: respuesta rápida sugerida
 }
 
 /** Fecha local en formato AAAA-MM-DD (la misma que usa el campo «próxima acción»). */
@@ -49,6 +52,13 @@ export function nextActionAfter(count: number, from: Date): string | undefined {
 
 const hasWhatsApp = (lead: BusinessLead) => isMobilePhoneNumber(cleanColombianPhoneNumber(lead.nationalPhoneNumber) || lead.nationalPhoneNumber);
 
+/** Otro registro (otro id) con el mismo teléfono al que ya se le escribió: evita contactar dos veces al mismo negocio. */
+export function findContactedDuplicate(lead: BusinessLead, tracked: TrackedBusiness[]): TrackedBusiness | undefined {
+  const phone = normalizePhone(lead.nationalPhoneNumber);
+  if (!phone) return undefined;
+  return tracked.find((t) => t.id !== lead.id && normalizePhone(t.lead.nationalPhoneNumber) === phone && approachCount(t) > 0);
+}
+
 /**
  * Construye la lista «contactar hoy»: seguimientos vencidos, acciones programadas, envíos sin confirmar
  * y negocios guardados que aún no han recibido el primer mensaje. Solo usa datos del navegador.
@@ -57,7 +67,8 @@ export function buildContactQueue(
   leads: BusinessLead[],
   tracked: TrackedBusiness[],
   now: Date,
-  snoozedToday: Set<string> = new Set()
+  snoozedToday: Set<string> = new Set(),
+  blocked: BlockedEntry[] = []
 ): QueueItem[] {
   const today = dateKey(now);
   const savedById = new Map(leads.map((l) => [l.id, l]));
@@ -67,10 +78,28 @@ export function buildContactQueue(
   const statusOf = (lead: BusinessLead) => (savedById.get(lead.id) ?? lead).pipelineStatus;
   const isOpen = (lead: BusinessLead) => !CLOSED_STATUSES.includes(statusOf(lead));
   const currentLead = (lead: BusinessLead) => savedById.get(lead.id) ?? lead;
+  const skip = (lead: BusinessLead) => snoozedToday.has(lead.id) || isBlocked(blocked, lead);
+
+  // 0) Negocios que ya respondieron: lo más valioso es contestarles rápido
+  for (const lead of leads) {
+    if (lead.pipelineStatus !== 'respondio' || skip(lead) || !hasWhatsApp(lead)) continue;
+    const answeredAt = trackedById.get(lead.id)?.events.find((e) => e.type === 'respondio')?.at;
+    const days = answeredAt ? Math.floor((now.getTime() - new Date(answeredAt).getTime()) / DAY_MS) : 0;
+    items.set(lead.id, {
+      id: lead.id,
+      kind: 'respondio',
+      lead,
+      step: 'primer_contacto',
+      replyId: 'agendar_demo',
+      title: 'Respondió: contéstale',
+      detail: days > 0 ? `Respondió hace ${days} ${days === 1 ? 'día' : 'días'}` : 'Respondió hoy',
+      priority: -100 + Math.min(days, 50) * -1,
+    });
+  }
 
   // 1) Seguimientos vencidos y envíos sin confirmar (negocios con historial)
   for (const t of tracked) {
-    if (snoozedToday.has(t.id)) continue;
+    if (items.has(t.id) || skip(t.lead)) continue;
     const lead = currentLead(t.lead);
     if (!isOpen(lead) || !hasWhatsApp(lead)) continue;
 
@@ -118,7 +147,8 @@ export function buildContactQueue(
 
   // 2) Acciones programadas a mano (próxima acción vencida o de hoy)
   for (const lead of leads) {
-    if (items.has(lead.id) || snoozedToday.has(lead.id) || !isOpen(lead)) continue;
+    if (items.has(lead.id) || skip(lead) || !isOpen(lead)) continue;
+    if (findContactedDuplicate(lead, tracked)) continue;
     if (lead.nextActionDate && lead.nextActionDate <= today) {
       items.set(lead.id, {
         id: lead.id,
@@ -133,10 +163,14 @@ export function buildContactQueue(
   }
 
   // 3) Primer contacto para los leads guardados que nunca recibieron mensaje
-  for (const lead of leads) {
-    if (items.has(lead.id) || snoozedToday.has(lead.id)) continue;
+  const seenPhones = new Set<string>();
+  for (const lead of [...leads].sort((a, b) => (b.opportunityScore ?? 0) - (a.opportunityScore ?? 0))) {
+    if (items.has(lead.id) || skip(lead)) continue;
     if (!['nuevo', 'analizado'].includes(lead.pipelineStatus) || !hasWhatsApp(lead)) continue;
-    if (approachCount(trackedById.get(lead.id)) > 0) continue;
+    if (approachCount(trackedById.get(lead.id)) > 0 || findContactedDuplicate(lead, tracked)) continue;
+    const phone = normalizePhone(lead.nationalPhoneNumber);
+    if (phone && seenPhones.has(phone)) continue; // mismo teléfono guardado dos veces: solo se sugiere uno
+    seenPhones.add(phone);
     items.set(lead.id, {
       id: lead.id,
       kind: 'primer_contacto',

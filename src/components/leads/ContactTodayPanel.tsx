@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { BellRing, CalendarClock, ChevronDown, ChevronUp, MessageSquare, Send, Clock3, Eye } from 'lucide-react';
+import { Ban, BellRing, CalendarClock, Check, ChevronDown, ChevronUp, MessageSquare, Send, Clock3, Eye } from 'lucide-react';
 import { ActivityType, BusinessLead, TrackedBusiness } from '../../types';
-import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
 import { useOutreach } from '../../services/outreachContext';
 import { STEP_LABELS } from '../../services/outreachMessage';
 import { DAILY_LIMIT, QueueItem, buildContactQueue, sentToday } from '../../services/outreachPlan';
@@ -26,6 +25,7 @@ function loadSnoozed(today: string): string[] {
 }
 
 const KIND_STYLES: Record<QueueItem['kind'], string> = {
+  respondio: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
   seguimiento: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
   accion: 'bg-sky-500/10 text-sky-300 border-sky-500/30',
   confirmar: 'bg-purple-500/10 text-purple-300 border-purple-500/30',
@@ -33,7 +33,7 @@ const KIND_STYLES: Record<QueueItem['kind'], string> = {
 };
 
 export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, onOpenFicha }) => {
-  const { messageFor } = useOutreach();
+  const { waUrl, replyUrl, blocked, actions } = useOutreach();
   const now = new Date();
   const today = now.toLocaleDateString('en-CA');
   const [snoozed, setSnoozed] = useState<string[]>(() => loadSnoozed(today));
@@ -41,8 +41,8 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
   const [showAll, setShowAll] = useState(false);
 
   const queue = useMemo(
-    () => buildContactQueue(leads, tracked, new Date(), new Set(snoozed)),
-    [leads, tracked, snoozed]
+    () => buildContactQueue(leads, tracked, new Date(), new Set(snoozed), blocked),
+    [leads, tracked, snoozed, blocked]
   );
   const doneToday = sentToday(tracked, now);
   const remaining = Math.max(0, DAILY_LIMIT - doneToday);
@@ -86,7 +86,7 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
           ) : (
             <ul className="divide-y divide-slate-800/80">
               {visible.map((item) => {
-                const url = buildWhatsAppDirectUrl(item.lead.nationalPhoneNumber, messageFor(item.lead, item.step));
+                const url = item.replyId ? replyUrl(item.lead, item.replyId) : waUrl(item.lead, item.step);
                 return (
                   <li key={item.id} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3">
                     <div className="min-w-0 flex-1">
@@ -97,7 +97,9 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                           <Clock3 className="w-3 h-3" />
                           {item.detail}
                         </span>
-                        <span className="text-slate-500">· Mensaje: {STEP_LABELS[item.step]}</span>
+                        <span className="text-slate-500">
+                          · Mensaje: {item.replyId ? 'Proponer la demo' : STEP_LABELS[item.step]}
+                        </span>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-2 shrink-0">
@@ -106,7 +108,7 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          onClick={() => onTrack?.(item.lead, 'whatsapp')}
+                          onClick={() => (item.replyId ? actions.sendReply(item.lead, 'Proponer la demo') : onTrack?.(item.lead, 'whatsapp'))}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors"
                         >
                           <MessageSquare className="w-3.5 h-3.5" />
@@ -120,6 +122,30 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                       >
                         <Eye className="w-3.5 h-3.5" />
                         Ficha
+                      </button>
+                      {item.kind !== 'respondio' && (
+                        <button
+                          type="button"
+                          onClick={() => actions.markResponded(item.lead)}
+                          title="El negocio contestó: pasa a «Respondió»"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 text-purple-200 text-xs font-semibold cursor-pointer"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          Respondió
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (window.confirm(`¿Marcar a ${item.lead.name} como «no contactar»? Dejará de aparecer en la cola y no se abrirá WhatsApp para este negocio.`)) {
+                            actions.markDoNotContact(item.lead, 'Marcado desde Contactar hoy');
+                          }
+                        }}
+                        title="No volver a escribirle"
+                        aria-label={`No contactar a ${item.lead.name}`}
+                        className="inline-flex items-center px-2 py-1.5 rounded-lg text-slate-500 hover:text-rose-300 hover:bg-slate-800 cursor-pointer"
+                      >
+                        <Ban className="w-3.5 h-3.5" />
                       </button>
                       <button
                         type="button"

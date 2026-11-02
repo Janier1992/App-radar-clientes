@@ -197,7 +197,9 @@ export type ActivityType =
   | 'web'
   | 'maps'
   | 'correo'
-  | 'acercamiento';
+  | 'acercamiento'
+  | 'respondio' // el negocio contestó
+  | 'no_contactar'; // pidió no recibir más mensajes
 
 export type ApproachChannel = 'whatsapp' | 'llamada' | 'correo' | 'presencial' | 'otro';
 
