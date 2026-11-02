@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { ContactStatusBar, QuickReplies } from '../outreach/QuickReplies';
+import { WeeklySummary } from './WeeklySummary';
 import {
   History,
   Search,
@@ -20,6 +21,7 @@ import {
   BookmarkCheck,
   Handshake,
   Ban,
+  ArrowRight,
   RotateCcw,
   FileSpreadsheet,
   FileText,
@@ -79,6 +81,7 @@ const EVENT_ICONS: Record<ActivityType, React.ElementType> = {
   acercamiento: Handshake,
   respondio: CheckCircle2,
   no_contactar: Ban,
+  etapa: ArrowRight,
 };
 
 const formatDate = (iso: string) =>
@@ -99,7 +102,7 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
   onClearAll,
   onRepeatSearch,
 }) => {
-  const [tab, setTab] = useState<'negocios' | 'busquedas'>('negocios');
+  const [tab, setTab] = useState<'negocios' | 'busquedas' | 'resumen'>('negocios');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | ApproachStatus>('all');
   const [sortBy, setSortBy] = useState<'reciente' | 'nombre' | 'estado'>('reciente');
@@ -297,6 +300,7 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
             {([
               ['negocios', `Negocios (${businesses.length})`],
               ['busquedas', `Búsquedas (${searches.length})`],
+              ['resumen', 'Resumen'],
             ] as const).map(([id, label]) => (
               <button
                 key={id}
@@ -311,7 +315,9 @@ export const HistorialScreen: React.FC<HistorialScreenProps> = ({
             ))}
           </div>
 
-          {tab === 'negocios' ? (
+          {tab === 'resumen' ? (
+            <WeeklySummary tracked={businesses} />
+          ) : tab === 'negocios' ? (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">

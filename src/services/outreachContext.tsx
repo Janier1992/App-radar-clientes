@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { BusinessLead, SellerProfile, TrackedBusiness } from '../types';
-import { OutreachStep, OutreachTone, buildOutreachMessage, getReservasIaPdfUrl } from './outreachMessage';
+import { OutreachStep, OutreachTone, buildOutreachMessage, getReservasIaPdfUrl, toneForLead } from './outreachMessage';
+import { OutreachSettings, setActiveOutreachSettings } from './outreachSettings';
 import { findContactedDuplicate, suggestedStep } from './outreachPlan';
 import { BlockedEntry, isBlocked } from './doNotContact';
 import { QuickReplyId, buildQuickReply } from './quickReplies';
@@ -18,6 +19,7 @@ export interface OutreachActions {
 
 interface OutreachValue {
   seller: SellerProfile;
+  settings: OutreachSettings;
   tracked: TrackedBusiness[];
   blocked: BlockedEntry[];
   actions: OutreachActions;
@@ -39,15 +41,19 @@ export const OutreachProvider: React.FC<{
   tracked: TrackedBusiness[];
   blocked: BlockedEntry[];
   actions: OutreachActions;
+  settings: OutreachSettings;
   children: React.ReactNode;
-}> = ({ seller, tracked, blocked, actions, children }) => {
+}> = ({ seller, tracked, blocked, actions, settings, children }) => {
   const value = useMemo<OutreachValue>(() => {
+    // Los generadores de mensajes leen estos ajustes; se activan antes de armar cualquier texto.
+    setActiveOutreachSettings(settings);
     const stepFor = (lead: BusinessLead) => suggestedStep(tracked.find((t) => t.id === lead.id));
     const isBlockedLead = (lead: BusinessLead) => isBlocked(blocked, lead);
     const messageFor: OutreachValue['messageFor'] = (lead, step, tone) =>
-      buildOutreachMessage(lead, seller, tone ?? seller.defaultTone ?? 'cercano', getReservasIaPdfUrl(), step ?? stepFor(lead));
+      buildOutreachMessage(lead, seller, tone ?? toneForLead(lead, seller), getReservasIaPdfUrl(), step ?? stepFor(lead));
     return {
       seller,
+      settings,
       tracked,
       blocked,
       actions,
@@ -60,7 +66,7 @@ export const OutreachProvider: React.FC<{
         isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildQuickReply(id, lead, seller)),
       duplicateOf: (lead) => findContactedDuplicate(lead, tracked),
     };
-  }, [seller, tracked, blocked, actions]);
+  }, [seller, tracked, blocked, actions, settings]);
   return <OutreachContext.Provider value={value}>{children}</OutreachContext.Provider>;
 };
 

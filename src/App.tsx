@@ -8,7 +8,9 @@ import { AjustesScreen } from './components/ajustes/AjustesScreen';
 import { HistorialScreen } from './components/historial/HistorialScreen';
 import { OutreachActions, OutreachProvider } from './services/outreachContext';
 import { PendingSendPrompt, clearPendingSend, markPendingSend } from './components/outreach/PendingSendPrompt';
-import { STEP_LABELS } from './services/outreachMessage';
+import { STEP_LABELS, toneForLead } from './services/outreachMessage';
+import { PIPELINE_LABELS } from './services/historyExport';
+import { OutreachSettings, loadOutreachSettings, saveOutreachSettings } from './services/outreachSettings';
 import { BlockedEntry, addBlocked, loadBlocked, removeBlocked, saveBlocked } from './services/doNotContact';
 import { approachCount, nextActionAfter, suggestedStep } from './services/outreachPlan';
 import {
@@ -25,6 +27,7 @@ import {
   BusinessLead,
   SellerProfile,
   AppQuotaSettings,
+  ActivityEvent,
   ActivityType,
   ApproachChannel,
   SearchLogEntry,
@@ -152,6 +155,12 @@ export default function App() {
     saveSearchLog(searchLog);
   }, [searchLog]);
 
+  // Ajustes editables de los mensajes (saludo, firma, duración de la demo…)
+  const [outreachSettings, setOutreachSettings] = useState<OutreachSettings>(loadOutreachSettings);
+  useEffect(() => {
+    saveOutreachSettings(outreachSettings);
+  }, [outreachSettings]);
+
   // Negocios que pidieron no recibir más mensajes
   const [blocked, setBlocked] = useState<BlockedEntry[]>(loadBlocked);
   useEffect(() => {
@@ -161,7 +170,7 @@ export default function App() {
   const trackActivity = (
     lead: BusinessLead,
     type: ActivityType,
-    extra?: { channel?: ApproachChannel; note?: string }
+    extra?: Pick<ActivityEvent, 'channel' | 'note' | 'tone' | 'step' | 'stage'>
   ) => {
     setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, type, extra));
     // Al abrir WhatsApp se pregunta, al volver a la app, si el mensaje se envió de verdad.
@@ -178,7 +187,12 @@ export default function App() {
     const tracked = trackedBusinesses.find((t) => t.id === lead.id);
     const step = suggestedStep(tracked);
     const count = approachCount(tracked) + 1;
-    trackActivity(lead, 'acercamiento', { channel: 'whatsapp', note: STEP_LABELS[step] });
+    trackActivity(lead, 'acercamiento', {
+      channel: 'whatsapp',
+      note: STEP_LABELS[step],
+      step,
+      tone: toneForLead(lead, sellerProfile),
+    });
     setSavedLeads((prev) =>
       prev.map((l) =>
         l.id === lead.id
@@ -251,6 +265,11 @@ export default function App() {
   };
 
   const handleUpdateLead = (updated: BusinessLead) => {
+    // Cada cambio de etapa queda en el historial: es lo que alimenta el resumen de demos y cierres.
+    const before = savedLeads.find((l) => l.id === updated.id);
+    if (before && before.pipelineStatus !== updated.pipelineStatus) {
+      trackActivity(updated, 'etapa', { stage: updated.pipelineStatus, note: `Pasó a ${PIPELINE_LABELS[updated.pipelineStatus] ?? updated.pipelineStatus}` });
+    }
     setActiveLead(updated);
     setTrackedBusinesses((prev) => refreshBusinessSnapshot(prev, updated));
     setSavedLeads((prev) =>
@@ -270,7 +289,7 @@ export default function App() {
   };
 
   return (
-    <OutreachProvider seller={sellerProfile} tracked={trackedBusinesses} blocked={blocked} actions={outreachActions}>
+    <OutreachProvider seller={sellerProfile} tracked={trackedBusinesses} blocked={blocked} actions={outreachActions} settings={outreachSettings}>
     <PendingSendPrompt tracked={trackedBusinesses} onConfirm={confirmWhatsAppSent} />
     <Layout
       activeScreen={activeScreen}
@@ -404,6 +423,8 @@ export default function App() {
           allLeads={savedLeads}
           onUpdateQuotaSettings={setQuotaSettings}
           onUpdateSellerProfile={setSellerProfile}
+          outreachSettings={outreachSettings}
+          onUpdateOutreachSettings={setOutreachSettings}
         />
       )}
     </Layout>

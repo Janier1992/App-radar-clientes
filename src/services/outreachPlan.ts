@@ -3,6 +3,7 @@ import { cleanColombianPhoneNumber, isMobilePhoneNumber } from './phoneUtils';
 import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, STEP_WAIT_DAYS, nextStepForCount } from './outreachMessage';
 import { BlockedEntry, isBlocked, normalizePhone } from './doNotContact';
 import type { QuickReplyId } from './quickReplies';
+import { isSequenceApproach } from './outreachStats';
 
 /** Tope diario recomendado para cuidar el número de WhatsApp y no parecer spam. */
 export const DAILY_LIMIT = 20;
@@ -27,7 +28,8 @@ export interface QueueItem {
 /** Fecha local en formato AAAA-MM-DD (la misma que usa el campo «próxima acción»). */
 export const dateKey = (d: Date) => d.toLocaleDateString('en-CA');
 
-export const approachEvents = (t?: TrackedBusiness) => (t ? t.events.filter((e) => e.type === 'acercamiento') : []);
+/** Acercamientos de la secuencia: las respuestas rápidas a un negocio que ya contestó no cuentan como paso. */
+export const approachEvents = (t?: TrackedBusiness) => (t ? t.events.filter(isSequenceApproach) : []);
 
 export const approachCount = (t?: TrackedBusiness) => approachEvents(t).length;
 
@@ -38,7 +40,7 @@ export const suggestedStep = (t?: TrackedBusiness): OutreachStep => nextStepForC
 export function sentToday(tracked: TrackedBusiness[], now: Date): number {
   const today = dateKey(now);
   return tracked.reduce(
-    (sum, t) => sum + approachEvents(t).filter((e) => dateKey(new Date(e.at)) === today).length,
+    (sum, t) => sum + t.events.filter((e) => e.type === 'acercamiento' && dateKey(new Date(e.at)) === today).length,
     0
   );
 }
