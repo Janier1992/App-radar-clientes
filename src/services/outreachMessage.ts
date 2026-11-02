@@ -60,7 +60,7 @@ export function loadSellerProfile(): SellerProfile {
 export type Sector = 'salud' | 'vehiculos' | 'gastronomia' | 'formacion' | 'belleza' | 'general';
 
 /** Frase de ReservasIA adaptada al rubro (según los casos de uso de la presentación comercial). */
-const SECTOR_LINES: Record<Sector, string> = {
+export const SECTOR_LINES: Record<Sector, string> = {
   salud: 'Está pensado para clínicas y consultorios: cuida la privacidad de los pacientes (Ley 1581) y deriva las urgencias a una persona.',
   vehiculos: 'Para talleres y lavaderos incluye ficha del vehículo (placa, modelo) y un tablero por etapas, para que nadie se pierda con las manos ocupadas.',
   gastronomia: 'Para restaurantes y cafés incluye menú con QR en la mesa, fila por número de comensales y aviso cuando el pedido está listo.',
@@ -70,7 +70,7 @@ const SECTOR_LINES: Record<Sector, string> = {
 };
 
 /** Un beneficio concreto por rubro para el segundo seguimiento (según la presentación comercial). */
-const SECTOR_BENEFITS: Record<Sector, string> = {
+export const SECTOR_BENEFITS: Record<Sector, string> = {
   salud: 'recordatorios automáticos que ayudan a reducir las citas perdidas y una agenda sin cruces, cuidando la privacidad de los pacientes.',
   vehiculos: 'la ficha de cada vehículo (placa, modelo) y un tablero por etapas —en fila, lavando, listo—, para saber siempre qué sigue.',
   gastronomia: 'un menú con QR en la mesa y un aviso por WhatsApp cuando el pedido está listo.',
@@ -90,7 +90,7 @@ export function detectSector(lead: BusinessLead): Sector {
 }
 
 /** Barrio o sector: primera parte de la dirección que no sea la calle (sin números). */
-const firstZone = (lead: BusinessLead) =>
+export const firstZone = (lead: BusinessLead) =>
   (lead.formattedAddress || '')
     .split(',')
     .map((part) => part.trim())
@@ -104,7 +104,7 @@ function senderLine(seller: SellerProfile) {
 }
 
 /** Cuánta presencia web tiene el negocio, para ofrecer landing solo cuando hace falta. */
-function webSituation(lead: BusinessLead): 'none' | 'social' | 'own' {
+export function webSituation(lead: BusinessLead): 'none' | 'social' | 'own' {
   const type = lead.websiteClassification?.type;
   if (type === 'own') return 'own';
   if (type === 'directory_or_social') return 'social';

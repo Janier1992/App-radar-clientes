@@ -12,12 +12,13 @@ interface Pending {
   lead: BusinessLead;
   at: number;
   reply?: string; // nombre de la respuesta rápida, si lo enviado no es un paso de la secuencia
+  channel?: 'correo'; // canal distinto de WhatsApp
 }
 
 /** Se llama al tocar un botón de WhatsApp: deja pendiente la pregunta «¿lo enviaste?» para cuando se vuelva a la app. */
-export function markPendingSend(lead: BusinessLead, opts?: { reply?: string }) {
+export function markPendingSend(lead: BusinessLead, opts?: { reply?: string; channel?: 'correo' }) {
   try {
-    localStorage.setItem(PENDING_KEY, JSON.stringify({ lead, at: Date.now(), reply: opts?.reply } satisfies Pending));
+    localStorage.setItem(PENDING_KEY, JSON.stringify({ lead, at: Date.now(), reply: opts?.reply, channel: opts?.channel } satisfies Pending));
   } catch {
     /* sin almacenamiento: no hay confirmación rápida */
   }
@@ -57,7 +58,7 @@ const clearPending = () => {
 
 interface Props {
   tracked: TrackedBusiness[];
-  onConfirm: (lead: BusinessLead, reply?: string) => void;
+  onConfirm: (lead: BusinessLead, reply?: string, channel?: 'correo') => void;
 }
 
 /** Tarjeta flotante que aparece al volver de WhatsApp para registrar el acercamiento con un toque. */
@@ -105,18 +106,18 @@ export const PendingSendPrompt: React.FC<Props> = ({ tracked, onConfirm }) => {
   return (
     <div
       role="dialog"
-      aria-label="Confirmar envío de WhatsApp"
+      aria-label="Confirmar envío"
       className="fixed inset-x-0 bottom-0 z-[70] flex justify-center px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pointer-events-none"
     >
       <div className="pointer-events-auto w-full max-w-md rounded-xl border border-emerald-500/40 bg-slate-900/98 shadow-2xl backdrop-blur p-3.5 space-y-3">
         <div className="flex items-start gap-2.5">
           <MessageSquare className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-slate-100">¿Enviaste el mensaje a {pending.lead.name}?</p>
+            <p className="text-sm font-semibold text-slate-100">{pending.channel === 'correo' ? `¿Enviaste el correo a ${pending.lead.name}?` : `¿Enviaste el mensaje a ${pending.lead.name}?`}</p>
             <p className="text-[11px] text-slate-400 mt-0.5">
               {pending.reply
-                ? `Se registrará como respuesta por WhatsApp (${pending.reply}).`
-                : `Se registrará como acercamiento por WhatsApp (${STEP_LABELS[step]})${
+                ? `Se registrará como respuesta por ${pending.channel === 'correo' ? 'correo' : 'WhatsApp'} (${pending.reply}).`
+                : `Se registrará como acercamiento por ${pending.channel === 'correo' ? 'correo' : 'WhatsApp'} (${STEP_LABELS[step]})${
                     step !== OUTREACH_STEPS[OUTREACH_STEPS.length - 1]
                       ? ` y te recordaremos el siguiente seguimiento en ${waitDays} días.`
                       : ' y la secuencia quedará completa.'
@@ -136,7 +137,7 @@ export const PendingSendPrompt: React.FC<Props> = ({ tracked, onConfirm }) => {
           <button
             type="button"
             onClick={() => {
-              onConfirm(pending.lead, pending.reply);
+              onConfirm(pending.lead, pending.reply, pending.channel);
               close();
             }}
             className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold cursor-pointer"

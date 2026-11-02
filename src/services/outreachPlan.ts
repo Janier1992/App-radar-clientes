@@ -2,6 +2,7 @@ import { BusinessLead, PipelineStatus, TrackedBusiness } from '../types';
 import { cleanColombianPhoneNumber, isMobilePhoneNumber } from './phoneUtils';
 import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, STEP_WAIT_DAYS, nextStepForCount } from './outreachMessage';
 import { BlockedEntry, isBlocked, normalizePhone } from './doNotContact';
+import { isEmail } from './digitalCard';
 import type { QuickReplyId } from './quickReplies';
 import { isSequenceApproach } from './outreachStats';
 
@@ -23,6 +24,7 @@ export interface QueueItem {
   detail: string;
   priority: number; // menor = más urgente
   replyId?: QuickReplyId; // si el negocio ya respondió: respuesta rápida sugerida
+  channel: 'whatsapp' | 'correo'; // canal para escribirle
 }
 
 /** Fecha local en formato AAAA-MM-DD (la misma que usa el campo «próxima acción»). */
@@ -51,6 +53,10 @@ export function nextActionAfter(count: number, from: Date): string | undefined {
   if (!sent || count >= OUTREACH_STEPS.length) return undefined; // secuencia terminada
   return dateKey(new Date(from.getTime() + STEP_WAIT_DAYS[sent] * DAY_MS));
 }
+
+/** Canal por el que se puede escribir: WhatsApp si tiene celular; si no, correo si lo tiene. */
+export const channelOf = (lead: BusinessLead): 'whatsapp' | 'correo' | null =>
+  hasWhatsApp(lead) ? 'whatsapp' : isEmail(lead.email) ? 'correo' : null;
 
 const hasWhatsApp = (lead: BusinessLead) => isMobilePhoneNumber(cleanColombianPhoneNumber(lead.nationalPhoneNumber) || lead.nationalPhoneNumber);
 
@@ -90,6 +96,7 @@ export function buildContactQueue(
     items.set(lead.id, {
       id: lead.id,
       kind: 'respondio',
+      channel: 'whatsapp',
       lead,
       step: 'primer_contacto',
       replyId: 'agendar_demo',
@@ -103,7 +110,8 @@ export function buildContactQueue(
   for (const t of tracked) {
     if (items.has(t.id) || skip(t.lead)) continue;
     const lead = currentLead(t.lead);
-    if (!isOpen(lead) || !hasWhatsApp(lead)) continue;
+    const channel = channelOf(lead);
+    if (!isOpen(lead) || !channel) continue;
 
     const approaches = approachEvents(t); // más reciente primero
     const last = approaches[0];
@@ -118,6 +126,7 @@ export function buildContactQueue(
           items.set(t.id, {
             id: t.id,
             kind: 'seguimiento',
+            channel,
             lead,
             step,
             title: `${STEP_LABELS[step]} pendiente`,
@@ -132,12 +141,13 @@ export function buildContactQueue(
     // WhatsApp abierto después del último acercamiento y sin confirmar (últimos 3 días)
     const lastApproachAt = last ? new Date(last.at).getTime() : 0;
     const openedWa = t.events.find(
-      (e) => e.type === 'whatsapp' && new Date(e.at).getTime() > lastApproachAt && now.getTime() - new Date(e.at).getTime() < 3 * DAY_MS
+      (e) => (e.type === 'whatsapp' || e.type === 'correo') && new Date(e.at).getTime() > lastApproachAt && now.getTime() - new Date(e.at).getTime() < 3 * DAY_MS
     );
     if (openedWa) {
       items.set(t.id, {
         id: t.id,
         kind: 'confirmar',
+        channel,
         lead,
         step: suggestedStep(t),
         title: '¿Enviaste el mensaje?',
@@ -155,6 +165,7 @@ export function buildContactQueue(
       items.set(lead.id, {
         id: lead.id,
         kind: 'accion',
+        channel: channelOf(lead) ?? 'whatsapp',
         lead,
         step: suggestedStep(trackedById.get(lead.id)),
         title: 'Acción programada',
@@ -168,14 +179,16 @@ export function buildContactQueue(
   const seenPhones = new Set<string>();
   for (const lead of [...leads].sort((a, b) => (b.opportunityScore ?? 0) - (a.opportunityScore ?? 0))) {
     if (items.has(lead.id) || skip(lead)) continue;
-    if (!['nuevo', 'analizado'].includes(lead.pipelineStatus) || !hasWhatsApp(lead)) continue;
+    const channel = channelOf(lead);
+    if (!['nuevo', 'analizado'].includes(lead.pipelineStatus) || !channel) continue;
     if (approachCount(trackedById.get(lead.id)) > 0 || findContactedDuplicate(lead, tracked)) continue;
-    const phone = normalizePhone(lead.nationalPhoneNumber);
+    const phone = normalizePhone(lead.nationalPhoneNumber) || (lead.email ?? '').toLowerCase();
     if (phone && seenPhones.has(phone)) continue; // mismo teléfono guardado dos veces: solo se sugiere uno
     seenPhones.add(phone);
     items.set(lead.id, {
       id: lead.id,
       kind: 'primer_contacto',
+      channel,
       lead,
       step: 'primer_contacto',
       title: 'Primer contacto',

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Settings, 
   KeyRound, 
@@ -26,6 +26,7 @@ import { testGooglePlacesConnection, GooglePlacesErrorDetails } from '../../serv
 import { isGeminiConfigured } from '../../services/geminiClient';
 import { loadSearchLog, loadTrackedBusinesses } from '../../services/activityLog';
 import { useOutreach } from '../../services/outreachContext';
+import { qrDataUrl } from '../../services/qr';
 import { OutreachSettings, DEFAULT_OUTREACH_SETTINGS } from '../../services/outreachSettings';
 import {
   OUTREACH_STEPS,
@@ -161,6 +162,107 @@ const MessageTemplatesCard: React.FC<{
             {preview}
           </p>
           <p className="text-[11px] text-slate-500">Vista previa con un negocio de ejemplo (Taller Los Andes).</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+/** Tarjeta digital: se arma con los datos del perfil y se comparte como enlace o QR (sin servidor). */
+const DigitalCardEditor: React.FC<{
+  settings: OutreachSettings;
+  seller: SellerProfile;
+  onChange: (s: OutreachSettings) => void;
+}> = ({ settings, seller, onChange }) => {
+  const { cardUrl } = useOutreach();
+  const [qr, setQr] = useState('');
+  const [copied, setCopied] = useState(false);
+  const set = <K extends keyof OutreachSettings>(key: K, value: OutreachSettings[K]) => onChange({ ...settings, [key]: value });
+  const field = 'w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden';
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!cardUrl) {
+      setQr('');
+      return;
+    }
+    qrDataUrl(cardUrl).then((url) => !cancelled && setQr(url)).catch(() => !cancelled && setQr(''));
+    return () => {
+      cancelled = true;
+    };
+  }, [cardUrl]);
+
+  const copyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(cardUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* el navegador no permitió copiar */
+    }
+  };
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">
+      <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+        <Briefcase className="w-4 h-4 text-emerald-400" />
+        Tarjeta digital
+      </h3>
+      <p className="text-[11px] text-slate-400">
+        Una página con tus datos, botón de WhatsApp, llamada, correo, la presentación de ReservasIA y «Guardar contacto». Los datos viajan dentro del enlace: no se guardan en ningún servidor. Tu nombre y empresa salen de tu perfil comercial.
+      </p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="space-y-3">
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">WhatsApp / teléfono (obligatorio)</span>
+            <input className={field} value={settings.cardPhone} onChange={(e) => set('cardPhone', e.target.value)} placeholder="300 123 4567" inputMode="tel" />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Frase o cargo</span>
+            <input className={field} value={settings.cardRole} onChange={(e) => set('cardRole', e.target.value)} placeholder="Agentes de IA y páginas web para negocios locales" maxLength={160} />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Correo</span>
+            <input className={field} value={settings.cardEmail} onChange={(e) => set('cardEmail', e.target.value)} placeholder="hola@tuempresa.com" inputMode="email" />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sitio web</span>
+            <input className={field} value={settings.cardWeb} onChange={(e) => set('cardWeb', e.target.value)} placeholder="tuempresa.com" />
+          </label>
+          <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" checked={settings.includeCardLink} onChange={(e) => set('includeCardLink', e.target.checked)} />
+            Agregar el enlace de mi tarjeta al final de los mensajes
+          </label>
+        </div>
+
+        <div className="space-y-3">
+          {cardUrl ? (
+            <>
+              <div className="flex items-center gap-3">
+                {qr && <img src={qr} alt="Código QR de la tarjeta" className="w-28 h-28 rounded-lg bg-white p-1 shrink-0" />}
+                <div className="min-w-0 space-y-2">
+                  <p className="text-[11px] text-slate-400 break-all line-clamp-3">{cardUrl}</p>
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <button type="button" onClick={copyLink} className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold cursor-pointer">
+                      {copied ? 'Copiado' : 'Copiar enlace'}
+                    </button>
+                    <a href={cardUrl} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold">
+                      Ver tarjeta
+                    </a>
+                    {qr && (
+                      <a href={qr} download="tarjeta-qr.png" className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-semibold">
+                        Descargar QR
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-500">Imprime el QR en tu papelería o compártelo; quien lo escanee verá la tarjeta en su celular.</p>
+            </>
+          ) : (
+            <p className="text-xs text-slate-500">Escribe tu WhatsApp para generar el enlace y el código QR de tu tarjeta.</p>
+          )}
         </div>
       </div>
     </div>
@@ -761,6 +863,8 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
 
       {/* PLANTILLAS DE MENSAJES */}
       <MessageTemplatesCard settings={outreachSettings} seller={sellerProfile} onChange={onUpdateOutreachSettings} />
+
+      <DigitalCardEditor settings={outreachSettings} seller={sellerProfile} onChange={onUpdateOutreachSettings} />
 
       {/* BLOQUE 4: COPIAS DE SEGURIDAD Y DATOS LOCALES */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">

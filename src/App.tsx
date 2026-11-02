@@ -175,20 +175,21 @@ export default function App() {
     setTrackedBusinesses((prev) => addBusinessEvent(prev, lead, type, extra));
     // Al abrir WhatsApp se pregunta, al volver a la app, si el mensaje se envió de verdad.
     if (type === 'whatsapp') markPendingSend(lead);
+    if (type === 'correo') markPendingSend(lead, { channel: 'correo' });
   };
 
   // Confirmación rápida tras WhatsApp: registra el acercamiento, avanza el embudo y deja la fecha del siguiente seguimiento.
-  const confirmWhatsAppSent = (lead: BusinessLead, reply?: string) => {
+  const confirmWhatsAppSent = (lead: BusinessLead, reply?: string, channel?: 'correo') => {
     if (reply) {
       // Una respuesta rápida no es un paso de la secuencia: solo queda en el historial.
-      trackActivity(lead, 'acercamiento', { channel: 'whatsapp', note: `Respuesta rápida: ${reply}` });
+      trackActivity(lead, 'acercamiento', { channel: channel ?? 'whatsapp', note: `Respuesta rápida: ${reply}` });
       return;
     }
     const tracked = trackedBusinesses.find((t) => t.id === lead.id);
     const step = suggestedStep(tracked);
     const count = approachCount(tracked) + 1;
     trackActivity(lead, 'acercamiento', {
-      channel: 'whatsapp',
+      channel: channel ?? 'whatsapp',
       note: STEP_LABELS[step],
       step,
       tone: toneForLead(lead, sellerProfile),

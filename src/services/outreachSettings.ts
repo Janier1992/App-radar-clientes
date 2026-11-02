@@ -6,6 +6,12 @@ export interface OutreachSettings {
   demoMinutes: number; // duración de la demo que se propone
   pdfUrl: string; // enlace propio a la presentación (si queda vacío se usa la que viene con la app)
   offerLanding: boolean; // ofrecer landing page a negocios sin web propia
+  // Tarjeta digital (ver digitalCard.ts): datos que se codifican dentro del enlace
+  cardRole: string; // frase o cargo
+  cardPhone: string; // WhatsApp / teléfono
+  cardEmail: string;
+  cardWeb: string;
+  includeCardLink: boolean; // agregar el enlace de la tarjeta al final de los mensajes
 }
 
 export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
@@ -15,6 +21,11 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   demoMinutes: 10,
   pdfUrl: '',
   offerLanding: true,
+  cardRole: '',
+  cardPhone: '',
+  cardEmail: '',
+  cardWeb: '',
+  includeCardLink: false,
 };
 
 const KEY = 'radar_outreach_settings';
@@ -38,9 +49,11 @@ export function saveOutreachSettings(settings: OutreachSettings) {
 
 // Copia activa que leen los generadores de mensajes; App la actualiza cada vez que cambian los ajustes.
 let active: OutreachSettings = DEFAULT_OUTREACH_SETTINGS;
+let activeCardUrl = '';
 export const getOutreachSettings = () => active;
-export const setActiveOutreachSettings = (settings: OutreachSettings) => {
+export const setActiveOutreachSettings = (settings: OutreachSettings, cardUrl = '') => {
   active = settings;
+  activeCardUrl = cardUrl;
 };
 
 /** Aplica los ajustes al texto final: duración de la demo, saludo, dato de contacto y firma. */
@@ -51,7 +64,8 @@ export function applyOutreachSettings(text: string, options: { signature?: boole
   if (minutes !== 10) out = out.replace(/\b10 minutos\b/g, `${minutes} minutos`);
   if (s.greeting.trim() && out.startsWith('¡Hola! 👋')) out = s.greeting.trim() + out.slice('¡Hola! 👋'.length);
   if (options.signature !== false) {
-    const tail = [s.contactLine.trim(), s.signature.trim()].filter(Boolean);
+    const card = s.includeCardLink && activeCardUrl ? `🪪 Mi tarjeta: ${activeCardUrl}` : '';
+    const tail = [s.contactLine.trim(), card, s.signature.trim()].filter(Boolean);
     if (tail.length > 0) out = `${out}\n\n${tail.join('\n')}`;
   }
   return out;

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Ban, BellRing, CalendarClock, Check, ChevronDown, ChevronUp, MessageSquare, Send, Clock3, Eye } from 'lucide-react';
+import { Ban, BellRing, Mail, CalendarClock, Check, ChevronDown, ChevronUp, MessageSquare, Send, Clock3, Eye } from 'lucide-react';
 import { ActivityType, BusinessLead, TrackedBusiness } from '../../types';
 import { useOutreach } from '../../services/outreachContext';
 import { STEP_LABELS } from '../../services/outreachMessage';
@@ -35,7 +35,7 @@ const KIND_STYLES: Record<QueueItem['kind'], string> = {
 };
 
 export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, onOpenFicha }) => {
-  const { waUrl, replyUrl, blocked, actions } = useOutreach();
+  const { waUrl, replyUrl, mailUrls, blocked, actions } = useOutreach();
   const now = new Date();
   const today = now.toLocaleDateString('en-CA');
   const [snoozed, setSnoozed] = useState<string[]>(() => loadSnoozed(today));
@@ -93,7 +93,12 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
           ) : (
             <ul className="divide-y divide-slate-800/80">
               {visible.map((item) => {
-                const url = item.replyId ? replyUrl(item.lead, item.replyId) : waUrl(item.lead, item.step);
+                const isMail = item.channel === 'correo';
+                const url = isMail
+                  ? mailUrls(item.lead, item.step)?.mailto ?? null
+                  : item.replyId
+                  ? replyUrl(item.lead, item.replyId)
+                  : waUrl(item.lead, item.step);
                 return (
                   <li key={item.id} className="px-4 py-3 flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3">
                     <div className="min-w-0 flex-1">
@@ -121,13 +126,18 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                       {url && (
                         <a
                           href={url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={() => (item.replyId ? actions.sendReply(item.lead, 'Proponer la demo') : onTrack?.(item.lead, 'whatsapp'))}
+                          {...(isMail ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
+                          onClick={() =>
+                            isMail
+                              ? onTrack?.(item.lead, 'correo')
+                              : item.replyId
+                              ? actions.sendReply(item.lead, 'Proponer la demo')
+                              : onTrack?.(item.lead, 'whatsapp')
+                          }
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold transition-colors"
                         >
-                          <MessageSquare className="w-3.5 h-3.5" />
-                          WhatsApp
+                          {isMail ? <Mail className="w-3.5 h-3.5" /> : <MessageSquare className="w-3.5 h-3.5" />}
+                          {isMail ? 'Correo' : 'WhatsApp'}
                         </a>
                       )}
                       <button
