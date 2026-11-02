@@ -7,6 +7,8 @@ import { MisLeads } from './components/leads/MisLeads';
 import { AjustesScreen } from './components/ajustes/AjustesScreen';
 import { HistorialScreen } from './components/historial/HistorialScreen';
 import { OutreachActions, OutreachProvider } from './services/outreachContext';
+import { BackupReminder } from './components/outreach/BackupReminder';
+import { AppData, BackupFile, RestoreMode, applyBackup, ensureFirstSeen, requestPersistentStorage } from './services/backup';
 import { PendingSendPrompt, clearPendingSend, markPendingSend } from './components/outreach/PendingSendPrompt';
 import { STEP_LABELS, toneForLead } from './services/outreachMessage';
 import { PIPELINE_LABELS } from './services/historyExport';
@@ -167,6 +169,34 @@ export default function App() {
     saveBlocked(blocked);
   }, [blocked]);
 
+  // Respaldo: marca de primer uso (para el recordatorio) y almacenamiento protegido
+  useEffect(() => {
+    ensureFirstSeen();
+    requestPersistentStorage();
+  }, []);
+
+  const appData: AppData = {
+    leads: savedLeads,
+    tracked: trackedBusinesses,
+    searches: searchLog,
+    blocked,
+    seller: sellerProfile,
+    settings: outreachSettings,
+    quota: quotaSettings,
+  };
+
+  const restoreFromBackup = (backup: BackupFile, mode: RestoreMode) => {
+    const next = applyBackup(appData, backup, mode);
+    setSavedLeads(next.leads);
+    setTrackedBusinesses(next.tracked);
+    setSearchLog(next.searches);
+    setBlocked(next.blocked);
+    setSellerProfile(next.seller);
+    setOutreachSettings(next.settings);
+    setQuotaSettings(next.quota);
+    setActiveLead(null);
+  };
+
   const trackActivity = (
     lead: BusinessLead,
     type: ActivityType,
@@ -305,6 +335,8 @@ export default function App() {
       hasGoogleCloudKey={Boolean(quotaSettings.googleCloudApiKey || true)}
       sellerName={sellerProfile.name}
     >
+      <BackupReminder data={appData} onOpenSettings={() => setActiveScreen('ajustes')} />
+
       {/* Vista condicional según pantalla activa */}
       {/* La búsqueda permanece montada (oculta) al cambiar de pantalla para conservar
           resultados, filtros, vista y selección al volver desde una ficha. */}
@@ -426,6 +458,8 @@ export default function App() {
           onUpdateSellerProfile={setSellerProfile}
           outreachSettings={outreachSettings}
           onUpdateOutreachSettings={setOutreachSettings}
+          appData={appData}
+          onRestoreBackup={restoreFromBackup}
         />
       )}
     </Layout>
