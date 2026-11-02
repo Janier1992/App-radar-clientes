@@ -1,5 +1,6 @@
 import { BusinessLead, SellerProfile } from '../types';
 import { getReservasIaPdfUrl } from './outreachMessage';
+import { applyOutreachSettings } from './outreachSettings';
 
 export type QuickReplyId = 'agendar_demo' | 'precio' | 'consultar' | 'ya_tengo_web' | 'mas_info' | 'no_ahora' | 'no_interesa';
 
@@ -28,6 +29,11 @@ export function buildQuickReply(
   seller: SellerProfile,
   pdfUrl: string = getReservasIaPdfUrl()
 ): string {
+  // «No me interesa» ya lleva su propia despedida: no se le agrega firma ni datos de contacto.
+  return applyOutreachSettings(composeQuickReply(id, lead, seller, pdfUrl), { signature: id !== 'no_interesa' });
+}
+
+function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerProfile, pdfUrl: string): string {
   const name = lead.name;
   const sender = senderName(seller);
   const hasOwnWeb = lead.websiteClassification?.type === 'own';

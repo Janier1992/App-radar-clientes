@@ -26,6 +26,16 @@ import { testGooglePlacesConnection, GooglePlacesErrorDetails } from '../../serv
 import { isGeminiConfigured } from '../../services/geminiClient';
 import { loadSearchLog, loadTrackedBusinesses } from '../../services/activityLog';
 import { useOutreach } from '../../services/outreachContext';
+import { OutreachSettings, DEFAULT_OUTREACH_SETTINGS } from '../../services/outreachSettings';
+import {
+  OUTREACH_STEPS,
+  OutreachStep,
+  OutreachTone,
+  STEP_LABELS,
+  buildOutreachMessage,
+  getReservasIaPdfUrl,
+} from '../../services/outreachMessage';
+import { BusinessLead as SampleLead } from '../../types';
 
 interface AjustesScreenProps {
   quotaSettings: AppQuotaSettings;
@@ -33,9 +43,129 @@ interface AjustesScreenProps {
   leadsCount: number;
   onUpdateQuotaSettings: (updated: AppQuotaSettings) => void;
   onUpdateSellerProfile: (updated: SellerProfile) => void;
+  outreachSettings: OutreachSettings;
+  onUpdateOutreachSettings: (updated: OutreachSettings) => void;
   onImportLeads?: (leads: BusinessLead[]) => void;
   allLeads?: BusinessLead[];
 }
+
+
+const SAMPLE_LEAD: SampleLead = {
+  id: 'ejemplo',
+  name: 'Taller Los Andes',
+  formattedAddress: 'Carrera 43A #10-50, El Poblado, Medellín',
+  primaryTypeDisplayName: 'Taller mecánico',
+  nationalPhoneNumber: '300 123 4567',
+  rating: 4.6,
+  userRatingCount: 132,
+  pipelineStatus: 'nuevo',
+  websiteClassification: { type: 'none' },
+} as SampleLead;
+
+/** Edición de los textos que genera la app, con vista previa en vivo sobre un negocio de ejemplo. */
+const MessageTemplatesCard: React.FC<{
+  settings: OutreachSettings;
+  seller: SellerProfile;
+  onChange: (s: OutreachSettings) => void;
+}> = ({ settings, seller, onChange }) => {
+  const [step, setStep] = useState<OutreachStep>('primer_contacto');
+  const [tone, setTone] = useState<OutreachTone>(seller.defaultTone || 'cercano');
+  const set = <K extends keyof OutreachSettings>(key: K, value: OutreachSettings[K]) => onChange({ ...settings, [key]: value });
+  const preview = buildOutreachMessage(SAMPLE_LEAD, seller, tone, getReservasIaPdfUrl(), step);
+  const field = 'w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden';
+
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">
+      <h3 className="text-sm font-bold text-slate-100 flex items-center gap-2">
+        <MessageSquare className="w-4 h-4 text-emerald-400" />
+        Plantillas de mensajes
+      </h3>
+      <p className="text-[11px] text-slate-400">
+        Personaliza cómo salen los mensajes de WhatsApp (primer contacto, seguimientos y respuestas rápidas). Los cambios se guardan solos y la vista previa se actualiza al instante.
+      </p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="space-y-3">
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Saludo inicial (tono cercano)</span>
+            <input className={field} value={settings.greeting} onChange={(e) => set('greeting', e.target.value)} placeholder="¡Hola! 👋" />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Dato de contacto (al final)</span>
+            <input className={field} value={settings.contactLine} onChange={(e) => set('contactLine', e.target.value)} placeholder="📞 +57 300 000 0000 · tuweb.com" />
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Firma</span>
+            <input className={field} value={settings.signature} onChange={(e) => set('signature', e.target.value)} placeholder="— Tu nombre, tu empresa" />
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="block space-y-1">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Minutos de la demo</span>
+              <input
+                type="number"
+                min={5}
+                max={60}
+                className={field}
+                value={settings.demoMinutes}
+                onChange={(e) => set('demoMinutes', Number(e.target.value) || DEFAULT_OUTREACH_SETTINGS.demoMinutes)}
+              />
+            </label>
+            <label className="flex items-end gap-2 pb-2 text-xs text-slate-300 cursor-pointer">
+              <input type="checkbox" checked={settings.offerLanding} onChange={(e) => set('offerLanding', e.target.checked)} />
+              Ofrecer landing page si no tienen web
+            </label>
+          </div>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace propio a la presentación (opcional)</span>
+            <input className={field} value={settings.pdfUrl} onChange={(e) => set('pdfUrl', e.target.value)} placeholder="Vacío = la presentación de ReservasIA que viene con la app" />
+          </label>
+          <button
+            type="button"
+            onClick={() => onChange(DEFAULT_OUTREACH_SETTINGS)}
+            className="text-[11px] font-semibold text-slate-400 hover:text-slate-200 cursor-pointer"
+          >
+            Restablecer valores originales
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex flex-wrap gap-1.5">
+            {OUTREACH_STEPS.map((st) => (
+              <button
+                key={st}
+                type="button"
+                onClick={() => setStep(st)}
+                className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border cursor-pointer ${
+                  step === st ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                }`}
+              >
+                {STEP_LABELS[st]}
+              </button>
+            ))}
+          </div>
+          <div className="flex gap-1.5 text-[11px]">
+            {(['cercano', 'profesional', 'directo'] as OutreachTone[]).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setTone(t)}
+                className={`px-2.5 py-1 rounded-md font-semibold border cursor-pointer capitalize ${
+                  tone === t ? 'bg-slate-700 text-white border-slate-600' : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-slate-200'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-slate-200 whitespace-pre-line leading-relaxed bg-slate-950 border border-slate-800 rounded-lg p-3 break-words max-h-96 overflow-y-auto">
+            {preview}
+          </p>
+          <p className="text-[11px] text-slate-500">Vista previa con un negocio de ejemplo (Taller Los Andes).</p>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export const AjustesScreen: React.FC<AjustesScreenProps> = ({
   quotaSettings,
@@ -43,6 +173,8 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
   leadsCount,
   onUpdateQuotaSettings,
   onUpdateSellerProfile,
+  outreachSettings,
+  onUpdateOutreachSettings,
   onImportLeads,
   allLeads = [],
 }) => {
@@ -133,6 +265,7 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
       activityLog: loadTrackedBusinesses(),
       searchLog: loadSearchLog(),
       doNotContact: blocked,
+      outreachSettings,
     };
 
     const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
@@ -625,6 +758,9 @@ export const AjustesScreen: React.FC<AjustesScreenProps> = ({
           </button>
         </div>
       </form>
+
+      {/* PLANTILLAS DE MENSAJES */}
+      <MessageTemplatesCard settings={outreachSettings} seller={sellerProfile} onChange={onUpdateOutreachSettings} />
 
       {/* BLOQUE 4: COPIAS DE SEGURIDAD Y DATOS LOCALES */}
       <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 sm:p-6 shadow-xl space-y-4">

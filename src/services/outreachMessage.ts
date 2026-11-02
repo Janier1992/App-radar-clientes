@@ -1,4 +1,5 @@
 import { BusinessLead, SellerProfile } from '../types';
+import { applyOutreachSettings, getOutreachSettings } from './outreachSettings';
 
 export type OutreachTone = 'cercano' | 'profesional' | 'directo';
 
@@ -31,8 +32,11 @@ export function nextStepForCount(approachCount: number): OutreachStep | null {
 export const RESERVASIA_PDF_PATH = '/docs/ReservasIA-Presentacion-Comercial.pdf';
 export const RESERVASIA_PDF_NAME = 'ReservasIA-Presentacion-Comercial.pdf';
 
-export const getReservasIaPdfUrl = () =>
-  typeof window === 'undefined' ? RESERVASIA_PDF_PATH : new URL(RESERVASIA_PDF_PATH, window.location.origin).toString();
+export const getReservasIaPdfUrl = () => {
+  const custom = getOutreachSettings().pdfUrl.trim();
+  if (custom) return custom;
+  return typeof window === 'undefined' ? RESERVASIA_PDF_PATH : new URL(RESERVASIA_PDF_PATH, window.location.origin).toString();
+};
 
 const DEFAULT_SELLER: SellerProfile = {
   name: 'Synflow',
@@ -53,7 +57,7 @@ export function loadSellerProfile(): SellerProfile {
   return DEFAULT_SELLER;
 }
 
-type Sector = 'salud' | 'vehiculos' | 'gastronomia' | 'formacion' | 'belleza' | 'general';
+export type Sector = 'salud' | 'vehiculos' | 'gastronomia' | 'formacion' | 'belleza' | 'general';
 
 /** Frase de ReservasIA adaptada al rubro (según los casos de uso de la presentación comercial). */
 const SECTOR_LINES: Record<Sector, string> = {
@@ -75,7 +79,7 @@ const SECTOR_BENEFITS: Record<Sector, string> = {
   general: 'una agenda sin dobles reservas y recordatorios automáticos para que no se pierda ningún cliente.',
 };
 
-function detectSector(lead: BusinessLead): Sector {
+export function detectSector(lead: BusinessLead): Sector {
   const text = `${lead.primaryTypeDisplayName || ''} ${(lead.types || []).join(' ')} ${lead.name}`.toLowerCase();
   if (/(dent|cl[ií]nica|m[eé]dic|salud|fisio|terap|veterin|odont|psic|optic|hospital|doctor)/.test(text)) return 'salud';
   if (/(taller|mec[aá]nic|lavader|car_wash|auto|moto|llanta|repair|vehic)/.test(text)) return 'vehiculos';
@@ -119,6 +123,16 @@ export function buildOutreachMessage(
   pdfUrl: string = getReservasIaPdfUrl(),
   step: OutreachStep = 'primer_contacto'
 ): string {
+  return applyOutreachSettings(composeOutreachMessage(lead, seller, tone, pdfUrl, step));
+}
+
+function composeOutreachMessage(
+  lead: BusinessLead,
+  seller: SellerProfile = loadSellerProfile(),
+  tone: OutreachTone = seller.defaultTone || 'cercano',
+  pdfUrl: string = getReservasIaPdfUrl(),
+  step: OutreachStep = 'primer_contacto'
+): string {
   if (step !== 'primer_contacto') return buildFollowUpMessage(lead, seller, tone, pdfUrl, step);
   const web = webSituation(lead);
   const sector = detectSector(lead);
@@ -138,7 +152,7 @@ export function buildOutreachMessage(
   const landing = '🌐 *Landing page profesional*: rápida en celular, con su ubicación, servicios y botón directo de WhatsApp.';
   const agent =
     '🤖 *ReservasIA*: un asistente que atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, envía recordatorios (menos ausencias) y evita las dobles reservas.';
-  const offer = web === 'own' ? [agent] : [landing, agent];
+  const offer = web === 'own' || !getOutreachSettings().offerLanding ? [agent] : [landing, agent];
   const pdfLine = `📄 Aquí les dejo la presentación con cómo funciona:\n${pdfUrl}`;
 
   if (tone === 'directo') {
@@ -236,6 +250,10 @@ function buildFollowUpMessage(
   }
   return [`Hola, soy ${sender}. Para no ser insistente, este será mi último mensaje por ahora 🙂`, '', `Si más adelante quieren que *${lead.name}* atienda y agende clientes de forma automática, aquí estaré; y la presentación sigue disponible:`, pdfUrl, '', 'Si prefieren que no les escriba más, solo díganmelo y lo respeto. ¡Muchos éxitos! 🌟'].join('\n');
 }
+
+/** Tono con el que se arman los mensajes de este negocio: el del borrador elegido o, si no hay, el del perfil. */
+export const toneForLead = (lead: BusinessLead, seller: SellerProfile): OutreachTone =>
+  lead.drafts?.tone || seller.defaultTone || 'cercano';
 
 /** ¿Este navegador puede compartir un archivo (hoja de compartir del celular)? */
 export function canShareFiles(): boolean {

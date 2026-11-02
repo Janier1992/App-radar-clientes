@@ -4,6 +4,8 @@ import { ActivityType, BusinessLead, TrackedBusiness } from '../../types';
 import { useOutreach } from '../../services/outreachContext';
 import { STEP_LABELS } from '../../services/outreachMessage';
 import { DAILY_LIMIT, QueueItem, buildContactQueue, sentToday } from '../../services/outreachPlan';
+import { detectSector } from '../../services/outreachMessage';
+import { limitNotice, timingHint } from '../../services/bestTime';
 
 interface Props {
   leads: BusinessLead[];
@@ -46,6 +48,7 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
   );
   const doneToday = sentToday(tracked, now);
   const remaining = Math.max(0, DAILY_LIMIT - doneToday);
+  const notice = limitNotice(doneToday, DAILY_LIMIT);
   const visible = showAll ? queue : queue.slice(0, Math.min(queue.length, Math.max(remaining, 5)));
 
   const snooze = (id: string) => {
@@ -71,8 +74,12 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
           <BellRing className="w-4 h-4 text-amber-400 shrink-0" />
           <span className="min-w-0">
             <span className="block text-sm font-bold text-slate-100">Contactar hoy ({queue.length})</span>
-            <span className="block text-[11px] text-slate-400 truncate">
-              Hoy llevas {doneToday} de {DAILY_LIMIT} mensajes sugeridos · seguimientos primero
+            <span
+              className={`block text-[11px] truncate ${
+                notice.tone === 'stop' ? 'text-rose-300' : notice.tone === 'warn' ? 'text-amber-300' : 'text-slate-400'
+              }`}
+            >
+              {notice.text}
             </span>
           </span>
         </span>
@@ -101,6 +108,14 @@ export const ContactTodayPanel: React.FC<Props> = ({ leads, tracked, onTrack, on
                           · Mensaje: {item.replyId ? 'Proponer la demo' : STEP_LABELS[item.step]}
                         </span>
                       </div>
+                      {(() => {
+                        const hint = timingHint(detectSector(item.lead), now);
+                        return (
+                          <p className={`mt-1 text-[11px] ${hint.ideal ? 'text-emerald-400' : 'text-slate-500'}`}>
+                            🕒 {hint.text}
+                          </p>
+                        );
+                      })()}
                     </div>
                     <div className="flex flex-wrap items-center gap-2 shrink-0">
                       {url && (

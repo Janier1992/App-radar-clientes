@@ -35,6 +35,9 @@
    * **Confirmación rápida:** al volver de WhatsApp aparece «¿Enviaste el mensaje?»; con «Sí, lo envié» se registra el acercamiento, el lead pasa a *Contactado* y se programa la fecha del siguiente seguimiento.
    * **Cuando el negocio responde:** botón «El negocio respondió» (en la cola, la ficha y el historial) que lo pasa a *Respondió* y lo sube al tope de «Contactar hoy»; **respuestas rápidas** de un toque para las objeciones más comunes (precio, «lo consulto», «ya tengo web», «mándame información», «ahora no», «no me interesa») y para proponer la demo.
    * **Lista de «no contactar»:** si un negocio pide no recibir mensajes, queda bloqueado (también por teléfono): no se abre WhatsApp para él, sale de la cola y puede gestionarse desde Ajustes. Además, la app avisa si ya le escribiste a otro registro con el mismo teléfono.
+   * **Resumen de prospección** (Historial → *Resumen*): mensajes enviados, negocios contactados, respuestas, demos y cierres en los últimos 7 / 30 días o todo el historial, con la tasa de respuesta por rubro, por tono y por paso de la secuencia, y la franja horaria que mejor te ha funcionado. Avisa cuando la muestra es pequeña.
+   * **Mejor momento para escribir:** cada fila de «Contactar hoy» sugiere una franja según el rubro (orientativa) y avisa fuera de horario o al acercarse al tope diario de mensajes.
+   * **Plantillas editables** (Ajustes → *Plantillas de mensajes*): saludo, dato de contacto, firma, minutos de la demo, enlace propio a la presentación y si se ofrece landing page, con vista previa en vivo. Se aplican al primer contacto, los seguimientos y las respuestas rápidas.
    * WhatsApp no deja adjuntar archivos desde un enlace `wa.me`; por eso el mensaje lleva el enlace al PDF (WhatsApp muestra la vista previa). Desde el celular, el botón **Enviar con el PDF adjunto** de la ficha abre la hoja de compartir con el archivo.
 
 8. **Mini-CRM y Embudo de Ventas:**
