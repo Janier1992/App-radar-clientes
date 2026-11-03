@@ -41,7 +41,7 @@ import {
 } from '../../types';
 import { runBusinessAnalysis, generateDrafts } from '../../services/analyzer';
 import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
-import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, canShareFiles, shareOutreachWithPdf, getReservasIaPdfUrl } from '../../services/outreachMessage';
+import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, canShareFiles, shareOutreachWithPdf, getReservasIaUrl } from '../../services/outreachMessage';
 import { useOutreach } from '../../services/outreachContext';
 import { ContactStatusBar, QuickReplies } from '../outreach/QuickReplies';
 import { ProposalModal } from '../outreach/ProposalModal';
@@ -83,7 +83,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
   const isSocialWebsite = lead.websiteClassification.type === 'directory_or_social';
 
   // URLs directas de WhatsApp
-  // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace a la presentación de ReservasIA.
+  // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace de ReservasIA.
   const { messageFor, stepFor, waUrl, isBlockedLead, emailFor, mailUrls, seller, settings, cardUrl } = useOutreach();
   const [sheetBusy, setSheetBusy] = useState(false);
   const [proposalOpen, setProposalOpen] = useState(false);
@@ -863,13 +863,13 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                 </p>
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <a
-                    href={getReservasIaPdfUrl()}
+                    href={getReservasIaUrl()}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold transition-colors"
                   >
-                    <FileText className="w-3.5 h-3.5" />
-                    Ver presentación PDF
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    Abrir ReservasIA
                   </a>
                   {canShareFiles() && !isBlockedLead(lead) && (
                     <button
@@ -879,14 +879,14 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                       title="Abre la hoja de compartir del celular con el PDF adjunto; elige WhatsApp y el chat del negocio"
                     >
                       <Share2 className="w-3.5 h-3.5" />
-                      Enviar con el PDF adjunto
+                      Enviar con el PDF adjunto (opcional)
                     </button>
                   )}
                 </div>
                 {shareError && <p className="text-xs text-amber-300">{shareError}</p>}
 
                 <p className="text-[11px] text-slate-500">
-                  WhatsApp no permite adjuntar archivos desde un enlace: «Enviar por WhatsApp» incluye el enlace a la presentación (se ve como vista previa en el chat). Desde el celular, «Enviar con el PDF adjunto» manda el archivo.
+                  WhatsApp no permite adjuntar archivos desde un enlace: «Enviar por WhatsApp» incluye el enlace a ReservasIA (se ve como vista previa en el chat). Desde el celular, «Enviar con el PDF adjunto» manda además la presentación en PDF.
                 </p>
               </div>
             )}
@@ -986,7 +986,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500">
-                  El correo lleva el enlace a la presentación en PDF (un enlace de correo no permite adjuntar archivos). Verifica la dirección antes de enviar.
+                  El correo lleva el enlace a ReservasIA. Verifica la dirección antes de enviar.
                 </p>
               </div>
             )}

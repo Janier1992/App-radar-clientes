@@ -4,7 +4,7 @@ export interface OutreachSettings {
   contactLine: string; // dato de contacto que se agrega al final (teléfono, web…)
   signature: string; // firma final
   demoMinutes: number; // duración de la demo que se propone
-  pdfUrl: string; // enlace propio a la presentación (si queda vacío se usa la que viene con la app)
+  reservasUrl: string; // enlace de ReservasIA que se envía en los mensajes (si queda vacío se usa el oficial)
   offerLanding: boolean; // ofrecer landing page a negocios sin web propia
   // Tarjeta digital (ver digitalCard.ts): datos que se codifican dentro del enlace
   cardRole: string; // frase o cargo
@@ -27,7 +27,7 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   contactLine: '',
   signature: '',
   demoMinutes: 10,
-  pdfUrl: '',
+  reservasUrl: '',
   offerLanding: true,
   cardRole: '',
   cardPhone: '',
