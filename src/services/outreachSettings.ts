@@ -20,6 +20,8 @@ export interface OutreachSettings {
   proposalTerms: string; // condiciones, una por línea (forma de pago, tiempos…)
   founderOffer: string; // condición especial para clientes fundadores (opcional)
   notificationsEnabled: boolean; // avisos del navegador con demos y seguimientos pendientes
+  whatsappTarget: 'auto' | 'web' | 'app'; // dónde se abre el chat: automático (web en computador, app en celular), WhatsApp Web o la app
+  useEmojis: boolean; // quitar los emojis de los mensajes si el dispositivo los muestra como cuadros con «?»
 }
 
 export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
@@ -41,6 +43,8 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   proposalTerms: '',
   founderOffer: '',
   notificationsEnabled: false,
+  whatsappTarget: 'auto',
+  useEmojis: true,
 };
 
 const KEY = 'radar_outreach_settings';
@@ -71,7 +75,22 @@ export const setActiveOutreachSettings = (settings: OutreachSettings, cardUrl = 
   activeCardUrl = cardUrl;
 };
 
-/** Aplica los ajustes al texto final: duración de la demo, saludo, dato de contacto y firma. */
+/**
+ * Quita los emojis (y sus modificadores) cuando están desactivados en Ajustes, dejando el texto limpio.
+ * Sirve para dispositivos o versiones de WhatsApp que los muestran como cuadros con «?».
+ */
+export function applyEmojiPolicy(text: string): string {
+  if (active.useEmojis) return text;
+  return text
+    .replace(/[\p{Extended_Pictographic}\uFE0F\u200D\u20E3]/gu, '')
+    .replace(/[ \t]{2,}/g, ' ')
+    .replace(/^[ \t]+/gm, '')
+    .replace(/[ \t]+$/gm, '')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+}
+
+/** Aplica los ajustes al texto final: duración de la demo, saludo, dato de contacto, firma y emojis. */
 export function applyOutreachSettings(text: string, options: { signature?: boolean } = {}): string {
   const s = active;
   let out = text;
@@ -79,9 +98,9 @@ export function applyOutreachSettings(text: string, options: { signature?: boole
   if (minutes !== 10) out = out.replace(/\b10 minutos\b/g, `${minutes} minutos`);
   if (s.greeting.trim() && out.startsWith('¡Hola! 👋')) out = s.greeting.trim() + out.slice('¡Hola! 👋'.length);
   if (options.signature !== false) {
-    const card = s.includeCardLink && activeCardUrl ? `🪪 Mi tarjeta: ${activeCardUrl}` : '';
+    const card = s.includeCardLink && activeCardUrl ? `💼 Mi tarjeta: ${activeCardUrl}` : '';
     const tail = [s.contactLine.trim(), card, s.signature.trim()].filter(Boolean);
     if (tail.length > 0) out = `${out}\n\n${tail.join('\n')}`;
   }
-  return out;
+  return applyEmojiPolicy(out);
 }
