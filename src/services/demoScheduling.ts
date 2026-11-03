@@ -1,6 +1,6 @@
 import { BusinessLead, SellerProfile } from '../types';
 import { downloadBlob } from './historyExport';
-import { getOutreachSettings } from './outreachSettings';
+import { applyEmojiPolicy, getOutreachSettings } from './outreachSettings';
 
 export type DemoMode = 'videollamada' | 'llamada' | 'presencial';
 
@@ -121,7 +121,7 @@ const how = (plan: DemoPlan) =>
 /** Mensaje para confirmarle la demo al negocio. */
 export function buildDemoConfirmation(lead: BusinessLead, seller: SellerProfile, plan: DemoPlan): string {
   const sender = (seller.name || 'Synflow').trim();
-  return [
+  return applyEmojiPolicy([
     '¡Perfecto, quedamos así! 🙌',
     '',
     `📅 *Demo de ReservasIA para ${lead.name}*`,
@@ -131,7 +131,7 @@ export function buildDemoConfirmation(lead: BusinessLead, seller: SellerProfile,
     'Les mostraré cómo quedaría con los datos de su negocio. Si necesitan cambiar la hora, me avisan por aquí.',
     '',
     `— ${sender}`,
-  ].join('\n');
+  ].join('\n'));
 }
 
 /** Recordatorio para el mismo día o el día anterior. */
@@ -140,12 +140,12 @@ export function buildDemoReminder(lead: BusinessLead, seller: SellerProfile, sta
   const start = new Date(startISO);
   const today = new Date();
   const sameDay = start.toDateString() === today.toDateString();
-  return [
+  return applyEmojiPolicy([
     `¡Hola! 👋 Les recuerdo nuestra demo de ReservasIA ${sameDay ? 'de hoy' : 'de mañana'}:`,
     `🕒 ${formatWhen(startISO, false)}`,
     '',
     '¿Seguimos con la hora acordada? Cualquier cambio me avisan por aquí.',
     '',
     `— ${sender}`,
-  ].join('\n');
+  ].join('\n'));
 }

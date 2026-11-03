@@ -44,6 +44,7 @@
    * **Agendar la demo:** botón en la ficha y el historial; elige fecha, hora y modalidad, y la app crea el evento en **Google Calendar** (enlace) o descarga un **.ics** (Apple, Outlook), con avisos 1 día y 30 minutos antes, más un mensaje de confirmación por WhatsApp. El negocio pasa a *Reunión* y la demo de hoy o mañana aparece primero en «Contactar hoy» con su recordatorio.
    * **Propuesta comercial en PDF** (ficha → *Propuesta con precios*): elige los servicios y genera una página con lo que incluye, la inversión, los pasos para empezar, las condiciones y tus datos con el QR de la tarjeta. Los precios los escribes en Ajustes → *Precios y propuesta comercial*; la app nunca inventa cifras (sin precios dice «el valor se define en la demo»).
    * **Avisos del navegador** (Ajustes): un aviso al día con demos próximas, respondidos y seguimientos vencidos. Sin servidor solo salen mientras la app esté abierta.
+   * **Emojis y WhatsApp** (Ajustes → *Plantillas de mensajes*): en computador el chat se abre en **WhatsApp Web** (la app de escritorio de Windows a veces muestra los emojis como cuadros con «?»); en celular, en la app. Se puede forzar el destino o **desactivar los emojis**.
    * WhatsApp no deja adjuntar archivos desde un enlace `wa.me`; por eso el mensaje lleva el enlace de ReservasIA (WhatsApp muestra la vista previa). Si además quieres mandar la presentación comercial en PDF (`public/docs/`), el botón opcional **Enviar con el PDF adjunto** de la ficha abre la hoja de compartir del celular con el archivo.
 
 8. **Mini-CRM y Embudo de Ventas:**

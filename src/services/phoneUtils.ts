@@ -1,3 +1,5 @@
+import { applyEmojiPolicy, getOutreachSettings } from './outreachSettings';
+
 /**
  * Utilidades para formateo y enlace directo a WhatsApp para negocios en Colombia
  */
@@ -49,10 +51,24 @@ export function isMobilePhoneNumber(rawPhone?: string): boolean {
   return digits.length === 10 && digits.startsWith('3');
 }
 
+const isMobileDevice = () =>
+  typeof navigator !== 'undefined' &&
+  (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
+
+/**
+ * Enlace al chat de WhatsApp. En computador se abre WhatsApp Web (la app de escritorio de Windows a veces
+ * muestra los emojis como cuadros con «?» al abrir enlaces wa.me); en celular se usa wa.me, que abre la app.
+ * Se puede forzar el destino en Ajustes.
+ */
 export function buildWhatsAppDirectUrl(rawPhone?: string, message?: string): string | null {
   const phone = cleanColombianPhoneNumber(rawPhone);
   if (!phone) return null;
 
-  const encodedMsg = message ? encodeURIComponent(message.trim()) : '';
-  return `https://wa.me/${phone}${encodedMsg ? `?text=${encodedMsg}` : ''}`;
+  const text = message ? applyEmojiPolicy(message.trim()) : '';
+  const encodedMsg = text ? encodeURIComponent(text) : '';
+  const target = getOutreachSettings().whatsappTarget;
+  const useWeb = target === 'web' || (target === 'auto' && !isMobileDevice());
+  return useWeb
+    ? `https://web.whatsapp.com/send?phone=${phone}${encodedMsg ? `&text=${encodedMsg}` : ''}`
+    : `https://wa.me/${phone}${encodedMsg ? `?text=${encodedMsg}` : ''}`;
 }

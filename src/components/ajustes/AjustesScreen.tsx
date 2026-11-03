@@ -126,6 +126,24 @@ const MessageTemplatesCard: React.FC<{
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace de ReservasIA que se envía en los mensajes</span>
             <input className={field} value={settings.reservasUrl} onChange={(e) => set('reservasUrl', e.target.value)} placeholder={RESERVASIA_APP_URL} inputMode="url" />
           </label>
+          <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-2.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Emojis y WhatsApp</p>
+            <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+              <input type="checkbox" checked={settings.useEmojis} onChange={(e) => set('useEmojis', e.target.checked)} />
+              Usar emojis en los mensajes 😊
+            </label>
+            <label className="block space-y-1">
+              <span className="text-[11px] text-slate-400">Abrir el chat de WhatsApp en</span>
+              <select className={field} value={settings.whatsappTarget} onChange={(e) => set('whatsappTarget', e.target.value as OutreachSettings['whatsappTarget'])}>
+                <option value="auto">Automático (WhatsApp Web en computador, la app en celular)</option>
+                <option value="web">WhatsApp Web (en el navegador)</option>
+                <option value="app">La app de WhatsApp</option>
+              </select>
+            </label>
+            <p className="text-[11px] text-slate-500">
+              Si en WhatsApp ves cuadros con «?» en lugar de emojis, elige <strong className="text-slate-300">WhatsApp Web</strong>; si aun así pasa, desactiva los emojis.
+            </p>
+          </div>
           <button
             type="button"
             onClick={() => onChange(DEFAULT_OUTREACH_SETTINGS)}
