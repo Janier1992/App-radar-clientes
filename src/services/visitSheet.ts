@@ -1,5 +1,5 @@
 import { BusinessLead, SellerProfile } from '../types';
-import { SECTOR_LINES, detectSector, firstZone, getReservasIaPdfUrl, webSituation } from './outreachMessage';
+import { SECTOR_LINES, detectSector, firstZone, getReservasIaUrl, webSituation } from './outreachMessage';
 import { OutreachSettings } from './outreachSettings';
 import { downloadBlob, pdfText, stamp } from './historyExport';
 import { qrDataUrl } from './qr';
@@ -148,7 +148,7 @@ export async function exportVisitSheetPdf(opts: {
   ].filter((v): v is string => Boolean(v));
   const contactTop = y;
   for (const [i, line] of contact.entries()) y = text(line, M + 4, y + 2, i === 0 ? 12 : 10.5, { bold: i === 0, maxWidth: W - 2 * M - 150 }) + 1;
-  y = text(`Presentación: ${getReservasIaPdfUrl()}`, M + 4, y + 4, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 150 });
+  y = text(`ReservasIA: ${getReservasIaUrl()}`, M + 4, y + 4, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 150 });
 
   if (cardUrl) {
     try {

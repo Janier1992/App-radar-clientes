@@ -1,5 +1,5 @@
 import { BusinessLead, SellerProfile } from '../types';
-import { getReservasIaPdfUrl } from './outreachMessage';
+import { getReservasIaUrl } from './outreachMessage';
 import { applyOutreachSettings } from './outreachSettings';
 
 export type QuickReplyId = 'agendar_demo' | 'precio' | 'consultar' | 'ya_tengo_web' | 'mas_info' | 'no_ahora' | 'no_interesa';
@@ -15,7 +15,7 @@ export const QUICK_REPLIES: QuickReplyOption[] = [
   { id: 'precio', label: '¿Cuánto cuesta?', hint: 'Sin inventar cifras: llevar la conversación a la demo' },
   { id: 'consultar', label: 'Lo tengo que consultar', hint: 'Dar tiempo y dejar el PDF' },
   { id: 'ya_tengo_web', label: 'Ya tengo página web', hint: 'ReservasIA complementa su web' },
-  { id: 'mas_info', label: 'Mándame información', hint: 'Resumen + presentación' },
+  { id: 'mas_info', label: 'Mándame información', hint: 'Resumen + enlace de ReservasIA' },
   { id: 'no_ahora', label: 'Ahora no / más adelante', hint: 'Dejar la puerta abierta' },
   { id: 'no_interesa', label: 'No me interesa / no me escriban', hint: 'Despedida respetuosa' },
 ];
@@ -27,13 +27,13 @@ export function buildQuickReply(
   id: QuickReplyId,
   lead: BusinessLead,
   seller: SellerProfile,
-  pdfUrl: string = getReservasIaPdfUrl()
+  appUrl: string = getReservasIaUrl()
 ): string {
   // «No me interesa» ya lleva su propia despedida: no se le agrega firma ni datos de contacto.
-  return applyOutreachSettings(composeQuickReply(id, lead, seller, pdfUrl), { signature: id !== 'no_interesa' });
+  return applyOutreachSettings(composeQuickReply(id, lead, seller, appUrl), { signature: id !== 'no_interesa' });
 }
 
-function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerProfile, pdfUrl: string): string {
+function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerProfile, appUrl: string): string {
   const name = lead.name;
   const sender = senderName(seller);
   const hasOwnWeb = lead.websiteClassification?.type === 'own';
@@ -60,8 +60,8 @@ function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerP
       return [
         '¡Por supuesto, tómense el tiempo que necesiten! 🙂',
         '',
-        'Para facilitar la conversación, les dejo la presentación para que la revisen juntos:',
-        pdfUrl,
+        'Para facilitar la conversación, les dejo el enlace de ReservasIA para que lo revisen juntos:',
+        appUrl,
         '',
         'Si surge cualquier duda, escríbanme por aquí y se las resuelvo. ¿Les escribo en un par de días para saber cómo les fue?',
       ].join('\n');
@@ -80,8 +80,8 @@ function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerP
         '🤖 *ReservasIA* atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, envía recordatorios y evita las dobles reservas.',
         hasOwnWeb ? '' : '🌐 Y si lo necesitan, una *landing page* rápida en celular con botón directo de WhatsApp.',
         '',
-        'Aquí está la presentación completa:',
-        pdfUrl,
+        'Aquí pueden ver ReservasIA en funcionamiento:',
+        appUrl,
         '',
         '¿Cuándo les queda bien una llamada de 10 minutos para resolver dudas?',
       ]
@@ -91,8 +91,8 @@ function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerP
       return [
         'Gracias por responderme, lo entiendo perfectamente. No hay ningún afán 🙂',
         '',
-        'Les dejo la presentación por si más adelante la necesitan:',
-        pdfUrl,
+        'Les dejo el enlace de ReservasIA por si más adelante lo necesitan:',
+        appUrl,
         '',
         '¿Les parece si les escribo de nuevo dentro de un mes? Si prefieren que no, me lo dicen y listo.',
       ].join('\n');

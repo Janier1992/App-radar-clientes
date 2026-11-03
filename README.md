@@ -29,7 +29,7 @@
 
 7. **Generador de Propuestas Comerciales Multicanal:**
    * Guiones de llamada (30 segundos), mensajes de WhatsApp y correos adaptados al problema detectado, en tono **Cercano**, **Profesional** o **Directo**, con enlace directo a `wa.me/57...`.
-   * **Mensaje de WhatsApp de primer contacto:** al tocar el botón de WhatsApp (en la búsqueda, en Mis leads o en la ficha) se abre el chat con un mensaje personalizado con el nombre, la zona y la valoración reales del negocio, la oferta de **landing page** (si no tiene web propia) y del agente **ReservasIA**, una frase adaptada a su rubro y el enlace a la presentación comercial (`public/docs/ReservasIA-Presentacion-Comercial.pdf`, se sirve desde la misma app, sin backend).
+   * **Mensaje de WhatsApp de primer contacto:** al tocar el botón de WhatsApp (en la búsqueda, en Mis leads o en la ficha) se abre el chat con un mensaje personalizado con el nombre, la zona y la valoración reales del negocio, la oferta de **landing page** (si no tiene web propia) y del agente **ReservasIA**, una frase adaptada a su rubro y el **enlace de ReservasIA** (<https://reservas-ia-app.vercel.app/>, configurable en Ajustes) para que el negocio conozca el servicio.
    * **Secuencia de seguimiento:** primer contacto + Seguimiento 1 (a los 2 días), Seguimiento 2 (3 días después, con un beneficio según el rubro) y Cierre amable (4 días después). Los botones de WhatsApp envían automáticamente el mensaje que toca según los acercamientos ya registrados; en la ficha puedes elegir otro paso.
    * **Contactar hoy:** bloque en *Mis leads* con seguimientos vencidos, acciones programadas, envíos sin confirmar y primeros contactos (por oportunidad), con un tope sugerido de 20 mensajes al día.
    * **Confirmación rápida:** al volver de WhatsApp aparece «¿Enviaste el mensaje?»; con «Sí, lo envié» se registra el acercamiento, el lead pasa a *Contactado* y se programa la fecha del siguiente seguimiento.
@@ -37,14 +37,14 @@
    * **Lista de «no contactar»:** si un negocio pide no recibir mensajes, queda bloqueado (también por teléfono): no se abre WhatsApp para él, sale de la cola y puede gestionarse desde Ajustes. Además, la app avisa si ya le escribiste a otro registro con el mismo teléfono.
    * **Resumen de prospección** (Historial → *Resumen*): mensajes enviados, negocios contactados, respuestas, demos y cierres en los últimos 7 / 30 días o todo el historial, con la tasa de respuesta por rubro, por tono y por paso de la secuencia, y la franja horaria que mejor te ha funcionado. Avisa cuando la muestra es pequeña.
    * **Mejor momento para escribir:** cada fila de «Contactar hoy» sugiere una franja según el rubro (orientativa) y avisa fuera de horario o al acercarse al tope diario de mensajes.
-   * **Plantillas editables** (Ajustes → *Plantillas de mensajes*): saludo, dato de contacto, firma, minutos de la demo, enlace propio a la presentación y si se ofrece landing page, con vista previa en vivo. Se aplican al primer contacto, los seguimientos y las respuestas rápidas.
-   * **Correo con la misma secuencia:** en la ficha, pestaña *Correo*, el asunto y el cuerpo cambian con el paso y el tono, llevan el enlace al PDF y se abren en tu cliente de correo o en Gmail. «Contactar hoy» sugiere el correo cuando el negocio no tiene celular pero sí correo, y al volver aparece «¿Enviaste el correo?».
-   * **Tarjeta digital** (Ajustes → *Tarjeta digital*): una página pública con tu WhatsApp, llamada, correo, web, la presentación de ReservasIA y «Guardar contacto» (vCard). Los datos viajan dentro del enlace (`/?tarjeta=…`), sin servidor; incluye código QR descargable y puede agregarse al final de los mensajes.
+   * **Plantillas editables** (Ajustes → *Plantillas de mensajes*): saludo, dato de contacto, firma, minutos de la demo, el enlace de ReservasIA que se envía y si se ofrece landing page, con vista previa en vivo. Se aplican al primer contacto, los seguimientos y las respuestas rápidas.
+   * **Correo con la misma secuencia:** en la ficha, pestaña *Correo*, el asunto y el cuerpo cambian con el paso y el tono, llevan el enlace de ReservasIA y se abren en tu cliente de correo o en Gmail. «Contactar hoy» sugiere el correo cuando el negocio no tiene celular pero sí correo, y al volver aparece «¿Enviaste el correo?».
+   * **Tarjeta digital** (Ajustes → *Tarjeta digital*): una página pública con tu WhatsApp, llamada, correo, web, el enlace de ReservasIA y «Guardar contacto» (vCard). Los datos viajan dentro del enlace (`/?tarjeta=…`), sin servidor; incluye código QR descargable y puede agregarse al final de los mensajes.
    * **Hoja para visita (PDF):** en la ficha, un PDF de una página por negocio con sus datos reales, los puntajes de PageSpeed y problemas detectados (si ya se analizó), la propuesta de landing y ReservasIA y tus datos de contacto con el QR de tu tarjeta.
    * **Agendar la demo:** botón en la ficha y el historial; elige fecha, hora y modalidad, y la app crea el evento en **Google Calendar** (enlace) o descarga un **.ics** (Apple, Outlook), con avisos 1 día y 30 minutos antes, más un mensaje de confirmación por WhatsApp. El negocio pasa a *Reunión* y la demo de hoy o mañana aparece primero en «Contactar hoy» con su recordatorio.
    * **Propuesta comercial en PDF** (ficha → *Propuesta con precios*): elige los servicios y genera una página con lo que incluye, la inversión, los pasos para empezar, las condiciones y tus datos con el QR de la tarjeta. Los precios los escribes en Ajustes → *Precios y propuesta comercial*; la app nunca inventa cifras (sin precios dice «el valor se define en la demo»).
    * **Avisos del navegador** (Ajustes): un aviso al día con demos próximas, respondidos y seguimientos vencidos. Sin servidor solo salen mientras la app esté abierta.
-   * WhatsApp no deja adjuntar archivos desde un enlace `wa.me`; por eso el mensaje lleva el enlace al PDF (WhatsApp muestra la vista previa). Desde el celular, el botón **Enviar con el PDF adjunto** de la ficha abre la hoja de compartir con el archivo.
+   * WhatsApp no deja adjuntar archivos desde un enlace `wa.me`; por eso el mensaje lleva el enlace de ReservasIA (WhatsApp muestra la vista previa). Si además quieres mandar la presentación comercial en PDF (`public/docs/`), el botón opcional **Enviar con el PDF adjunto** de la ficha abre la hoja de compartir del celular con el archivo.
 
 8. **Mini-CRM y Embudo de Ventas:**
    * Tablero Kanban y tabla con etapas: *Nuevo*, *Analizado*, *Contactado*, *Respondió*, *Reunión*, *Cliente* y *Descartado*. Notas, fechas de próxima acción, exportación a **Excel (.xlsx), PDF y CSV** y copia de seguridad en JSON.
@@ -130,7 +130,7 @@ La app corre **100 % en el navegador**, sin backend propio.
 
 ## 📚 Documentación
 
-Manual de usuario para el equipo: [`docs/manual-usuario-radar-clientes.pdf`](docs/manual-usuario-radar-clientes.pdf).
+Manual de usuario para el equipo (v7, noviembre 2026): [`docs/manual-usuario-radar-clientes.pdf`](docs/manual-usuario-radar-clientes.pdf). Se genera desde `docs/manual.html`.
 
 ---
 

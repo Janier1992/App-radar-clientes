@@ -5,7 +5,7 @@ import {
   SECTOR_BENEFITS,
   SECTOR_LINES,
   detectSector,
-  getReservasIaPdfUrl,
+  getReservasIaUrl,
   webSituation,
 } from './outreachMessage';
 import { applyOutreachSettings } from './outreachSettings';
@@ -19,14 +19,14 @@ const plain = (text: string) => text.replace(/\*/g, '');
 
 /**
  * Correo de acercamiento (mismos pasos y tonos que WhatsApp), en texto plano para abrirlo en el cliente de correo.
- * Lleva el enlace a la presentación en PDF; no se adjunta archivo porque un enlace `mailto:` no lo permite.
+ * Lleva el enlace a ReservasIA.
  */
 export function buildEmailDraft(
   lead: BusinessLead,
   seller: SellerProfile,
   tone: OutreachTone = seller.defaultTone || 'cercano',
   step: OutreachStep = 'primer_contacto',
-  pdfUrl: string = getReservasIaPdfUrl()
+  appUrl: string = getReservasIaUrl()
 ): EmailDraft {
   const name = lead.name;
   const sender = (seller.name || 'Synflow').trim();
@@ -53,11 +53,11 @@ export function buildEmailDraft(
   switch (step) {
     case 'primer_contacto':
       subject = web === 'own' ? `Atención 24/7 por WhatsApp para ${name}` : `Presencia web y reservas automáticas para ${name}`;
-      lines = [greeting, '', `Conocí ${name} en Google Maps${lead.rating && (lead.userRatingCount ?? 0) >= 10 ? ` y me llamó la atención su calificación de ${lead.rating.toFixed(1)} con ${lead.userRatingCount} reseñas` : ''}. ${hook}`, '', 'Les propongo:', ...offer, '', SECTOR_LINES[sector], '', `Les dejo la presentación con cómo funciona: ${pdfUrl}`, '', `¿Les parece si les muestro en 10 minutos cómo quedaría para ${name}? Sin compromiso.`];
+      lines = [greeting, '', `Conocí ${name} en Google Maps${lead.rating && (lead.userRatingCount ?? 0) >= 10 ? ` y me llamó la atención su calificación de ${lead.rating.toFixed(1)} con ${lead.userRatingCount} reseñas` : ''}. ${hook}`, '', 'Les propongo:', ...offer, '', SECTOR_LINES[sector], '', `Pueden ver cómo funciona ReservasIA aquí: ${appUrl}`, '', `¿Les parece si les muestro en 10 minutos cómo quedaría para ${name}? Sin compromiso.`];
       break;
     case 'seguimiento_1':
-      subject = `Seguimiento: presentación de ReservasIA para ${name}`;
-      lines = [greeting, '', `Hace unos días les escribí sobre ${name}. Sé que el día a día no da tregua, así que les resumo: un asistente por WhatsApp que atiende, agenda y confirma citas 24/7${web === 'own' ? '' : ', más una landing page rápida en celular'}.`, '', `Por si se les pasó, aquí está la presentación: ${pdfUrl}`, '', '¿Alcanzaron a verla? Si prefieren, se las explico en una llamada de 10 minutos.'];
+      subject = `Seguimiento: ReservasIA para ${name}`;
+      lines = [greeting, '', `Hace unos días les escribí sobre ${name}. Sé que el día a día no da tregua, así que les resumo: un asistente por WhatsApp que atiende, agenda y confirma citas 24/7${web === 'own' ? '' : ', más una landing page rápida en celular'}.`, '', `Por si se les pasó, aquí pueden ver cómo funciona: ${appUrl}`, '', '¿Alcanzaron a verlo? Si prefieren, se lo explico en una llamada de 10 minutos.'];
       break;
     case 'seguimiento_2':
       subject = `Una idea concreta para ${name}`;
@@ -65,7 +65,7 @@ export function buildEmailDraft(
       break;
     default:
       subject = `Cierro el seguimiento con ${name}`;
-      lines = [greeting, '', 'Para no ser insistente, este será mi último mensaje por ahora.', '', `Si más adelante quieren que ${name} atienda y agende clientes de forma automática, la presentación sigue disponible: ${pdfUrl}`, '', 'Si prefieren que no les escriba más, solo díganmelo y lo respeto. ¡Muchos éxitos!'];
+      lines = [greeting, '', 'Para no ser insistente, este será mi último mensaje por ahora.', '', `Si más adelante quieren que ${name} atienda y agende clientes de forma automática, ReservasIA sigue disponible aquí: ${appUrl}`, '', 'Si prefieren que no les escriba más, solo díganmelo y lo respeto. ¡Muchos éxitos!'];
   }
 
   const signature = [close, sender, agency && !agency.toLowerCase().includes(sender.toLowerCase()) ? agency : ''].filter(Boolean).join('\n');

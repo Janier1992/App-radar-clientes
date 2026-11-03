@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { BusinessLead, SellerProfile, TrackedBusiness } from '../types';
-import { OutreachStep, OutreachTone, buildOutreachMessage, getReservasIaPdfUrl, toneForLead } from './outreachMessage';
+import { OutreachStep, OutreachTone, buildOutreachMessage, getReservasIaUrl, toneForLead } from './outreachMessage';
 import { OutreachSettings, setActiveOutreachSettings } from './outreachSettings';
 import { findContactedDuplicate, suggestedStep } from './outreachPlan';
 import { BlockedEntry, isBlocked } from './doNotContact';
@@ -71,13 +71,14 @@ export const OutreachProvider: React.FC<{
           p: settings.cardPhone,
           e: settings.cardEmail,
           w: settings.cardWeb,
+          a: settings.reservasUrl,
         })
       : '';
     setActiveOutreachSettings(settings, cardUrl);
     const stepFor = (lead: BusinessLead) => suggestedStep(tracked.find((t) => t.id === lead.id));
     const isBlockedLead = (lead: BusinessLead) => isBlocked(blocked, lead);
     const messageFor: OutreachValue['messageFor'] = (lead, step, tone) =>
-      buildOutreachMessage(lead, seller, tone ?? toneForLead(lead, seller), getReservasIaPdfUrl(), step ?? stepFor(lead));
+      buildOutreachMessage(lead, seller, tone ?? toneForLead(lead, seller), getReservasIaUrl(), step ?? stepFor(lead));
     const emailFor: OutreachValue['emailFor'] = (lead, step, tone) =>
       buildEmailDraft(lead, seller, tone ?? toneForLead(lead, seller), step ?? stepFor(lead));
     return {

@@ -37,7 +37,8 @@ import {
   OutreachTone,
   STEP_LABELS,
   buildOutreachMessage,
-  getReservasIaPdfUrl,
+  getReservasIaUrl,
+  RESERVASIA_APP_URL,
 } from '../../services/outreachMessage';
 import { BusinessLead as SampleLead } from '../../types';
 
@@ -77,7 +78,7 @@ const MessageTemplatesCard: React.FC<{
   const [step, setStep] = useState<OutreachStep>('primer_contacto');
   const [tone, setTone] = useState<OutreachTone>(seller.defaultTone || 'cercano');
   const set = <K extends keyof OutreachSettings>(key: K, value: OutreachSettings[K]) => onChange({ ...settings, [key]: value });
-  const preview = buildOutreachMessage(SAMPLE_LEAD, seller, tone, getReservasIaPdfUrl(), step);
+  const preview = buildOutreachMessage(SAMPLE_LEAD, seller, tone, getReservasIaUrl(), step);
   const field = 'w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:border-emerald-500 focus:outline-hidden';
 
   return (
@@ -122,8 +123,8 @@ const MessageTemplatesCard: React.FC<{
             </label>
           </div>
           <label className="block space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace propio a la presentación (opcional)</span>
-            <input className={field} value={settings.pdfUrl} onChange={(e) => set('pdfUrl', e.target.value)} placeholder="Vacío = la presentación de ReservasIA que viene con la app" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace de ReservasIA que se envía en los mensajes</span>
+            <input className={field} value={settings.reservasUrl} onChange={(e) => set('reservasUrl', e.target.value)} placeholder={RESERVASIA_APP_URL} inputMode="url" />
           </label>
           <button
             type="button"
@@ -215,7 +216,7 @@ const DigitalCardEditor: React.FC<{
         Tarjeta digital
       </h3>
       <p className="text-[11px] text-slate-400">
-        Una página con tus datos, botón de WhatsApp, llamada, correo, la presentación de ReservasIA y «Guardar contacto». Los datos viajan dentro del enlace: no se guardan en ningún servidor. Tu nombre y empresa salen de tu perfil comercial.
+        Una página con tus datos, botón de WhatsApp, llamada, correo, el enlace de ReservasIA y «Guardar contacto». Los datos viajan dentro del enlace: no se guardan en ningún servidor. Tu nombre y empresa salen de tu perfil comercial.
       </p>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <div className="space-y-3">

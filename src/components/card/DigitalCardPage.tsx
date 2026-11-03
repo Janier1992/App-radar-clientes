@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { Download, FileText, Globe, Mail, MessageCircle, Phone } from 'lucide-react';
 import { CardData, buildVCard, cardPhoneDigits, decodeCard, isEmail, safeWebUrl } from '../../services/digitalCard';
-import { RESERVASIA_PDF_PATH } from '../../services/outreachMessage';
+import { RESERVASIA_APP_URL } from '../../services/outreachMessage';
 
 const initials = (name: string) =>
   name
@@ -93,12 +93,12 @@ export const DigitalCardPage: React.FC<{ encoded: string }> = ({ encoded }) => {
             </a>
           )}
           <a
-            href={RESERVASIA_PDF_PATH}
+            href={safeWebUrl(card.a) ?? RESERVASIA_APP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className={`${action} bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-100`}
           >
-            <FileText className="w-5 h-5 text-emerald-400" /> Ver presentación de ReservasIA
+            <FileText className="w-5 h-5 text-emerald-400" /> Conocer ReservasIA
           </a>
           <button
             type="button"

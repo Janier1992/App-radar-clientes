@@ -11,6 +11,7 @@ export interface CardData {
   p?: string; // teléfono o WhatsApp
   e?: string; // correo
   w?: string; // sitio web
+  a?: string; // enlace de ReservasIA (si falta, se usa el oficial)
 }
 
 const toBase64Url = (bytes: Uint8Array) =>
@@ -31,7 +32,7 @@ export function decodeCard(encoded: string): CardData | null {
     const parsed = JSON.parse(new TextDecoder().decode(fromBase64Url(encoded)));
     if (!parsed || typeof parsed.n !== 'string' || !parsed.n.trim()) return null;
     const pick = (key: string, max: number) => (typeof parsed[key] === 'string' ? parsed[key].slice(0, max) : undefined);
-    return { n: parsed.n.slice(0, 80), c: pick('c', 80), r: pick('r', 160), p: pick('p', 30), e: pick('e', 120), w: pick('w', 200) };
+    return { n: parsed.n.slice(0, 80), c: pick('c', 80), r: pick('r', 160), p: pick('p', 30), e: pick('e', 120), w: pick('w', 200), a: pick('a', 200) };
   } catch {
     return null;
   }

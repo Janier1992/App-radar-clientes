@@ -28,15 +28,15 @@ export function nextStepForCount(approachCount: number): OutreachStep | null {
   return OUTREACH_STEPS[approachCount] ?? null;
 }
 
-/** Presentación comercial de ReservasIA, publicada junto a la app (carpeta public/docs). */
+/** Aplicación de ReservasIA: es el enlace que se envía a los negocios para que conozcan el servicio. */
+export const RESERVASIA_APP_URL = 'https://reservas-ia-app.vercel.app/';
+
+/** Presentación comercial en PDF (opcional: solo se usa en «Enviar con el PDF adjunto»), publicada junto a la app. */
 export const RESERVASIA_PDF_PATH = '/docs/ReservasIA-Presentacion-Comercial.pdf';
 export const RESERVASIA_PDF_NAME = 'ReservasIA-Presentacion-Comercial.pdf';
 
-export const getReservasIaPdfUrl = () => {
-  const custom = getOutreachSettings().pdfUrl.trim();
-  if (custom) return custom;
-  return typeof window === 'undefined' ? RESERVASIA_PDF_PATH : new URL(RESERVASIA_PDF_PATH, window.location.origin).toString();
-};
+/** Enlace de ReservasIA para los mensajes: el configurado en Ajustes o, si está vacío, el oficial. */
+export const getReservasIaUrl = () => getOutreachSettings().reservasUrl.trim() || RESERVASIA_APP_URL;
 
 const DEFAULT_SELLER: SellerProfile = {
   name: 'Synflow',
@@ -114,26 +114,26 @@ export function webSituation(lead: BusinessLead): 'none' | 'social' | 'own' {
 /**
  * Mensaje de primer contacto por WhatsApp: personalizado con datos reales del negocio (nombre, zona,
  * valoración y presencia web), con la oferta de landing page (si no tiene web propia) y del agente
- * ReservasIA, y con el enlace a la presentación en PDF. No inventa datos: solo menciona lo que existe.
+ * ReservasIA, y con el enlace a ReservasIA. No inventa datos: solo menciona lo que existe.
  */
 export function buildOutreachMessage(
   lead: BusinessLead,
   seller: SellerProfile = loadSellerProfile(),
   tone: OutreachTone = seller.defaultTone || 'cercano',
-  pdfUrl: string = getReservasIaPdfUrl(),
+  appUrl: string = getReservasIaUrl(),
   step: OutreachStep = 'primer_contacto'
 ): string {
-  return applyOutreachSettings(composeOutreachMessage(lead, seller, tone, pdfUrl, step));
+  return applyOutreachSettings(composeOutreachMessage(lead, seller, tone, appUrl, step));
 }
 
 function composeOutreachMessage(
   lead: BusinessLead,
   seller: SellerProfile = loadSellerProfile(),
   tone: OutreachTone = seller.defaultTone || 'cercano',
-  pdfUrl: string = getReservasIaPdfUrl(),
+  appUrl: string = getReservasIaUrl(),
   step: OutreachStep = 'primer_contacto'
 ): string {
-  if (step !== 'primer_contacto') return buildFollowUpMessage(lead, seller, tone, pdfUrl, step);
+  if (step !== 'primer_contacto') return buildFollowUpMessage(lead, seller, tone, appUrl, step);
   const web = webSituation(lead);
   const sector = detectSector(lead);
   const zone = firstZone(lead);
@@ -153,7 +153,7 @@ function composeOutreachMessage(
   const agent =
     '🤖 *ReservasIA*: un asistente que atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, envía recordatorios (menos ausencias) y evita las dobles reservas.';
   const offer = web === 'own' || !getOutreachSettings().offerLanding ? [agent] : [landing, agent];
-  const pdfLine = `📄 Aquí les dejo la presentación con cómo funciona:\n${pdfUrl}`;
+  const pdfLine = `🔗 Conozcan ReservasIA y vean cómo funciona aquí:\n${appUrl}`;
 
   if (tone === 'directo') {
     return [
@@ -209,7 +209,7 @@ function buildFollowUpMessage(
   lead: BusinessLead,
   seller: SellerProfile,
   tone: OutreachTone,
-  pdfUrl: string,
+  appUrl: string,
   step: Exclude<OutreachStep, 'primer_contacto'>
 ): string {
   const sender = senderLine(seller);
@@ -219,16 +219,16 @@ function buildFollowUpMessage(
     web === 'own'
       ? 'un asistente por WhatsApp que atiende, agenda y confirma citas 24/7, para que no se les pierda ningún cliente.'
       : 'una landing page que carga rápido en el celular y un asistente por WhatsApp que atiende, agenda y confirma citas 24/7.';
-  const pdf = `📄 Por si se les pasó, aquí está la presentación:\n${pdfUrl}`;
+  const pdf = `🔗 Por si se les pasó, aquí pueden ver cómo funciona ReservasIA:\n${appUrl}`;
 
   if (step === 'seguimiento_1') {
     if (tone === 'directo') {
-      return [`Hola, le habla ${sender}. Le escribí hace unos días sobre *${lead.name}*.`, '', `Le resumo: ${value}`, '', pdf, '', '¿La alcanzó a ver? Puedo explicársela en 10 minutos.'].join('\n');
+      return [`Hola, le habla ${sender}. Le escribí hace unos días sobre *${lead.name}*.`, '', `Le resumo: ${value}`, '', pdf, '', '¿Alcanzó a revisarlo? Puedo explicárselo en 10 minutos.'].join('\n');
     }
     if (tone === 'profesional') {
       return [`Buenos días, le saluda nuevamente ${sender}.`, '', `Hace unos días le escribí sobre *${lead.name}*. Le comparto de forma breve lo esencial: ${value}`, '', pdf, '', 'Quedo atento para resolver cualquier duda o coordinar una reunión corta.'].join('\n');
     }
-    return [`¡Hola de nuevo! 👋 Soy ${sender}. Les escribí hace unos días sobre *${lead.name}*.`, '', `Sé que el día a día no da tregua, así que se lo dejo cortito: ${value}`, '', pdf, '', '¿Alcanzaron a mirarla? Si prefieren, se las explico en una llamada de 10 minutos 🙌'].join('\n');
+    return [`¡Hola de nuevo! 👋 Soy ${sender}. Les escribí hace unos días sobre *${lead.name}*.`, '', `Sé que el día a día no da tregua, así que se lo dejo cortito: ${value}`, '', pdf, '', '¿Alcanzaron a revisarlo? Si prefieren, se lo explico en una llamada de 10 minutos 🙌'].join('\n');
   }
 
   if (step === 'seguimiento_2') {
@@ -243,12 +243,12 @@ function buildFollowUpMessage(
 
   // cierre
   if (tone === 'directo') {
-    return [`${sender}: no insistiré más por ahora.`, '', `Si más adelante quieren que *${lead.name}* atienda y agende clientes automáticamente, aquí tienen la presentación:`, pdfUrl, '', 'Si prefieren que no les escriba, díganmelo y lo respeto.'].join('\n');
+    return [`${sender}: no insistiré más por ahora.`, '', `Si más adelante quieren que *${lead.name}* atienda y agende clientes automáticamente, aquí tienen ReservasIA para cuando quieran verlo:`, appUrl, '', 'Si prefieren que no les escriba, díganmelo y lo respeto.'].join('\n');
   }
   if (tone === 'profesional') {
-    return [`Buenos días, le saluda ${sender}.`, '', 'Para no ser insistente, este será mi último mensaje por ahora.', '', `Si en el futuro *${lead.name}* desea automatizar su atención y sus reservas, la presentación sigue disponible:`, pdfUrl, '', 'Si prefiere que no volvamos a escribirle, con gusto lo respetamos. Quedo atento y le deseo muchos éxitos.'].join('\n');
+    return [`Buenos días, le saluda ${sender}.`, '', 'Para no ser insistente, este será mi último mensaje por ahora.', '', `Si en el futuro *${lead.name}* desea automatizar su atención y sus reservas, ReservasIA sigue disponible aquí:`, appUrl, '', 'Si prefiere que no volvamos a escribirle, con gusto lo respetamos. Quedo atento y le deseo muchos éxitos.'].join('\n');
   }
-  return [`Hola, soy ${sender}. Para no ser insistente, este será mi último mensaje por ahora 🙂`, '', `Si más adelante quieren que *${lead.name}* atienda y agende clientes de forma automática, aquí estaré; y la presentación sigue disponible:`, pdfUrl, '', 'Si prefieren que no les escriba más, solo díganmelo y lo respeto. ¡Muchos éxitos! 🌟'].join('\n');
+  return [`Hola, soy ${sender}. Para no ser insistente, este será mi último mensaje por ahora 🙂`, '', `Si más adelante quieren que *${lead.name}* atienda y agende clientes de forma automática, aquí estaré; y ReservasIA sigue disponible aquí:`, appUrl, '', 'Si prefieren que no les escriba más, solo díganmelo y lo respeto. ¡Muchos éxitos! 🌟'].join('\n');
 }
 
 /** Tono con el que se arman los mensajes de este negocio: el del borrador elegido o, si no hay, el del perfil. */
