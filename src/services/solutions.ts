@@ -1,6 +1,6 @@
 import { BusinessLead, SolutionId } from '../types';
 import { RESERVASIA_APP_URL } from './outreachMessage';
-import { getOutreachSettings } from './outreachSettings';
+import { getOutreachSettings, getTiendlyUrl } from './outreachSettings';
 
 /** Elección general (barra de búsqueda): una solución fija o «automática» según el tipo de negocio. */
 export type SolutionChoice = 'auto' | SolutionId;
@@ -52,10 +52,10 @@ export function resolveSolution(lead: BusinessLead, choice: SolutionChoice = 'au
   return choice === 'auto' ? autoSolution(lead) : choice;
 }
 
-/** Enlace que se comparte: el de ReservasIA (configurable) o el de Tiendly (vacío hasta que se pegue en Ajustes). */
+/** Enlace que se comparte: el de ReservasIA (configurable) o el de Tiendly (configurables en Ajustes). */
 export function getSolutionUrl(id: SolutionId): string {
   const s = getOutreachSettings();
-  return id === 'tiendly' ? s.tiendlyUrl.trim() : s.reservasUrl.trim() || RESERVASIA_APP_URL;
+  return id === 'tiendly' ? getTiendlyUrl() : s.reservasUrl.trim() || RESERVASIA_APP_URL;
 }
 
 export const solutionOfLead = (lead: BusinessLead): SolutionId => lead.solutionId ?? 'reservasia';

@@ -1,13 +1,13 @@
 import { BusinessLead, SellerProfile } from '../types';
 import type { OutreachStep, OutreachTone } from './outreachMessage';
-import { getOutreachSettings } from './outreachSettings';
+import { getOutreachSettings, getTiendlyUrl } from './outreachSettings';
 
 /**
  * Textos para ofrecer Tiendly (app para tiendas de barrio: ventas, inventario, fiados, tareas y asistente de IA).
  * Solo afirman lo que la demostración del producto muestra; el precio sale de Ajustes y el enlace se agrega solo si se configuró.
  */
 
-const tiendlyUrl = () => getOutreachSettings().tiendlyUrl.trim();
+const tiendlyUrl = () => getTiendlyUrl();
 const offerText = () => getOutreachSettings().tiendlyOffer.trim().replace(/[.\s]+$/, '');
 
 const WHAT =
