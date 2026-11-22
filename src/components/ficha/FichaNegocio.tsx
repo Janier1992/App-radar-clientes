@@ -44,6 +44,8 @@ import { buildWhatsAppDirectUrl } from '../../services/phoneUtils';
 import { OUTREACH_STEPS, OutreachStep, STEP_LABELS, canShareFiles, shareOutreachWithPdf, getReservasIaUrl } from '../../services/outreachMessage';
 import { useOutreach } from '../../services/outreachContext';
 import { ContactStatusBar, QuickReplies } from '../outreach/QuickReplies';
+import { SolutionPicker } from '../outreach/SolutionPicker';
+import { SOLUTIONS, SolutionChoice, getSolutionUrl } from '../../services/solutions';
 import { ProposalModal } from '../outreach/ProposalModal';
 
 interface FichaNegocioProps {
@@ -84,14 +86,14 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
 
   // URLs directas de WhatsApp
   // El mensaje se arma al momento con los datos del negocio, el tono elegido y el enlace de ReservasIA.
-  const { messageFor, stepFor, waUrl, isBlockedLead, emailFor, mailUrls, seller, settings, cardUrl } = useOutreach();
+  const { messageFor, stepFor, waUrl, isBlockedLead, emailFor, mailUrls, seller, settings, cardUrl, withSolution, solutionOf, solutionChoice } = useOutreach();
   const [sheetBusy, setSheetBusy] = useState(false);
   const [proposalOpen, setProposalOpen] = useState(false);
   const handleVisitSheet = async () => {
     setSheetBusy(true);
     try {
       const { exportVisitSheetPdf } = await import('../../services/visitSheet');
-      await exportVisitSheetPdf({ lead, seller, settings, cardUrl });
+      await exportVisitSheetPdf({ lead: withSolution(lead), seller, settings, cardUrl });
     } catch (err) {
       console.warn('No se pudo generar la hoja de visita:', err);
     } finally {
@@ -839,6 +841,15 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                     )}
                   </div>
                 </div>
+                <SolutionPicker
+                  value={lead.solutionId ?? solutionChoice}
+                  lead={lead}
+                  label="Solución para este negocio"
+                  onChange={(choice: SolutionChoice) =>
+                    onUpdateLead({ ...lead, solutionId: choice === 'auto' ? undefined : choice, updatedAt: new Date().toISOString() })
+                  }
+                  hint="Solo cambia a este negocio; la elección general se hace en Buscar."
+                />
                 <div className="flex flex-wrap items-center gap-1.5" role="tablist" aria-label="Mensaje de la secuencia">
                   {OUTREACH_STEPS.map((step) => (
                     <button
@@ -862,16 +873,20 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                   {whatsappText}
                 </p>
                 <div className="flex flex-wrap items-center gap-2 text-xs">
-                  <a
-                    href={getReservasIaUrl()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold transition-colors"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                    Abrir ReservasIA
-                  </a>
-                  {canShareFiles() && !isBlockedLead(lead) && (
+                  {getSolutionUrl(solutionOf(lead)) ? (
+                    <a
+                      href={getSolutionUrl(solutionOf(lead))}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white font-semibold transition-colors"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                      Abrir {SOLUTIONS[solutionOf(lead)].name}
+                    </a>
+                  ) : (
+                    <span className="text-amber-300">Falta pegar el enlace de {SOLUTIONS[solutionOf(lead)].name} en Ajustes: el mensaje sale sin enlace.</span>
+                  )}
+                  {solutionOf(lead) === 'reservasia' && canShareFiles() && !isBlockedLead(lead) && (
                     <button
                       type="button"
                       onClick={handleShareWithPdf}
@@ -886,7 +901,7 @@ export const FichaNegocio: React.FC<FichaNegocioProps> = ({
                 {shareError && <p className="text-xs text-amber-300">{shareError}</p>}
 
                 <p className="text-[11px] text-slate-500">
-                  WhatsApp no permite adjuntar archivos desde un enlace: «Enviar por WhatsApp» incluye el enlace a ReservasIA (se ve como vista previa en el chat). Desde el celular, «Enviar con el PDF adjunto» manda además la presentación en PDF.
+                  WhatsApp no permite adjuntar archivos desde un enlace: «Enviar por WhatsApp» incluye el enlace de la solución elegida (se ve como vista previa en el chat).{solutionOf(lead) === 'reservasia' ? ' Desde el celular, «Enviar con el PDF adjunto» manda además la presentación en PDF.' : ''}
                 </p>
               </div>
             )}

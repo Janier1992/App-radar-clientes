@@ -5,6 +5,8 @@ export interface OutreachSettings {
   signature: string; // firma final
   demoMinutes: number; // duración de la demo que se propone
   reservasUrl: string; // enlace de ReservasIA que se envía en los mensajes (si queda vacío se usa el oficial)
+  tiendlyUrl: string; // enlace público de Tiendly (sin valor por defecto: se pega en Ajustes)
+  tiendlyOffer: string; // condición comercial de Tiendly que se menciona en los mensajes (opcional)
   offerLanding: boolean; // ofrecer landing page a negocios sin web propia
   // Tarjeta digital (ver digitalCard.ts): datos que se codifican dentro del enlace
   cardRole: string; // frase o cargo
@@ -30,6 +32,8 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   signature: '',
   demoMinutes: 10,
   reservasUrl: '',
+  tiendlyUrl: '',
+  tiendlyOffer: 'Tiendly Barrio: $29.900/mes, con 7 días gratis para probarlo',
   offerLanding: true,
   cardRole: '',
   cardPhone: '',

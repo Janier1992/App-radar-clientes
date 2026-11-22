@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { BusinessLead, SellerProfile, TrackedBusiness } from '../types';
+import { BusinessLead, SellerProfile, SolutionId, TrackedBusiness } from '../types';
 import { OutreachStep, OutreachTone, buildOutreachMessage, getReservasIaUrl, toneForLead } from './outreachMessage';
 import { OutreachSettings, setActiveOutreachSettings } from './outreachSettings';
 import { findContactedDuplicate, suggestedStep } from './outreachPlan';
@@ -8,6 +8,7 @@ import { QuickReplyId, buildQuickReply } from './quickReplies';
 import { buildWhatsAppDirectUrl } from './phoneUtils';
 import { buildEmailDraft, EmailDraft, gmailComposeUrl, mailtoUrl } from './emailMessage';
 import { buildCardUrl, isEmail } from './digitalCard';
+import { SolutionChoice, resolveSolution } from './solutions';
 import { DemoPlan, buildDemoConfirmation, buildDemoReminder } from './demoScheduling';
 
 export interface OutreachActions {
@@ -31,6 +32,12 @@ interface OutreachValue {
   blocked: BlockedEntry[];
   actions: OutreachActions;
   isBlockedLead: (lead: BusinessLead) => boolean;
+  /** Elección general de solución (barra de búsqueda). */
+  solutionChoice: SolutionChoice;
+  /** Solución que se le ofrece a este negocio (la suya, o la general / automática). */
+  solutionOf: (lead: BusinessLead) => SolutionId;
+  /** El mismo negocio con la solución ya resuelta, para pasarlo a los generadores de textos y PDF. */
+  withSolution: (lead: BusinessLead) => BusinessLead;
   /** Enlace de WhatsApp con el mensaje del paso que toca; null si no hay teléfono o el negocio pidió no ser contactado. */
   waUrl: (lead: BusinessLead, step?: OutreachStep, tone?: OutreachTone) => string | null;
   replyUrl: (lead: BusinessLead, id: QuickReplyId) => string | null;
@@ -59,8 +66,9 @@ export const OutreachProvider: React.FC<{
   blocked: BlockedEntry[];
   actions: OutreachActions;
   settings: OutreachSettings;
+  solutionChoice?: SolutionChoice;
   children: React.ReactNode;
-}> = ({ seller, tracked, blocked, actions, settings, children }) => {
+}> = ({ seller, tracked, blocked, actions, settings, solutionChoice = 'auto', children }) => {
   const value = useMemo<OutreachValue>(() => {
     // Los generadores de mensajes leen estos ajustes; se activan antes de armar cualquier texto.
     const cardUrl = settings.cardPhone.trim()
@@ -77,12 +85,17 @@ export const OutreachProvider: React.FC<{
     setActiveOutreachSettings(settings, cardUrl);
     const stepFor = (lead: BusinessLead) => suggestedStep(tracked.find((t) => t.id === lead.id));
     const isBlockedLead = (lead: BusinessLead) => isBlocked(blocked, lead);
+    const solutionOf = (lead: BusinessLead) => resolveSolution(lead, solutionChoice);
+    const withSolution = (lead: BusinessLead): BusinessLead => ({ ...lead, solutionId: solutionOf(lead) });
     const messageFor: OutreachValue['messageFor'] = (lead, step, tone) =>
-      buildOutreachMessage(lead, seller, tone ?? toneForLead(lead, seller), getReservasIaUrl(), step ?? stepFor(lead));
+      buildOutreachMessage(withSolution(lead), seller, tone ?? toneForLead(lead, seller), getReservasIaUrl(), step ?? stepFor(lead));
     const emailFor: OutreachValue['emailFor'] = (lead, step, tone) =>
-      buildEmailDraft(lead, seller, tone ?? toneForLead(lead, seller), step ?? stepFor(lead));
+      buildEmailDraft(withSolution(lead), seller, tone ?? toneForLead(lead, seller), step ?? stepFor(lead));
     return {
       cardUrl,
+      solutionChoice,
+      solutionOf,
+      withSolution,
       emailFor,
       mailUrls: (lead, step, tone) => {
         if (isBlockedLead(lead) || !isEmail(lead.email)) return null;
@@ -100,14 +113,14 @@ export const OutreachProvider: React.FC<{
       waUrl: (lead, step, tone) =>
         isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, messageFor(lead, step, tone)),
       replyUrl: (lead, id) =>
-        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildQuickReply(id, lead, seller)),
+        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildQuickReply(id, withSolution(lead), seller)),
       demoConfirmUrl: (lead, plan) =>
-        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildDemoConfirmation(lead, seller, plan)),
+        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildDemoConfirmation(withSolution(lead), seller, plan)),
       demoReminderUrl: (lead, startISO) =>
-        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildDemoReminder(lead, seller, startISO)),
+        isBlockedLead(lead) ? null : buildWhatsAppDirectUrl(lead.nationalPhoneNumber, buildDemoReminder(withSolution(lead), seller, startISO)),
       duplicateOf: (lead) => findContactedDuplicate(lead, tracked),
     };
-  }, [seller, tracked, blocked, actions, settings]);
+  }, [seller, tracked, blocked, actions, settings, solutionChoice]);
   return <OutreachContext.Provider value={value}>{children}</OutreachContext.Provider>;
 };
 

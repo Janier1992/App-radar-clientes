@@ -9,6 +9,7 @@ import {
   webSituation,
 } from './outreachMessage';
 import { applyOutreachSettings } from './outreachSettings';
+import { composeTiendlyEmail } from './tiendlyMessage';
 
 export interface EmailDraft {
   subject: string;
@@ -49,6 +50,12 @@ export function buildEmailDraft(
 
   let subject: string;
   let lines: string[];
+
+  if (lead.solutionId === 'tiendly') {
+    const t = composeTiendlyEmail(lead, step, greeting);
+    const sig = [close, sender, agency && !agency.toLowerCase().includes(sender.toLowerCase()) ? agency : ''].filter(Boolean).join('\n');
+    return { subject: t.subject, body: applyOutreachSettings(`${plain(t.lines.join('\n'))}\n\n${sig}`, { signature: true }) };
+  }
 
   switch (step) {
     case 'primer_contacto':

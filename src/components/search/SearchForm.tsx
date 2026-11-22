@@ -15,6 +15,8 @@ import {
   MessageSquare
 } from 'lucide-react';
 import { PREDEFINED_NICHES, PredefinedNiche, SearchFilters } from '../../types';
+import { SolutionPicker } from '../outreach/SolutionPicker';
+import { SolutionChoice } from '../../services/solutions';
 
 interface SearchFormProps {
   zone: string;
@@ -29,6 +31,8 @@ interface SearchFormProps {
   favoritesCount?: number;
   isCurrentFavorite?: boolean;
   onToggleCurrentFavorite?: () => void;
+  solutionChoice?: SolutionChoice;
+  onSolutionChange?: (choice: SolutionChoice) => void;
 }
 
 const QUICK_ZONE_SUGGESTIONS = [
@@ -53,6 +57,8 @@ export const SearchForm: React.FC<SearchFormProps> = ({
   favoritesCount = 0,
   isCurrentFavorite = false,
   onToggleCurrentFavorite,
+  solutionChoice = 'auto',
+  onSolutionChange,
 }) => {
   const [showFilters, setShowFilters] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -415,6 +421,15 @@ export const SearchForm: React.FC<SearchFormProps> = ({
                 </span>
               </label>
             </div>
+          </div>
+        )}
+        {onSolutionChange && (
+          <div className="rounded-lg border border-slate-800 bg-slate-950/50 p-3">
+            <SolutionPicker
+              value={solutionChoice}
+              onChange={onSolutionChange}
+              label="¿Qué solución quieres ofrecer a estos negocios?"
+            />
           </div>
         )}
       </form>

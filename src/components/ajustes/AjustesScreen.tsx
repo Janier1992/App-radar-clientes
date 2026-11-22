@@ -126,6 +126,16 @@ const MessageTemplatesCard: React.FC<{
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace de ReservasIA que se envía en los mensajes</span>
             <input className={field} value={settings.reservasUrl} onChange={(e) => set('reservasUrl', e.target.value)} placeholder={RESERVASIA_APP_URL} inputMode="url" />
           </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace de Tiendly que se envía en los mensajes</span>
+            <input className={field} value={settings.tiendlyUrl} onChange={(e) => set('tiendlyUrl', e.target.value)} placeholder="https://… (pega aquí el enlace público de Tiendly)" inputMode="url" />
+            {!settings.tiendlyUrl.trim() && <span className="block text-[11px] text-amber-300">Sin enlace, los mensajes de Tiendly salen sin link. Pégalo para que el negocio pueda verlo.</span>}
+          </label>
+          <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Condición comercial de Tiendly (opcional)</span>
+            <input className={field} value={settings.tiendlyOffer} onChange={(e) => set('tiendlyOffer', e.target.value)} placeholder="Tiendly Barrio: $29.900/mes, con 7 días gratis para probarlo" />
+            <span className="block text-[11px] text-slate-500">Se menciona en los mensajes, la respuesta «¿cuánto cuesta?» y la propuesta. Déjala vacía para no mencionar precio.</span>
+          </label>
           <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-2.5">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Emojis y WhatsApp</p>
             <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">

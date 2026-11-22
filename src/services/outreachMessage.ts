@@ -1,5 +1,6 @@
 import { BusinessLead, SellerProfile } from '../types';
 import { applyOutreachSettings, getOutreachSettings } from './outreachSettings';
+import { composeTiendlyMessage } from './tiendlyMessage';
 
 export type OutreachTone = 'cercano' | 'profesional' | 'directo';
 
@@ -133,6 +134,7 @@ function composeOutreachMessage(
   appUrl: string = getReservasIaUrl(),
   step: OutreachStep = 'primer_contacto'
 ): string {
+  if (lead.solutionId === 'tiendly') return composeTiendlyMessage(lead, seller, tone, step, firstZone(lead));
   if (step !== 'primer_contacto') return buildFollowUpMessage(lead, seller, tone, appUrl, step);
   const web = webSituation(lead);
   const sector = detectSector(lead);

@@ -6,6 +6,7 @@ import { RadarNichos } from './components/radar/RadarNichos';
 import { MisLeads } from './components/leads/MisLeads';
 import { AjustesScreen } from './components/ajustes/AjustesScreen';
 import { HistorialScreen } from './components/historial/HistorialScreen';
+import { SolutionChoice, loadSolutionChoice, saveSolutionChoice } from './services/solutions';
 import { OutreachActions, OutreachProvider } from './services/outreachContext';
 import { BackupReminder } from './components/outreach/BackupReminder';
 import { AppData, BackupFile, RestoreMode, applyBackup, ensureFirstSeen, requestPersistentStorage } from './services/backup';
@@ -99,6 +100,11 @@ export default function App() {
   });
 
   // Ajustes de cuota con umbral de alerta (por defecto 800)
+  const [solutionChoice, setSolutionChoice] = useState<SolutionChoice>(loadSolutionChoice);
+  const handleSolutionChange = (choice: SolutionChoice) => {
+    setSolutionChoice(choice);
+    saveSolutionChoice(choice);
+  };
   const [quotaSettings, setQuotaSettings] = useState<AppQuotaSettings>(() => {
     const envKey = (import.meta as any).env?.VITE_GOOGLE_MAPS_API_KEY || '';
     try {
@@ -366,7 +372,7 @@ export default function App() {
   };
 
   return (
-    <OutreachProvider seller={sellerProfile} tracked={trackedBusinesses} blocked={blocked} actions={outreachActions} settings={outreachSettings}>
+    <OutreachProvider seller={sellerProfile} tracked={trackedBusinesses} blocked={blocked} actions={outreachActions} settings={outreachSettings} solutionChoice={solutionChoice}>
     <PendingSendPrompt tracked={trackedBusinesses} onConfirm={confirmWhatsAppSent} />
     <Layout
       activeScreen={activeScreen}
@@ -392,6 +398,7 @@ export default function App() {
           initialNiche={searchNiche}
           onNavigateToBusiness={openFicha}
           onNavigateToSettings={() => setActiveScreen('ajustes')}
+          onSolutionChange={handleSolutionChange}
           onSaveLead={handleSaveLead}
           isSavedLead={isSavedLead}
           onTrack={trackActivity}
