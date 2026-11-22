@@ -65,6 +65,8 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
   // Los PDF (presentaciones comerciales) pesan varios MB: siempre van a la red, no se guardan en caché.
   if (url.pathname.endsWith('.pdf')) return;
+  // Los videos se piden por rangos y pesan varios MB: tampoco se guardan en caché.
+  if (url.pathname.endsWith('.mp4')) return;
 
   if (request.mode === 'navigate') {
     event.respondWith(

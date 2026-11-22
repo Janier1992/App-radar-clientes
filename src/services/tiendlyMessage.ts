@@ -1,6 +1,6 @@
 import { BusinessLead, SellerProfile } from '../types';
 import type { OutreachStep, OutreachTone } from './outreachMessage';
-import { getOutreachSettings, getTiendlyUrl } from './outreachSettings';
+import { getOutreachSettings, getTiendlyUrl, getTiendlyVideoUrl } from './outreachSettings';
 
 /**
  * Textos para ofrecer Tiendly (app para tiendas de barrio: ventas, inventario, fiados, tareas y asistente de IA).
@@ -13,7 +13,12 @@ const offerText = () => getOutreachSettings().tiendlyOffer.trim().replace(/[.\s]
 const WHAT =
   'Tiendly es una app para llevar las ventas, el inventario, los fiados y las tareas de la tienda desde el celular, con un asistente de IA que ayuda a tomar decisiones.';
 
-const linkLines = (intro: string): string[] => (tiendlyUrl() ? ['', `🔗 ${intro}\n${tiendlyUrl()}`] : []);
+const videoUrl = () => getTiendlyVideoUrl();
+/** Primero el video (ver cómo funciona) y después el enlace de la app (probarla gratis). */
+const linkLines = (intro: string): string[] => [
+  ...(videoUrl() ? ['', `🎥 Vean en un video cómo funciona:\n${videoUrl()}`] : []),
+  ...(tiendlyUrl() ? ['', `🔗 ${videoUrl() ? 'Y si quieren probarlo, entren aquí:' : intro}\n${tiendlyUrl()}`] : []),
+];
 const offerLines = (): string[] => (offerText() ? ['', `💡 ${offerText()}.`] : []);
 
 const senderOf = (seller: SellerProfile) => {
@@ -100,7 +105,8 @@ export function composeTiendlyMessage(
 export function composeTiendlyEmail(lead: BusinessLead, step: OutreachStep, greeting: string): { subject: string; lines: string[] } {
   const name = lead.name;
   const url = tiendlyUrl();
-  const link = url ? ['', `Pueden verlo aquí: ${url}`] : [];
+  const v = videoUrl();
+  const link = [...(v ? ['', `Video de cómo funciona: ${v}`] : []), ...(url ? ['', `${v ? 'Para probarlo' : 'Pueden verlo'} aquí: ${url}`] : [])];
   const offer = offerText() ? ['', `${offerText()}.`] : [];
   switch (step) {
     case 'primer_contacto':
