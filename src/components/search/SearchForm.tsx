@@ -239,6 +239,25 @@ export const SearchForm: React.FC<SearchFormProps> = ({
           </div>
         </div>
 
+        {/* Comercio de barrio: atajos visibles para ofrecer Tiendly */}
+        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+          <span className="text-[11px] font-medium text-slate-400 mr-1">🛒 Comercio de barrio:</span>
+          {['tiendas de barrio', 'minimercados', 'misceláneas', 'papelerías', 'droguerías'].map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => onNicheChange(item)}
+              className={`text-xs px-2.5 py-1 rounded-md transition-colors capitalize cursor-pointer ${
+                niche.toLowerCase() === item
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700/80 hover:text-slate-100 border border-slate-700/60'
+              }`}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
         {/* Quick Suggestion Pills */}
         <div className="flex flex-wrap items-center justify-between gap-1.5 pt-1">
           <div className="flex flex-wrap items-center gap-1.5">

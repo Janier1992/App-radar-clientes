@@ -3,7 +3,7 @@
  * - /assets/* (archivos con hash): caché primero.
  * - Resto del mismo origen: sirve la copia guardada y la refresca en segundo plano.
  * - Google Places, PageSpeed, Gemini y demás orígenes externos NO se interceptan: siempre van a la red. */
-const VERSION = 'radar-v1';
+const VERSION = 'radar-v2';
 const SHELL = `${VERSION}-shell`;
 const RUNTIME = `${VERSION}-runtime`;
 const SHELL_URLS = ['/', '/manifest.webmanifest', '/icon.svg', '/icons/icon-192.png', '/icons/icon-512.png'];
