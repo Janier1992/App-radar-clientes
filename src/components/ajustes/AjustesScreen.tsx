@@ -131,6 +131,11 @@ const MessageTemplatesCard: React.FC<{
             <input className={field} value={settings.tiendlyUrl} onChange={(e) => set('tiendlyUrl', e.target.value)} placeholder={TIENDLY_APP_URL} inputMode="url" />
           </label>
           <label className="block space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace del video de Tiendly (opcional)</span>
+            <input className={field} value={settings.tiendlyVideoUrl} onChange={(e) => set('tiendlyVideoUrl', e.target.value)} placeholder={`${window.location.origin}/?video=tiendly`} inputMode="url" />
+            <span className="block text-[11px] text-slate-500">Por defecto se comparte la página de video de esta misma app. Si lo subes a YouTube u otro sitio, pega aquí ese enlace.</span>
+          </label>
+          <label className="block space-y-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Condición comercial de Tiendly (opcional)</span>
             <input className={field} value={settings.tiendlyOffer} onChange={(e) => set('tiendlyOffer', e.target.value)} placeholder="Tiendly Barrio: $29.900/mes, con 7 días gratis para probarlo" />
             <span className="block text-[11px] text-slate-500">Se menciona en los mensajes, la respuesta «¿cuánto cuesta?» y la propuesta. Déjala vacía para no mencionar precio.</span>
