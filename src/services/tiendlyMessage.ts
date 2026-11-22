@@ -14,10 +14,13 @@ const WHAT =
   'Tiendly es una app para llevar las ventas, el inventario, los fiados y las tareas de la tienda desde el celular, con un asistente de IA que ayuda a tomar decisiones.';
 
 const videoUrl = () => getTiendlyVideoUrl();
-/** Primero el video (ver cómo funciona) y después el enlace de la app (probarla gratis). */
+/**
+ * Primero el enlace de la app y después el del video: WhatsApp arma la vista previa con el PRIMER enlace,
+ * y debe verse la imagen de Tiendly, no la de esta aplicación.
+ */
 const linkLines = (intro: string): string[] => [
-  ...(videoUrl() ? ['', `🎥 Vean en un video cómo funciona:\n${videoUrl()}`] : []),
-  ...(tiendlyUrl() ? ['', `🔗 ${videoUrl() ? 'Y si quieren probarlo, entren aquí:' : intro}\n${tiendlyUrl()}`] : []),
+  ...(tiendlyUrl() ? ['', `🔗 ${intro}\n${tiendlyUrl()}`] : []),
+  ...(videoUrl() ? ['', `🎥 Y si prefieren verlo primero en un video:\n${videoUrl()}`] : []),
 ];
 const offerLines = (): string[] => (offerText() ? ['', `💡 ${offerText()}.`] : []);
 
@@ -106,7 +109,7 @@ export function composeTiendlyEmail(lead: BusinessLead, step: OutreachStep, gree
   const name = lead.name;
   const url = tiendlyUrl();
   const v = videoUrl();
-  const link = [...(v ? ['', `Video de cómo funciona: ${v}`] : []), ...(url ? ['', `${v ? 'Para probarlo' : 'Pueden verlo'} aquí: ${url}`] : [])];
+  const link = [...(url ? ['', `Pueden verlo y probarlo aquí: ${url}`] : []), ...(v ? ['', `Video de cómo funciona: ${v}`] : [])];
   const offer = offerText() ? ['', `${offerText()}.`] : [];
   switch (step) {
     case 'primer_contacto':
