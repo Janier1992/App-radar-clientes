@@ -1,6 +1,6 @@
 import { BusinessLead, SellerProfile } from '../types';
 import { SECTOR_BENEFITS, detectSector, getReservasIaUrl, webSituation } from './outreachMessage';
-import { OutreachSettings } from './outreachSettings';
+import { OutreachSettings, TIENDLY_APP_URL } from './outreachSettings';
 import { downloadBlob, pdfText, stamp } from './historyExport';
 import { qrDataUrl } from './qr';
 
@@ -171,7 +171,7 @@ export async function exportProposalPdf(opts: {
     settings.cardWeb,
   ].filter((v): v is string => Boolean(v));
   contact.forEach((line, i) => text(line, M, i === 0 ? 12 : 10.5, { bold: i === 0, maxWidth: W - 2 * M - 140, gap: 2 }));
-  text(tiendly ? (settings.tiendlyUrl.trim() ? `Tiendly: ${settings.tiendlyUrl.trim()}` : '') : `ReservasIA: ${getReservasIaUrl()}`, M, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 140 });
+  text(tiendly ? `Tiendly: ${settings.tiendlyUrl.trim() || TIENDLY_APP_URL}` : `ReservasIA: ${getReservasIaUrl()}`, M, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 140 });
   if (cardUrl) {
     try {
       doc.addImage(await qrDataUrl(cardUrl, 300), 'PNG', W - M - 90, top, 90, 90);

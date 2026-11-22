@@ -5,7 +5,7 @@ export interface OutreachSettings {
   signature: string; // firma final
   demoMinutes: number; // duración de la demo que se propone
   reservasUrl: string; // enlace de ReservasIA que se envía en los mensajes (si queda vacío se usa el oficial)
-  tiendlyUrl: string; // enlace público de Tiendly (sin valor por defecto: se pega en Ajustes)
+  tiendlyUrl: string; // enlace de Tiendly que se envía (si queda vacío se usa el oficial)
   tiendlyOffer: string; // condición comercial de Tiendly que se menciona en los mensajes (opcional)
   offerLanding: boolean; // ofrecer landing page a negocios sin web propia
   // Tarjeta digital (ver digitalCard.ts): datos que se codifican dentro del enlace
@@ -25,6 +25,8 @@ export interface OutreachSettings {
   whatsappTarget: 'auto' | 'web' | 'app'; // dónde se abre el chat: automático (web en computador, app en celular), WhatsApp Web o la app
   useEmojis: boolean; // quitar los emojis de los mensajes si el dispositivo los muestra como cuadros con «?»
 }
+
+export const TIENDLY_APP_URL = 'https://app-barrio.vercel.app/';
 
 export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   greeting: '',
@@ -108,3 +110,6 @@ export function applyOutreachSettings(text: string, options: { signature?: boole
   }
   return applyEmojiPolicy(out);
 }
+
+/** Enlace de Tiendly vigente: el de Ajustes o, si está vacío, el oficial. */
+export const getTiendlyUrl = () => getOutreachSettings().tiendlyUrl.trim() || TIENDLY_APP_URL;

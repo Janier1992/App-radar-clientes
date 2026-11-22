@@ -30,7 +30,7 @@ import { qrDataUrl } from '../../services/qr';
 import { notificationPermission, requestNotificationPermission, sendTestNotification } from '../../services/notifications';
 import { BackupCard } from './BackupCard';
 import { AppData, BackupFile, RestoreMode } from '../../services/backup';
-import { OutreachSettings, DEFAULT_OUTREACH_SETTINGS } from '../../services/outreachSettings';
+import { OutreachSettings, DEFAULT_OUTREACH_SETTINGS, TIENDLY_APP_URL } from '../../services/outreachSettings';
 import {
   OUTREACH_STEPS,
   OutreachStep,
@@ -128,8 +128,7 @@ const MessageTemplatesCard: React.FC<{
           </label>
           <label className="block space-y-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace de Tiendly que se envía en los mensajes</span>
-            <input className={field} value={settings.tiendlyUrl} onChange={(e) => set('tiendlyUrl', e.target.value)} placeholder="https://… (pega aquí el enlace público de Tiendly)" inputMode="url" />
-            {!settings.tiendlyUrl.trim() && <span className="block text-[11px] text-amber-300">Sin enlace, los mensajes de Tiendly salen sin link. Pégalo para que el negocio pueda verlo.</span>}
+            <input className={field} value={settings.tiendlyUrl} onChange={(e) => set('tiendlyUrl', e.target.value)} placeholder={TIENDLY_APP_URL} inputMode="url" />
           </label>
           <label className="block space-y-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Condición comercial de Tiendly (opcional)</span>
