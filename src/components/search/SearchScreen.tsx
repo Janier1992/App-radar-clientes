@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SearchForm } from './SearchForm';
+import { SolutionChoice } from '../../services/solutions';
 import { SearchLoadingState } from './SearchLoadingState';
 import { SearchErrorAlert } from './SearchErrorAlert';
 import { QuickSearchFavorites } from './QuickSearchFavorites';
@@ -57,6 +58,7 @@ interface SearchScreenProps {
   onIncrementQuota?: () => void;
   initialZone?: string;
   initialNiche?: string;
+  onSolutionChange?: (choice: SolutionChoice) => void;
 }
 
 export const SearchScreen: React.FC<SearchScreenProps> = ({
@@ -70,8 +72,9 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
   onIncrementQuota,
   initialZone = 'El Poblado, Medellín',
   initialNiche = 'talleres mecánicos',
+  onSolutionChange,
 }) => {
-  const { waUrl, isBlockedLead } = useOutreach();
+  const { waUrl, isBlockedLead, solutionChoice } = useOutreach();
   const [zone, setZone] = useState(initialZone);
   const [niche, setNiche] = useState(initialNiche);
 
@@ -396,6 +399,8 @@ export const SearchScreen: React.FC<SearchScreenProps> = ({
         favoritesCount={favorites.length}
         isCurrentFavorite={isCurrentFavorite}
         onToggleCurrentFavorite={handleToggleCurrentFavorite}
+        solutionChoice={solutionChoice}
+        onSolutionChange={onSolutionChange}
       />
 
       {/* Barra rápida de favoritos frecuentes */}

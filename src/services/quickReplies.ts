@@ -1,6 +1,7 @@
 import { BusinessLead, SellerProfile } from '../types';
 import { getReservasIaUrl } from './outreachMessage';
 import { applyOutreachSettings } from './outreachSettings';
+import { tiendlyQuickReply } from './tiendlyMessage';
 
 export type QuickReplyId = 'agendar_demo' | 'precio' | 'consultar' | 'ya_tengo_web' | 'mas_info' | 'no_ahora' | 'no_interesa';
 
@@ -34,6 +35,10 @@ export function buildQuickReply(
 }
 
 function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerProfile, appUrl: string): string {
+  if (lead.solutionId === 'tiendly') {
+    const t = tiendlyQuickReply(id, lead);
+    if (t) return t;
+  }
   const name = lead.name;
   const sender = senderName(seller);
   const hasOwnWeb = lead.websiteClassification?.type === 'own';

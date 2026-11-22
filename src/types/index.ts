@@ -53,8 +53,13 @@ export interface ProspectingDrafts {
   generatedAt: string;
 }
 
+/** Solución que se le ofrece a un negocio. */
+export type SolutionId = 'reservasia' | 'tiendly';
+
 export interface BusinessLead {
   id: string;
+  /** Solución elegida para este negocio (si falta, se usa la elección general de la búsqueda). */
+  solutionId?: SolutionId;
   name: string;
   primaryTypeDisplayName?: string;
   types?: string[];
@@ -149,6 +154,11 @@ export const PREDEFINED_NICHES = [
   'lavanderías',
   'tiendas de mascotas',
   'jardines infantiles',
+  'tiendas de barrio',
+  'minimercados',
+  'misceláneas',
+  'papelerías',
+  'droguerías',
 ] as const;
 
 export type PredefinedNiche = typeof PREDEFINED_NICHES[number];

@@ -17,8 +17,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 const dateInput = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
 /** Ventana para agendar la demo: queda en el historial y se puede llevar al calendario o confirmar por WhatsApp. */
-export const ScheduleDemoModal: React.FC<{ lead: BusinessLead; onClose: () => void }> = ({ lead, onClose }) => {
-  const { seller, actions, demoConfirmUrl } = useOutreach();
+export const ScheduleDemoModal: React.FC<{ lead: BusinessLead; onClose: () => void }> = ({ lead: leadProp, onClose }) => {
+  const { seller, actions, demoConfirmUrl, withSolution } = useOutreach();
+  const lead = withSolution(leadProp);
   const tomorrow = new Date(Date.now() + 24 * 3600_000);
   const [date, setDate] = useState(dateInput(tomorrow));
   const [time, setTime] = useState('10:00');

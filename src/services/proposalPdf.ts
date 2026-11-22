@@ -90,7 +90,15 @@ export async function exportProposalPdf(opts: {
     text('Landing page profesional', M + 4, 11, { bold: true, gap: 2 });
     bullets(['Diseño rápido en celular, pensado para aparecer en Google.', 'Ubicación, servicios, horarios y botón directo de WhatsApp.', 'Lista para recibir reservas y consultas.']);
   }
-  if (options.reservas) {
+  const tiendly = lead.solutionId === 'tiendly';
+  if (tiendly) {
+    text('Tiendly: app para la tienda', M + 4, 11, { bold: true, gap: 2 });
+    bullets([
+      'Ventas, inventario, fiados y tareas del negocio desde el celular.',
+      'Asistente de IA que ayuda a tomar decisiones.',
+      'Pensada para tiendas y comercios de barrio.',
+    ]);
+  } else if (options.reservas) {
     text('ReservasIA: asistente de reservas por WhatsApp', M + 4, 11, { bold: true, gap: 2 });
     bullets([
       'Atiende 24/7: muestra horarios reales, agenda y confirma solo.',
@@ -104,8 +112,9 @@ export async function exportProposalPdf(opts: {
   // Inversión
   heading('Inversión');
   const rows: [string, string][] = [];
-  if (options.landing) rows.push(['Landing page (pago único)', settings.priceLanding.trim()]);
-  if (options.reservas) {
+  if (options.landing && !tiendly) rows.push(['Landing page (pago único)', settings.priceLanding.trim()]);
+  if (tiendly) rows.push(['Tiendly', settings.tiendlyOffer.trim()]);
+  else if (options.reservas) {
     rows.push(['ReservasIA: implementación (pago único)', settings.priceReservasSetup.trim()]);
     rows.push(['ReservasIA: mensualidad', settings.priceReservasMonthly.trim()]);
   }
@@ -162,7 +171,7 @@ export async function exportProposalPdf(opts: {
     settings.cardWeb,
   ].filter((v): v is string => Boolean(v));
   contact.forEach((line, i) => text(line, M, i === 0 ? 12 : 10.5, { bold: i === 0, maxWidth: W - 2 * M - 140, gap: 2 }));
-  text(`ReservasIA: ${getReservasIaUrl()}`, M, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 140 });
+  text(tiendly ? (settings.tiendlyUrl.trim() ? `Tiendly: ${settings.tiendlyUrl.trim()}` : '') : `ReservasIA: ${getReservasIaUrl()}`, M, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 140 });
   if (cardUrl) {
     try {
       doc.addImage(await qrDataUrl(cardUrl, 300), 'PNG', W - M - 90, top, 90, 90);

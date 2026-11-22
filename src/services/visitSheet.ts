@@ -117,21 +117,24 @@ export async function exportVisitSheetPdf(opts: {
 
   // 3) Cómo ayudamos
   y = heading('Cómo podemos ayudarte', y);
-  if (web !== 'own' && settings.offerLanding) {
+  if (web !== 'own' && settings.offerLanding && lead.solutionId !== 'tiendly') {
     y = text('Landing page profesional', M + 4, y + 2, 11, { bold: true }) + 1;
     for (const b of ['Rápida en celular y lista para aparecer en Google.', 'Con tu ubicación, servicios y botón directo de WhatsApp.'])
       y = text(`•  ${b}`, M + 10, y + 1, 10) + 1;
     y += 4;
   }
-  y = text('ReservasIA: asistente de reservas por WhatsApp', M + 4, y + 2, 11, { bold: true }) + 1;
-  for (const b of [
-    'Atiende 24/7: muestra horarios reales, agenda y confirma solo.',
-    'Calendario protegido contra dobles reservas.',
-    'Recordatorios automáticos para reducir las ausencias.',
-    'Panel con todo el estado del negocio y código QR para reservar.',
-  ])
+  const tiendly = lead.solutionId === 'tiendly';
+  y = text(tiendly ? 'Tiendly: app para la tienda' : 'ReservasIA: asistente de reservas por WhatsApp', M + 4, y + 2, 11, { bold: true }) + 1;
+  for (const b of tiendly
+    ? ['Ventas, inventario, fiados y tareas desde el celular.', 'Asistente de IA que ayuda a tomar decisiones.', settings.tiendlyOffer.trim()].filter(Boolean)
+    : [
+        'Atiende 24/7: muestra horarios reales, agenda y confirma solo.',
+        'Calendario protegido contra dobles reservas.',
+        'Recordatorios automáticos para reducir las ausencias.',
+        'Panel con todo el estado del negocio y código QR para reservar.',
+      ])
     y = text(`•  ${b}`, M + 10, y + 1, 10) + 1;
-  y = text(SECTOR_LINES[sector], M + 4, y + 6, 10, { color: [71, 85, 105] }) + 10;
+  y = tiendly ? y + 10 : text(SECTOR_LINES[sector], M + 4, y + 6, 10, { color: [71, 85, 105] }) + 10;
 
   // 4) Siguiente paso y contacto
   y = Math.max(y, H - 230);
@@ -148,7 +151,7 @@ export async function exportVisitSheetPdf(opts: {
   ].filter((v): v is string => Boolean(v));
   const contactTop = y;
   for (const [i, line] of contact.entries()) y = text(line, M + 4, y + 2, i === 0 ? 12 : 10.5, { bold: i === 0, maxWidth: W - 2 * M - 150 }) + 1;
-  y = text(`ReservasIA: ${getReservasIaUrl()}`, M + 4, y + 4, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 150 });
+  y = text(tiendly ? (settings.tiendlyUrl.trim() ? `Tiendly: ${settings.tiendlyUrl.trim()}` : '') : `ReservasIA: ${getReservasIaUrl()}`, M + 4, y + 4, 8.5, { color: [100, 116, 139], maxWidth: W - 2 * M - 150 });
 
   if (cardUrl) {
     try {

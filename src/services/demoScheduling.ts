@@ -34,7 +34,8 @@ const toUtcStamp = (d: Date) =>
 
 const endOf = (plan: DemoPlan) => new Date(new Date(plan.startISO).getTime() + plan.minutes * 60_000);
 
-export const demoTitle = (lead: BusinessLead) => `Demo ReservasIA · ${lead.name}`;
+const solutionName = (lead: BusinessLead) => (lead.solutionId === 'tiendly' ? 'Tiendly' : 'ReservasIA');
+export const demoTitle = (lead: BusinessLead) => `Demo ${solutionName(lead)} · ${lead.name}`;
 
 export function demoDetails(lead: BusinessLead, seller: SellerProfile, plan: DemoPlan): string {
   return [
@@ -124,7 +125,7 @@ export function buildDemoConfirmation(lead: BusinessLead, seller: SellerProfile,
   return applyEmojiPolicy([
     '¡Perfecto, quedamos así! 🙌',
     '',
-    `📅 *Demo de ReservasIA para ${lead.name}*`,
+    `📅 *Demo de ${solutionName(lead)} para ${lead.name}*`,
     `🕒 ${formatWhen(plan.startISO)} (${plan.minutes} minutos)`,
     `📍 ${how(plan)}`,
     '',
@@ -141,7 +142,7 @@ export function buildDemoReminder(lead: BusinessLead, seller: SellerProfile, sta
   const today = new Date();
   const sameDay = start.toDateString() === today.toDateString();
   return applyEmojiPolicy([
-    `¡Hola! 👋 Les recuerdo nuestra demo de ReservasIA ${sameDay ? 'de hoy' : 'de mañana'}:`,
+    `¡Hola! 👋 Les recuerdo nuestra demo de ${solutionName(lead)} ${sameDay ? 'de hoy' : 'de mañana'}:`,
     `🕒 ${formatWhen(startISO, false)}`,
     '',
     '¿Seguimos con la hora acordada? Cualquier cambio me avisan por aquí.',

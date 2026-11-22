@@ -6,8 +6,10 @@ import { webSituation } from '../../services/outreachMessage';
 import { hasPrices } from '../../services/proposalPdf';
 
 /** Elige qué incluye la propuesta y genera el PDF con los precios configurados en Ajustes. */
-export const ProposalModal: React.FC<{ lead: BusinessLead; onClose: () => void; onOpenSettings?: () => void }> = ({ lead, onClose, onOpenSettings }) => {
-  const { seller, settings, cardUrl, actions } = useOutreach();
+export const ProposalModal: React.FC<{ lead: BusinessLead; onClose: () => void; onOpenSettings?: () => void }> = ({ lead: leadProp, onClose, onOpenSettings }) => {
+  const { seller, settings, cardUrl, actions, withSolution } = useOutreach();
+  const lead = withSolution(leadProp);
+  const tiendly = lead.solutionId === 'tiendly';
   const web = webSituation(lead);
   const recommended = lead.analysis?.recommendedService;
   const [landing, setLanding] = useState(web !== 'own' || recommended === 'web_nueva');
@@ -15,7 +17,7 @@ export const ProposalModal: React.FC<{ lead: BusinessLead; onClose: () => void; 
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const priced = hasPrices(settings);
+  const priced = tiendly ? Boolean(settings.tiendlyOffer.trim()) : hasPrices(settings);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -24,13 +26,13 @@ export const ProposalModal: React.FC<{ lead: BusinessLead; onClose: () => void; 
   }, [onClose]);
 
   const generate = async () => {
-    if (!landing && !reservas) return setError('Elige al menos un servicio para la propuesta.');
+    if (!tiendly && !landing && !reservas) return setError('Elige al menos un servicio para la propuesta.');
     setBusy(true);
     setError('');
     try {
       const { exportProposalPdf } = await import('../../services/proposalPdf');
       await exportProposalPdf({ lead, seller, settings, cardUrl, options: { landing, reservas, note } });
-      actions.logProposal(lead, [landing && 'Landing page', reservas && 'ReservasIA'].filter(Boolean).join(' + '));
+      actions.logProposal(lead, tiendly ? 'Tiendly' : [landing && 'Landing page', reservas && 'ReservasIA'].filter(Boolean).join(' + '));
       onClose();
     } catch (err) {
       console.warn('No se pudo generar la propuesta:', err);
@@ -75,6 +77,11 @@ export const ProposalModal: React.FC<{ lead: BusinessLead; onClose: () => void; 
           </div>
         )}
 
+        {tiendly ? (
+          <p className="text-xs text-slate-300 rounded-lg border border-slate-800 bg-slate-950 p-3">
+            Propuesta de <strong>Tiendly</strong>: describe la app (ventas, inventario, fiados, tareas y asistente de IA) y usa la condición comercial que escribiste en Ajustes.
+          </p>
+        ) : (
         <fieldset className="space-y-2">
           <legend className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1">Servicios incluidos</legend>
           <label className="flex items-start gap-2 text-sm text-slate-200 cursor-pointer">
@@ -86,6 +93,7 @@ export const ProposalModal: React.FC<{ lead: BusinessLead; onClose: () => void; 
             <span>ReservasIA: asistente de reservas por WhatsApp</span>
           </label>
         </fieldset>
+        )}
 
         <label className="block space-y-1">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Nota para este negocio (opcional)</span>
