@@ -154,6 +154,11 @@ export const PREDEFINED_NICHES = [
   'lavanderías',
   'tiendas de mascotas',
   'jardines infantiles',
+  'tiendas de barrio',
+  'minimercados',
+  'misceláneas',
+  'papelerías',
+  'droguerías',
 ] as const;
 
 export type PredefinedNiche = typeof PREDEFINED_NICHES[number];
