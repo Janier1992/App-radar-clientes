@@ -8,7 +8,7 @@ import {
   getReservasIaUrl,
   webSituation,
 } from './outreachMessage';
-import { applyOutreachSettings } from './outreachSettings';
+import { applyOutreachSettings, getReservasVideoUrl } from './outreachSettings';
 import { composeTiendlyEmail } from './tiendlyMessage';
 
 export interface EmailDraft {
@@ -48,6 +48,7 @@ export function buildEmailDraft(
     '• ReservasIA: un asistente que atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, y envía recordatorios para reducir las ausencias.',
   ].filter(Boolean);
 
+  const video = getReservasVideoUrl();
   let subject: string;
   let lines: string[];
 
@@ -60,11 +61,11 @@ export function buildEmailDraft(
   switch (step) {
     case 'primer_contacto':
       subject = web === 'own' ? `Atención 24/7 por WhatsApp para ${name}` : `Presencia web y reservas automáticas para ${name}`;
-      lines = [greeting, '', `Conocí ${name} en Google Maps${lead.rating && (lead.userRatingCount ?? 0) >= 10 ? ` y me llamó la atención su calificación de ${lead.rating.toFixed(1)} con ${lead.userRatingCount} reseñas` : ''}. ${hook}`, '', 'Les propongo:', ...offer, '', SECTOR_LINES[sector], '', `Pueden ver cómo funciona ReservasIA aquí: ${appUrl}`, '', `¿Les parece si les muestro en 10 minutos cómo quedaría para ${name}? Sin compromiso.`];
+      lines = [greeting, '', `Conocí ${name} en Google Maps${lead.rating && (lead.userRatingCount ?? 0) >= 10 ? ` y me llamó la atención su calificación de ${lead.rating.toFixed(1)} con ${lead.userRatingCount} reseñas` : ''}. ${hook}`, '', 'Les propongo:', ...offer, '', SECTOR_LINES[sector], '', `Pueden ver cómo funciona ReservasIA aquí: ${appUrl}`, ...(video ? ['', `Video de cómo funciona: ${video}`] : []), '', `¿Les parece si les muestro en 10 minutos cómo quedaría para ${name}? Sin compromiso.`];
       break;
     case 'seguimiento_1':
       subject = `Seguimiento: ReservasIA para ${name}`;
-      lines = [greeting, '', `Hace unos días les escribí sobre ${name}. Sé que el día a día no da tregua, así que les resumo: un asistente por WhatsApp que atiende, agenda y confirma citas 24/7${web === 'own' ? '' : ', más una landing page rápida en celular'}.`, '', `Por si se les pasó, aquí pueden ver cómo funciona: ${appUrl}`, '', '¿Alcanzaron a verlo? Si prefieren, se lo explico en una llamada de 10 minutos.'];
+      lines = [greeting, '', `Hace unos días les escribí sobre ${name}. Sé que el día a día no da tregua, así que les resumo: un asistente por WhatsApp que atiende, agenda y confirma citas 24/7${web === 'own' ? '' : ', más una landing page rápida en celular'}.`, '', `Por si se les pasó, aquí pueden ver cómo funciona: ${appUrl}`, ...(video ? ['', `Video de cómo funciona: ${video}`] : []), '', '¿Alcanzaron a verlo? Si prefieren, se lo explico en una llamada de 10 minutos.'];
       break;
     case 'seguimiento_2':
       subject = `Una idea concreta para ${name}`;

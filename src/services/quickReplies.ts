@@ -1,6 +1,6 @@
 import { BusinessLead, SellerProfile } from '../types';
 import { getReservasIaUrl } from './outreachMessage';
-import { applyOutreachSettings } from './outreachSettings';
+import { applyOutreachSettings, getReservasVideoUrl } from './outreachSettings';
 import { tiendlyQuickReply } from './tiendlyMessage';
 
 export type QuickReplyId = 'agendar_demo' | 'precio' | 'consultar' | 'ya_tengo_web' | 'mas_info' | 'no_ahora' | 'no_interesa';
@@ -87,6 +87,7 @@ function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerP
         '',
         'Aquí pueden ver ReservasIA en funcionamiento:',
         appUrl,
+        ...(getReservasVideoUrl() ? ['', 'Y este es un video corto de cómo funciona:', getReservasVideoUrl()] : []),
         '',
         '¿Cuándo les queda bien una llamada de 10 minutos para resolver dudas?',
       ]

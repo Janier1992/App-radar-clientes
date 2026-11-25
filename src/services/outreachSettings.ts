@@ -6,6 +6,7 @@ export interface OutreachSettings {
   demoMinutes: number; // duración de la demo que se propone
   reservasUrl: string; // enlace de ReservasIA que se envía en los mensajes (si queda vacío se usa el oficial)
   tiendlyUrl: string; // enlace de Tiendly que se envía (si queda vacío se usa el oficial)
+  reservasVideoUrl: string; // enlace del video de ReservasIA (si queda vacío se usa la página de video de esta misma app)
   tiendlyVideoUrl: string; // enlace del video de Tiendly (si queda vacío se usa la página de video de esta misma app)
   tiendlyOffer: string; // condición comercial de Tiendly que se menciona en los mensajes (opcional)
   offerLanding: boolean; // ofrecer landing page a negocios sin web propia
@@ -36,6 +37,7 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   demoMinutes: 10,
   reservasUrl: '',
   tiendlyUrl: '',
+  reservasVideoUrl: '',
   tiendlyVideoUrl: '',
   tiendlyOffer: 'Tiendly Barrio: $29.900/mes, con 7 días gratis para probarlo',
   offerLanding: true,
@@ -116,9 +118,12 @@ export function applyOutreachSettings(text: string, options: { signature?: boole
 /** Enlace de Tiendly vigente: el de Ajustes o, si está vacío, el oficial. */
 export const getTiendlyUrl = () => getOutreachSettings().tiendlyUrl.trim() || TIENDLY_APP_URL;
 
-/** Página con el video de Tiendly: la de Ajustes o, si está vacía, la que sirve esta misma app (/?video=tiendly). */
-export const getTiendlyVideoUrl = () => {
-  const custom = getOutreachSettings().tiendlyVideoUrl.trim();
-  if (custom) return custom;
-  return typeof window !== 'undefined' && window.location?.origin?.startsWith('http') ? `${window.location.origin}/?video=tiendly` : '';
-};
+/** Página pública de video de esta misma app (/?video=<solución>), o '' si no corre en un navegador. */
+const ownVideoPage = (id: 'tiendly' | 'reservasia') =>
+  typeof window !== 'undefined' && window.location?.origin?.startsWith('http') ? `${window.location.origin}/?video=${id}` : '';
+
+/** Página con el video de Tiendly: la de Ajustes o, si está vacía, la que sirve esta misma app. */
+export const getTiendlyVideoUrl = () => getOutreachSettings().tiendlyVideoUrl.trim() || ownVideoPage('tiendly');
+
+/** Página con el video de ReservasIA: la de Ajustes o, si está vacía, la que sirve esta misma app. */
+export const getReservasVideoUrl = () => getOutreachSettings().reservasVideoUrl.trim() || ownVideoPage('reservasia');
