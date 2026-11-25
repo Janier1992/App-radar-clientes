@@ -1,5 +1,5 @@
 import { BusinessLead, SellerProfile } from '../types';
-import { applyOutreachSettings, getOutreachSettings, getReservasVideoUrl } from './outreachSettings';
+import { applyOutreachSettings, getOutreachSettings, getReservasVideoUrl, linkBlock } from './outreachSettings';
 import { composeTiendlyMessage } from './tiendlyMessage';
 
 export type OutreachTone = 'cercano' | 'profesional' | 'directo';
@@ -37,12 +37,6 @@ export const RESERVASIA_PDF_PATH = '/docs/ReservasIA-Presentacion-Comercial.pdf'
 export const RESERVASIA_PDF_NAME = 'ReservasIA-Presentacion-Comercial.pdf';
 
 /** Enlace de ReservasIA para los mensajes: el configurado en Ajustes o, si está vacío, el oficial. */
-/** Línea con el video de ReservasIA (va DESPUÉS del enlace de la app: WhatsApp arma la vista previa con el primer enlace). */
-const videoLine = () => {
-  const v = getReservasVideoUrl();
-  return v ? `\n\n🎥 Y si prefieren verlo primero en un video:\n${v}` : '';
-};
-
 export const getReservasIaUrl = () => getOutreachSettings().reservasUrl.trim() || RESERVASIA_APP_URL;
 
 const DEFAULT_SELLER: SellerProfile = {
@@ -161,7 +155,7 @@ function composeOutreachMessage(
   const agent =
     '🤖 *ReservasIA*: un asistente que atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, envía recordatorios (menos ausencias) y evita las dobles reservas.';
   const offer = web === 'own' || !getOutreachSettings().offerLanding ? [agent] : [landing, agent];
-  const pdfLine = `🔗 Conozcan ReservasIA y vean cómo funciona aquí:\n${appUrl}${videoLine()}`;
+  const pdfLine = linkBlock('Conozcan ReservasIA y vean cómo funciona aquí:', 'Vean en un video cómo funciona ReservasIA:', appUrl, getReservasVideoUrl());
 
   if (tone === 'directo') {
     return [
@@ -227,7 +221,7 @@ function buildFollowUpMessage(
     web === 'own'
       ? 'un asistente por WhatsApp que atiende, agenda y confirma citas 24/7, para que no se les pierda ningún cliente.'
       : 'una landing page que carga rápido en el celular y un asistente por WhatsApp que atiende, agenda y confirma citas 24/7.';
-  const pdf = `🔗 Por si se les pasó, aquí pueden ver cómo funciona ReservasIA:\n${appUrl}${videoLine()}`;
+  const pdf = linkBlock('Por si se les pasó, aquí pueden ver cómo funciona ReservasIA:', 'Por si se les pasó, aquí pueden ver cómo funciona ReservasIA:', appUrl, getReservasVideoUrl());
 
   if (step === 'seguimiento_1') {
     if (tone === 'directo') {

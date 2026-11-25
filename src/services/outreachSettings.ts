@@ -1,3 +1,6 @@
+/** Qué enlaces se comparten: el de la aplicación y el del video (`ambos`), solo la aplicación o solo el video. */
+export type ShareLinks = 'ambos' | 'app' | 'video';
+
 /** Ajustes editables de los mensajes (se guardan en el navegador y se aplican a todos los textos que genera la app). */
 export interface OutreachSettings {
   greeting: string; // reemplaza «¡Hola! 👋» al inicio del primer mensaje en tono cercano
@@ -6,6 +9,7 @@ export interface OutreachSettings {
   demoMinutes: number; // duración de la demo que se propone
   reservasUrl: string; // enlace de ReservasIA que se envía en los mensajes (si queda vacío se usa el oficial)
   tiendlyUrl: string; // enlace de Tiendly que se envía (si queda vacío se usa el oficial)
+  shareLinks: ShareLinks; // qué enlaces llevan los mensajes de ReservasIA y Tiendly: la app, el video o ambos
   reservasVideoUrl: string; // enlace del video de ReservasIA (si queda vacío se usa la página de video de esta misma app)
   tiendlyVideoUrl: string; // enlace del video de Tiendly (si queda vacío se usa la página de video de esta misma app)
   tiendlyOffer: string; // condición comercial de Tiendly que se menciona en los mensajes (opcional)
@@ -37,6 +41,7 @@ export const DEFAULT_OUTREACH_SETTINGS: OutreachSettings = {
   demoMinutes: 10,
   reservasUrl: '',
   tiendlyUrl: '',
+  shareLinks: 'ambos',
   reservasVideoUrl: '',
   tiendlyVideoUrl: '',
   tiendlyOffer: 'Tiendly Barrio: $29.900/mes, con 7 días gratis para probarlo',
@@ -127,3 +132,30 @@ export const getTiendlyVideoUrl = () => getOutreachSettings().tiendlyVideoUrl.tr
 
 /** Página con el video de ReservasIA: la de Ajustes o, si está vacía, la que sirve esta misma app. */
 export const getReservasVideoUrl = () => getOutreachSettings().reservasVideoUrl.trim() || ownVideoPage('reservasia');
+
+/** Enlaces que realmente se incluyen según la opción elegida en Ajustes (si falta el del video, se usa el de la app). */
+export function pickLinks(appUrl: string, videoUrl: string): { app: string; video: string } {
+  const mode = getOutreachSettings().shareLinks;
+  if (!videoUrl) return { app: appUrl, video: '' };
+  if (mode === 'app') return { app: appUrl, video: '' };
+  if (mode === 'video') return { app: '', video: videoUrl };
+  return { app: appUrl, video: videoUrl };
+}
+
+/**
+ * Bloque de enlaces para WhatsApp. Con ambos, primero la app (WhatsApp arma la vista previa con el PRIMER enlace) y luego el video.
+ * Devuelve '' si no hay ningún enlace.
+ */
+export function linkBlock(appIntro: string, videoOnlyIntro: string, appUrl: string, videoUrl: string): string {
+  const { app, video } = pickLinks(appUrl, videoUrl);
+  if (app && video) return `🔗 ${appIntro}\n${app}\n\n🎥 Y si prefieren verlo primero en un video:\n${video}`;
+  if (app) return `🔗 ${appIntro}\n${app}`;
+  if (video) return `🎥 ${videoOnlyIntro}\n${video}`;
+  return '';
+}
+
+/** Líneas de enlaces para un correo (texto plano). */
+export function emailLinkLines(appLabel: string, appUrl: string, videoUrl: string): string[] {
+  const { app, video } = pickLinks(appUrl, videoUrl);
+  return [...(app ? ['', `${appLabel} ${app}`] : []), ...(video ? ['', `Video de cómo funciona: ${video}`] : [])];
+}

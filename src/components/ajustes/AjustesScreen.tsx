@@ -130,6 +130,22 @@ const MessageTemplatesCard: React.FC<{
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace de Tiendly que se envía en los mensajes</span>
             <input className={field} value={settings.tiendlyUrl} onChange={(e) => set('tiendlyUrl', e.target.value)} placeholder={TIENDLY_APP_URL} inputMode="url" />
           </label>
+          <div className="rounded-lg border border-slate-800 bg-slate-950/60 p-3 space-y-2" role="radiogroup" aria-label="Enlaces que se envían">
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlaces que se envían (ReservasIA y Tiendly)</p>
+            {([
+              ['ambos', 'La app y el video'],
+              ['app', 'Solo el enlace de la app'],
+              ['video', 'Solo el enlace del video'],
+            ] as const).map(([value, label]) => (
+              <label key={value} className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+                <input type="radio" name="shareLinks" checked={settings.shareLinks === value} onChange={() => set('shareLinks', value)} />
+                {label}
+              </label>
+            ))}
+            <p className="text-[11px] text-slate-500">
+              Con «La app y el video», el enlace de la app va primero para que WhatsApp muestre su vista previa. Con «Solo el video» la vista previa será la de esta aplicación.
+            </p>
+          </div>
           <label className="block space-y-1">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Enlace del video de ReservasIA (opcional)</span>
             <input className={field} value={settings.reservasVideoUrl} onChange={(e) => set('reservasVideoUrl', e.target.value)} placeholder={`${window.location.origin}/?video=reservasia`} inputMode="url" />
