@@ -1,11 +1,33 @@
 import React, { useEffect } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { TIENDLY_APP_URL } from '../../services/outreachSettings';
+import { RESERVASIA_APP_URL } from '../../services/outreachMessage';
 
-/** Página pública (/?video=tiendly): el video de Tiendly y un botón para probar la app. Es la que se comparte en los mensajes. */
-export const TiendlyVideoPage: React.FC = () => {
+const VIDEOS = {
+  tiendly: {
+    name: 'Tiendly',
+    blurb: 'Ventas, inventario, fiados y tareas de tu tienda desde el celular, con un asistente de IA.',
+    file: 'tiendly-demo',
+    poster: 'tiendly-poster',
+    url: TIENDLY_APP_URL,
+    cta: 'Probar Tiendly',
+  },
+  reservasia: {
+    name: 'ReservasIA',
+    blurb: 'Un asistente que atiende por WhatsApp 24/7, agenda y confirma citas y envía recordatorios.',
+    file: 'reservasia-demo',
+    poster: 'reservasia-poster',
+    url: RESERVASIA_APP_URL,
+    cta: 'Conocer ReservasIA',
+  },
+} as const;
+
+
+/** Página pública (/?video=tiendly o /?video=reservasia): el video de la solución y un botón para probar la app. Es la que se comparte en los mensajes. */
+export const TiendlyVideoPage: React.FC<{ solution?: keyof typeof VIDEOS }> = ({ solution = 'tiendly' }) => {
+  const v = VIDEOS[solution];
   useEffect(() => {
-    document.title = 'Tiendly · Así funciona';
+    document.title = `${v.name} · Así funciona`;
     const meta = document.createElement('meta');
     meta.name = 'robots';
     meta.content = 'noindex';
@@ -13,32 +35,32 @@ export const TiendlyVideoPage: React.FC = () => {
     return () => {
       document.head.removeChild(meta);
     };
-  }, []);
+  }, [v.name]);
 
   return (
     <main className="min-h-dvh bg-slate-950 text-slate-100 flex flex-col items-center px-4 py-6 gap-5">
       <header className="text-center space-y-1 max-w-md">
-        <h1 className="text-xl font-bold">Tiendly · Así funciona</h1>
+        <h1 className="text-xl font-bold">{v.name} · Así funciona</h1>
         <p className="text-sm text-slate-400">
-          Ventas, inventario, fiados y tareas de tu tienda desde el celular, con un asistente de IA.
+          {v.blurb}
         </p>
       </header>
       <video
         controls
         playsInline
         preload="metadata"
-        poster="/videos/tiendly-poster.jpg"
+        poster={`/videos/${v.poster}.jpg`}
         className="w-full max-w-sm rounded-2xl border border-slate-800 bg-black"
       >
-        <source src="/videos/tiendly-demo.mp4" type="video/mp4" />
+        <source src={`/videos/${v.file}.mp4`} type="video/mp4" />
         Tu navegador no puede reproducir el video.
       </video>
       <a
-        href={TIENDLY_APP_URL}
+        href={v.url}
         className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-md"
       >
         <ExternalLink className="w-4 h-4" />
-        Probar Tiendly
+        {v.cta}
       </a>
     </main>
   );

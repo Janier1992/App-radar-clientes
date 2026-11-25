@@ -10,9 +10,9 @@ initPwa();
 // Un enlace con ?tarjeta=... abre la tarjeta digital pública en lugar de la aplicación.
 const params = new URLSearchParams(window.location.search);
 const cardParam = params.get('tarjeta');
-// Un enlace con ?video=tiendly abre la página pública con el video de Tiendly.
+// Un enlace con ?video=tiendly o ?video=reservasia abre la página pública con el video de esa solución.
 const videoParam = params.get('video');
 
 createRoot(document.getElementById('root')!).render(
-  cardParam ? <DigitalCardPage encoded={cardParam} /> : videoParam === 'tiendly' ? <TiendlyVideoPage /> : <App />
+  cardParam ? <DigitalCardPage encoded={cardParam} /> : videoParam === 'tiendly' || videoParam === 'reservasia' ? <TiendlyVideoPage solution={videoParam} /> : <App />
 );
