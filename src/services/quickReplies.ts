@@ -1,6 +1,6 @@
 import { BusinessLead, SellerProfile } from '../types';
 import { getReservasIaUrl } from './outreachMessage';
-import { applyOutreachSettings, getReservasVideoUrl } from './outreachSettings';
+import { applyOutreachSettings, getReservasVideoUrl, linkBlock } from './outreachSettings';
 import { tiendlyQuickReply } from './tiendlyMessage';
 
 export type QuickReplyId = 'agendar_demo' | 'precio' | 'consultar' | 'ya_tengo_web' | 'mas_info' | 'no_ahora' | 'no_interesa';
@@ -85,9 +85,7 @@ function composeQuickReply(id: QuickReplyId, lead: BusinessLead, seller: SellerP
         '🤖 *ReservasIA* atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, envía recordatorios y evita las dobles reservas.',
         hasOwnWeb ? '' : '🌐 Y si lo necesitan, una *landing page* rápida en celular con botón directo de WhatsApp.',
         '',
-        'Aquí pueden ver ReservasIA en funcionamiento:',
-        appUrl,
-        ...(getReservasVideoUrl() ? ['', 'Y este es un video corto de cómo funciona:', getReservasVideoUrl()] : []),
+        ...linkBlock('Aquí pueden ver ReservasIA en funcionamiento:', 'Vean en un video cómo funciona ReservasIA:', appUrl, getReservasVideoUrl()).split('\n'),
         '',
         '¿Cuándo les queda bien una llamada de 10 minutos para resolver dudas?',
       ]

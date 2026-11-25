@@ -38,8 +38,8 @@ export const TiendlyVideoPage: React.FC<{ solution?: keyof typeof VIDEOS }> = ({
   }, [v.name]);
 
   return (
-    <main className="min-h-dvh bg-slate-950 text-slate-100 flex flex-col items-center px-4 py-6 gap-5">
-      <header className="text-center space-y-1 max-w-md">
+    <main className="min-h-dvh bg-slate-950 text-slate-100 flex flex-col items-center justify-center px-4 py-5 gap-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+      <header className="text-center space-y-1 max-w-md shrink-0">
         <h1 className="text-xl font-bold">{v.name} · Así funciona</h1>
         <p className="text-sm text-slate-400">
           {v.blurb}
@@ -50,14 +50,14 @@ export const TiendlyVideoPage: React.FC<{ solution?: keyof typeof VIDEOS }> = ({
         playsInline
         preload="metadata"
         poster={`/videos/${v.poster}.jpg`}
-        className="w-full max-w-sm rounded-2xl border border-slate-800 bg-black"
+        className="block mx-auto w-auto max-w-full max-h-[62dvh] rounded-2xl border border-slate-800 bg-black object-contain"
       >
         <source src={`/videos/${v.file}.mp4`} type="video/mp4" />
         Tu navegador no puede reproducir el video.
       </video>
       <a
         href={v.url}
-        className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-md"
+        className="shrink-0 inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold shadow-md"
       >
         <ExternalLink className="w-4 h-4" />
         {v.cta}
