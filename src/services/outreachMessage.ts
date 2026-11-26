@@ -144,30 +144,41 @@ function composeOutreachMessage(
   const rating = hasRating ? `⭐ ${lead.rating!.toFixed(1)} con ${lead.userRatingCount} reseñas en Google` : '';
   const platform = lead.websiteClassification?.platform;
 
-  const webHook =
-    web === 'none'
-      ? 'Vi que todavía no tienen página web propia, y hoy la mayoría de clientes busca en Google y mira el celular antes de llamar.'
-      : web === 'social'
-      ? `Vi que hoy dependen de ${platform || 'sus redes'} para que los encuentren, y ahí es fácil que el cliente se pierda antes de escribirles.`
-      : 'Vi su página web y creo que se puede aprovechar mucho más para convertir visitas en reservas y consultas.';
-
-  const landing = '🌐 *Landing page profesional*: rápida en celular, con su ubicación, servicios y botón directo de WhatsApp.';
-  const agent =
-    '🤖 *ReservasIA*: un asistente que atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, envía recordatorios (menos ausencias) y evita las dobles reservas.';
-  const offer = web === 'own' || !getOutreachSettings().offerLanding ? [agent] : [landing, agent];
+  // El gancho depende de lo que de verdad vimos: reseñas y presencia web. Todo gira alrededor de ReservasIA.
+  const pain =
+    web === 'own'
+      ? 'Tienen web, pero un cliente que escribe fuera de horario, o mientras están atendiendo, rara vez recibe respuesta a tiempo.'
+      : 'Hoy el cliente busca en Google, les escribe por WhatsApp y se va con quien le responde primero.';
+  const benefits = [
+    '✅ *Atiende por WhatsApp 24/7*: responde dudas, muestra horarios reales, agenda y confirma la cita solo.',
+    '✅ *Recordatorios automáticos*: menos ausencias y una agenda más llena.',
+    '✅ *Cero dobles reservas*: el calendario siempre ordenado, sin cruces.',
+    '✅ *Más tiempo para atender y vender*: su equipo se dedica a los clientes, no a contestar el chat.',
+  ];
+  // La landing page queda como última opción, solo para negocios que no tienen web propia.
+  const landingPs =
+    web === 'own' || !getOutreachSettings().offerLanding
+      ? ''
+      : 'Y si por ahora no necesitan un sistema de reservas, también creamos *páginas web profesionales* para que más clientes los encuentren en Google y en redes.';
   const pdfLine = linkBlock('Conozcan ReservasIA y vean cómo funciona aquí:', 'Vean en un video cómo funciona ReservasIA:', appUrl, getReservasVideoUrl());
+  const ps = landingPs ? ['', `P.D. ${landingPs}`] : [];
+  const psFormal = landingPs ? ['', landingPs] : [];
 
   if (tone === 'directo') {
     return [
       `Buen día, le habla ${sender}.`,
       '',
-      `${web === 'own' ? 'Tienen web, pero' : web === 'none' ? 'No tienen web propia y' : 'Hoy dependen de redes y'} ${lead.name} puede estar perdiendo clientes fuera de horario${rating ? ` pese a su ${rating}` : ''}.`,
+      `${lead.name}${rating ? ` tiene ${rating}` : ' tiene clientes que los buscan'}, pero cada mensaje sin responder es una cita o una venta que se va a la competencia.`,
       '',
-      ...offer,
+      '*ReservasIA* digitaliza la atención de su negocio:',
+      ...benefits,
+      '',
+      SECTOR_LINES[sector],
       '',
       pdfLine,
       '',
       `¿Le muestro en 10 minutos cómo quedaría para ${lead.name}? Sin compromiso.`,
+      ...ps,
     ].join('\n');
   }
 
@@ -175,16 +186,17 @@ function composeOutreachMessage(
     return [
       `Buenos días, le saluda ${sender}.`,
       '',
-      `Conocimos ${lead.name}${zone ? ` en ${zone}` : ''}${rating ? `, destacado por su calificación (${rating})` : ''}. ${webHook}`,
+      `Conocimos ${lead.name}${zone ? ` en ${zone}` : ''}${rating ? `, destacado por su calificación (${rating})` : ''}. ${pain}`,
       '',
-      'Le proponemos:',
-      ...offer,
+      'Desarrollamos *ReservasIA*, un asistente que digitaliza la atención al cliente de su negocio para que pueda crecer en servicios y en ventas:',
+      ...benefits,
       '',
       SECTOR_LINES[sector],
       '',
       pdfLine,
       '',
       `Con gusto agendamos una reunión breve para mostrarle cómo se implementaría en ${lead.name}. Quedo atento.`,
+      ...psFormal,
     ].join('\n');
   }
 
@@ -193,16 +205,17 @@ function composeOutreachMessage(
     '',
     `Estuve viendo *${lead.name}*${zone ? ` por ${zone}` : ''} en Google Maps${rating ? ` y me encantó su calificación: ${rating}` : ''}. ¡Se nota que sus clientes los quieren! 👏`,
     '',
-    webHook,
+    `${pain} Cada mensaje sin responder es una cita o una venta que se va. 😬`,
     '',
-    'Les puedo ayudar con:',
-    ...offer,
+    'Por eso creamos *ReservasIA* 🤖, el asistente que digitaliza la atención de su negocio para que atienda más clientes y venda más, sin trabajar más horas:',
+    ...benefits,
     '',
     SECTOR_LINES[sector],
     '',
     pdfLine,
     '',
     `¿Les parece si les muestro en 10 minutos cómo quedaría para *${lead.name}*? Sin compromiso 🙌`,
+    ...ps,
   ].join('\n');
 }
 
@@ -217,10 +230,7 @@ function buildFollowUpMessage(
   const sender = senderLine(seller);
   const web = webSituation(lead);
   const benefit = SECTOR_BENEFITS[detectSector(lead)];
-  const value =
-    web === 'own'
-      ? 'un asistente por WhatsApp que atiende, agenda y confirma citas 24/7, para que no se les pierda ningún cliente.'
-      : 'una landing page que carga rápido en el celular y un asistente por WhatsApp que atiende, agenda y confirma citas 24/7.';
+  const value = 'un asistente por WhatsApp que atiende, agenda y confirma citas 24/7, para que no se les pierda ningún cliente y su negocio venda más.';
   const pdf = linkBlock('Por si se les pasó, aquí pueden ver cómo funciona ReservasIA:', 'Por si se les pasó, aquí pueden ver cómo funciona ReservasIA:', appUrl, getReservasVideoUrl());
 
   if (step === 'seguimiento_1') {

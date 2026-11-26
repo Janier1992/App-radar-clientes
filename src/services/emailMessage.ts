@@ -38,15 +38,17 @@ export function buildEmailDraft(
   const greeting = tone === 'directo' ? `${hi} ${name}:` : `${hi} ${name}:`;
   const close = tone === 'cercano' ? 'Un abrazo,' : tone === 'directo' ? 'Saludos,' : 'Cordialmente,';
   const hook =
-    web === 'none'
-      ? 'Vi que todavía no cuentan con una página web propia, y hoy la mayoría de clientes busca en Google desde el celular antes de llamar.'
-      : web === 'social'
-      ? 'Vi que hoy dependen de sus redes para que los encuentren, y ahí es fácil que el cliente se pierda antes de escribirles.'
-      : 'Vi su página web y creo que se puede aprovechar más para convertir visitas en reservas y consultas.';
+    web === 'own'
+      ? 'Tienen web, pero un cliente que escribe fuera de horario, o mientras están atendiendo, rara vez recibe respuesta a tiempo.'
+      : 'Hoy el cliente busca en Google, escribe por WhatsApp y se va con quien le responde primero.';
   const offer = [
-    web === 'own' ? '' : '• Landing page profesional: rápida en celular, con su ubicación, servicios y botón directo de WhatsApp.',
-    '• ReservasIA: un asistente que atiende por WhatsApp 24/7, muestra horarios reales, agenda y confirma solo, y envía recordatorios para reducir las ausencias.',
-  ].filter(Boolean);
+    '• Atiende por WhatsApp 24/7: responde dudas, muestra horarios reales, agenda y confirma la cita solo.',
+    '• Recordatorios automáticos: menos ausencias y una agenda más llena.',
+    '• Cero dobles reservas: el calendario siempre ordenado.',
+    '• Más tiempo para atender y vender: su equipo se dedica a los clientes, no a contestar el chat.',
+  ];
+  const landingPs =
+    web === 'own' ? [] : ['', 'P.D. Y si por ahora no necesitan un sistema de reservas, también creamos páginas web profesionales para que más clientes los encuentren en Google y en redes.'];
 
   const emailLinks = (label: string) => emailLinkLines(label, appUrl, getReservasVideoUrl());
   let subject: string;
@@ -60,12 +62,12 @@ export function buildEmailDraft(
 
   switch (step) {
     case 'primer_contacto':
-      subject = web === 'own' ? `Atención 24/7 por WhatsApp para ${name}` : `Presencia web y reservas automáticas para ${name}`;
-      lines = [greeting, '', `Conocí ${name} en Google Maps${lead.rating && (lead.userRatingCount ?? 0) >= 10 ? ` y me llamó la atención su calificación de ${lead.rating.toFixed(1)} con ${lead.userRatingCount} reseñas` : ''}. ${hook}`, '', 'Les propongo:', ...offer, '', SECTOR_LINES[sector], ...emailLinks('Pueden ver cómo funciona ReservasIA aquí:'), '', `¿Les parece si les muestro en 10 minutos cómo quedaría para ${name}? Sin compromiso.`];
+      subject = `Digitalice la atención de ${name} y no pierda más clientes`;
+      lines = [greeting, '', `Conocí ${name} en Google Maps${lead.rating && (lead.userRatingCount ?? 0) >= 10 ? ` y me llamó la atención su calificación de ${lead.rating.toFixed(1)} con ${lead.userRatingCount} reseñas` : ''}. ${hook}`, '', 'Desarrollamos ReservasIA, un asistente que digitaliza la atención de su negocio para que atienda más clientes y venda más:', ...offer, '', SECTOR_LINES[sector], ...emailLinks('Pueden ver cómo funciona ReservasIA aquí:'), '', `¿Les parece si les muestro en 10 minutos cómo quedaría para ${name}? Sin compromiso.`, ...landingPs];
       break;
     case 'seguimiento_1':
       subject = `Seguimiento: ReservasIA para ${name}`;
-      lines = [greeting, '', `Hace unos días les escribí sobre ${name}. Sé que el día a día no da tregua, así que les resumo: un asistente por WhatsApp que atiende, agenda y confirma citas 24/7${web === 'own' ? '' : ', más una landing page rápida en celular'}.`, ...emailLinks('Por si se les pasó, aquí pueden ver cómo funciona:'), '', '¿Alcanzaron a verlo? Si prefieren, se lo explico en una llamada de 10 minutos.'];
+      lines = [greeting, '', `Hace unos días les escribí sobre ${name}. Sé que el día a día no da tregua, así que les resumo: un asistente por WhatsApp que atiende, agenda y confirma citas 24/7, para que no se les pierda ningún cliente y su negocio venda más.`, ...emailLinks('Por si se les pasó, aquí pueden ver cómo funciona:'), '', '¿Alcanzaron a verlo? Si prefieren, se lo explico en una llamada de 10 minutos.'];
       break;
     case 'seguimiento_2':
       subject = `Una idea concreta para ${name}`;
